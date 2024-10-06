@@ -60,3 +60,9 @@ class TestWishlist(TestCase):
             date_created=fake_wishlist.date_created,
         )
         self.assertIsNotNone(wishlist)
+        self.assertEqual(wishlist.id, None)
+        self.assertEqual(wishlist.name, fake_wishlist.name)
+        self.assertEqual(wishlist.userid, fake_wishlist.userid)
+        self.assertEqual(wishlist.date_created, fake_wishlist.date_created)
+
+
