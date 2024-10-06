@@ -105,6 +105,7 @@ class Wishlist(db.Model, PersistentBase):
     name = db.Column(db.String(64), nullable=False)
     userid = db.Column(db.String(16), nullable=False)
     date_created = db.Column(db.Date(), nullable=False, default=date.today())
+    items = db.relationship("Item", backref="wishlist", passive_deletes=True)
 
     def __repr__(self):
         return f"<Wishlist {self.name} id=[{self.id}]>"
