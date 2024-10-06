@@ -15,7 +15,7 @@
 ######################################################################
 
 """
-TestYourResourceModel API Service Test Suite
+TestWishlist API Service Test Suite
 """
 
 # pylint: disable=duplicate-code
@@ -25,9 +25,13 @@ from unittest import TestCase
 from wsgi import app
 from service.common import status
 <<<<<<< HEAD
+<<<<<<< HEAD
 from service.models import db, Item, Wishlist
 =======
 from service.models import db, YourResourceModel
+=======
+from service.models import db, Wishlist
+>>>>>>> ff14fee (replaced resource names in test files)
 from .factories import WishlistFactory, ItemFactory
 >>>>>>> 2240900 (added create account endpoint)
 
