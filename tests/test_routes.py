@@ -26,6 +26,7 @@ from wsgi import app
 from service.common import status
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 from service.models import db, Item, Wishlist
 =======
 from service.models import db, YourResourceModel
@@ -34,6 +35,10 @@ from service.models import db, Wishlist
 >>>>>>> ff14fee (replaced resource names in test files)
 from .factories import WishlistFactory, ItemFactory
 >>>>>>> 2240900 (added create account endpoint)
+=======
+from service.models import db, Wishlist
+from .factories import WishlistFactory, ItemFactory
+>>>>>>> ff14fee8c277072e3c002cff742e16ee34a671c2
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql+psycopg://postgres:postgres@localhost:5432/testdb"
