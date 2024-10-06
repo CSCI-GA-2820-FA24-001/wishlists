@@ -63,5 +63,5 @@ class TestWishlist(TestCase):
         self.assertEqual(wishlist.id, None)
         self.assertEqual(wishlist.name, fake_wishlist.name)
         self.assertEqual(wishlist.userid, fake_wishlist.userid)
-        # # issue with matching two date format - AssertionError: '2023-06-18' != datetime.date(2023, 6, 18)
+        # # issue with matching two date format - AssertionError: '2023-06-18' != datetime.date(2023, 6, 18), .isoformat() works for test_tourtes l94 but not here
         # self.assertEqual(wishlist.date_created, fake_wishlist.date_created)

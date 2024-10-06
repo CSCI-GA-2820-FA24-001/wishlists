@@ -90,7 +90,7 @@ class TestWishlistService(TestCase):
         new_wishlist = response.get_json()
         self.assertEqual(new_wishlist["name"], test_wishlist.name)
         self.assertEqual(new_wishlist["userid"], test_wishlist.userid)
-        self.assertEqual(new_wishlist["date_created"], test_wishlist.date_created)
+        self.assertEqual(new_wishlist["date_created"], (test_wishlist.date_created).isoformat())
 
         # # todo: get_account not implemented yet 
         # # Check that the location header was correct
