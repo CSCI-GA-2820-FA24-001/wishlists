@@ -1,10 +1,13 @@
+# cspell:ignore userid postalcode
 """
 Models for YourResourceModel
 
 All of the models are stored in this module
 """
 
+from abc import abstractmethod
 import logging
+from datetime import date
 from flask_sqlalchemy import SQLAlchemy
 
 logger = logging.getLogger("flask.app")
@@ -17,28 +20,30 @@ class DataValidationError(Exception):
     """Used for an data validation errors when deserializing"""
 
 
-class YourResourceModel(db.Model):
-    """
-    Class that represents a YourResourceModel
-    """
+######################################################################
+#  P E R S I S T E N T   B A S E   M O D E L
+######################################################################
+class PersistentBase:
+    """Base class added persistent methods"""
 
-    ##################################################
-    # Table Schema
-    ##################################################
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(63))
-
-    # Todo: Place the rest of your schema here...
-
-    def __repr__(self):
-        return f"<YourResourceModel {self.name} id=[{self.id}]>"
-
-    def create(self):
-        """
-        Creates a YourResourceModel to the database
-        """
-        logger.info("Creating %s", self.name)
+    def __init__(self):
         self.id = None  # pylint: disable=invalid-name
+
+    @abstractmethod
+    def serialize(self) -> dict:
+        """Convert an object into a dictionary"""
+
+    @abstractmethod
+    def deserialize(self, data: dict) -> None:
+        """Convert a dictionary into an object"""
+
+    def create(self) -> None:
+        """
+        Creates a Account to the database
+        """
+        logger.info("Creating %s", self)
+        # id must be none to generate next primary key
+        self.id = None
         try:
             db.session.add(self)
             db.session.commit()
@@ -47,11 +52,13 @@ class YourResourceModel(db.Model):
             logger.error("Error creating record: %s", self)
             raise DataValidationError(e) from e
 
-    def update(self):
+    def update(self) -> None:
         """
-        Updates a YourResourceModel to the database
+        Updates a Account to the database
         """
-        logger.info("Saving %s", self.name)
+        logger.info("Updating %s", self)
+        if not self.id:
+            raise DataValidationError("Update called with empty ID field")
         try:
             db.session.commit()
         except Exception as e:
@@ -59,9 +66,9 @@ class YourResourceModel(db.Model):
             logger.error("Error updating record: %s", self)
             raise DataValidationError(e) from e
 
-    def delete(self):
-        """Removes a YourResourceModel from the data store"""
-        logger.info("Deleting %s", self.name)
+    def delete(self) -> None:
+        """Removes a Account from the data store"""
+        logger.info("Deleting %s", self)
         try:
             db.session.delete(self)
             db.session.commit()
@@ -70,54 +77,147 @@ class YourResourceModel(db.Model):
             logger.error("Error deleting record: %s", self)
             raise DataValidationError(e) from e
 
+    @classmethod
+    def all(cls):
+        """Returns all of the records in the database"""
+        logger.info("Processing all records")
+        # pylint: disable=no-member
+        return cls.query.all()
+
+    @classmethod
+    def find(cls, by_id):
+        """Finds a record by it's ID"""
+        logger.info("Processing lookup for id %s ...", by_id)
+        # pylint: disable=no-member
+        return cls.query.session.get(cls, by_id)
+
+
+######################################################################
+#  W I S H L I S T  M O D E L
+######################################################################
+class Wishlist(db.Model, PersistentBase):
+    """
+    Class that represents an Wishlist
+    """
+
+    # Table Schema
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), nullable=False)
+    userid = db.Column(db.String(16), nullable=False)
+    date_created = db.Column(db.Date(), nullable=False, default=date.today())
+
+    def __repr__(self):
+        return f"<Wishlist {self.name} id=[{self.id}]>"
+
     def serialize(self):
-        """Serializes a YourResourceModel into a dictionary"""
-        return {"id": self.id, "name": self.name}
+        """Converts an Wishlist into a dictionary"""
+        wishlist = {
+            "id": self.id,
+            "name": self.name,
+            "userid": self.userid,
+            "date_created": self.date_created.isoformat(),
+            "items": [],
+        }
+        for item in self.items:
+            wishlist["items"].append(item.serialize())
+        return wishlist
 
     def deserialize(self, data):
         """
-        Deserializes a YourResourceModel from a dictionary
+        Populates an Wishlist from a dictionary
 
         Args:
             data (dict): A dictionary containing the resource data
         """
         try:
             self.name = data["name"]
+            self.userid = data["userid"]
+            self.date_created = date.fromisoformat(data["date_created"])
+            # handle inner list of items
+            item_list = data.get("items")
+            for json_item in item_list:
+                item = Item()
+                item.deserialize(json_item)
+                self.items.append(item)
         except AttributeError as error:
             raise DataValidationError("Invalid attribute: " + error.args[0]) from error
         except KeyError as error:
             raise DataValidationError(
-                "Invalid YourResourceModel: missing " + error.args[0]
+                "Invalid Wishlist: missing " + error.args[0]
             ) from error
         except TypeError as error:
             raise DataValidationError(
-                "Invalid YourResourceModel: body of request contained bad or no data "
+                "Invalid Wishlist: body of request contained bad or no data "
                 + str(error)
             ) from error
+
         return self
-
-    ##################################################
-    # CLASS METHODS
-    ##################################################
-
-    @classmethod
-    def all(cls):
-        """Returns all of the YourResourceModels in the database"""
-        logger.info("Processing all YourResourceModels")
-        return cls.query.all()
-
-    @classmethod
-    def find(cls, by_id):
-        """Finds a YourResourceModel by it's ID"""
-        logger.info("Processing lookup for id %s ...", by_id)
-        return cls.query.session.get(cls, by_id)
 
     @classmethod
     def find_by_name(cls, name):
-        """Returns all YourResourceModels with the given name
+        """Returns all Wishlists with the given name
 
         Args:
-            name (string): the name of the YourResourceModels you want to match
+            name (string): the name of the Wishlists you want to match
         """
         logger.info("Processing name query for %s ...", name)
         return cls.query.filter(cls.name == name)
+
+
+######################################################################
+#  I T E M   M O D E L
+######################################################################
+class Item(db.Model, PersistentBase):
+    """
+    Class that represents an Item
+    """
+
+    # Table Schema
+    id = db.Column(db.Integer, primary_key=True)
+    wishlist_id = db.Column(
+        db.Integer, db.ForeignKey("wishlist.id", ondelete="CASCADE"), nullable=False
+    )
+    name = db.Column(db.String(64))
+    description = db.Column(db.String(64))
+    price = db.Column(db.Numeric(precision=10, scale=2), nullable=False)
+
+    def __repr__(self):
+        return f"<Item {self.name} id=[{self.id}] wishlist[{self.wishlist_id}]>"
+
+    def __str__(self):
+        return f"{self.id} - {self.name}"
+
+    def serialize(self) -> dict:
+        """Converts an Item into a dictionary"""
+        return {
+            "id": self.id,
+            "wishlist_id": self.wishlist_id,
+            "name": self.name,
+            "description": self.description,
+            "price": self.price,
+        }
+
+    def deserialize(self, data: dict) -> None:
+        """
+        Populates an Item from a dictionary
+
+        Args:
+            data (dict): A dictionary containing the resource data
+        """
+        try:
+            self.wishlist_id = data["wishlist_id"]
+            self.name = data["name"]
+            self.description = data["description"]
+            self.price = data["price"]
+        except AttributeError as error:
+            raise DataValidationError("Invalid attribute: " + error.args[0]) from error
+        except KeyError as error:
+            raise DataValidationError(
+                "Invalid Item: missing " + error.args[0]
+            ) from error
+        except TypeError as error:
+            raise DataValidationError(
+                "Invalid Item: body of request contained bad or no data " + str(error)
+            ) from error
+
+        return self

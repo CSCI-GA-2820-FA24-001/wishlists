@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ######################################################################
-
+# cspell:ignore userid postalcode
 """
 YourResourceModel Service
 
@@ -23,7 +23,7 @@ and Delete YourResourceModel
 
 from flask import jsonify, request, url_for, abort
 from flask import current_app as app  # Import Flask application
-from service.models import YourResourceModel
+from service.models import Item, Wishlist
 from service.common import status  # HTTP Status Codes
 
 
