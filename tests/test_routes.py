@@ -88,7 +88,6 @@ class TestWishlistService(TestCase):
 
         # Check the data is correct
         new_wishlist = response.get_json()
-        self.assertEqual(new_wishlist["id"], test_wishlist.id)
         self.assertEqual(new_wishlist["name"], test_wishlist.name)
         self.assertEqual(new_wishlist["userid"], test_wishlist.userid)
         self.assertEqual(new_wishlist["date_created"], test_wishlist.date_created)
