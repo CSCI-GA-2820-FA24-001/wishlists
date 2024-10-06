@@ -77,3 +77,14 @@ class TestYourResourceModel(TestCase):
         self.assertEqual(data.name, resource.name)
 
     # Todo: Add your test cases here...
+
+    def test_create_wishlist(self):
+        """It should create a wishlist"""
+        # Todo: Remove this test case example
+        resource = YourResourceModelFactory()
+        resource.create()
+        self.assertIsNotNone(resource.id)
+        found = YourResourceModel.all()
+        self.assertEqual(len(found), 1)
+        data = YourResourceModel.find(resource.id)
+        self.assertEqual(data.name, resource.name)
