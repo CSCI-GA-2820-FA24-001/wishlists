@@ -101,3 +101,15 @@ class TestWishlistService(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), 10)
+
+    def test_get_wishlists_by_name(self):
+        """Test the ability to GET wishlists by names"""
+        wishlists = self._create_wishlists(3)
+        # test for all three created wishlists
+        for wishlist in wishlists:
+            resp = self.client.get(BASE_URL, query_string=f"name={wishlist.name}")
+            self.assertEqual(resp.status_code, status.HTTP_200_OK)
+            data = resp.get_json()
+            self.assertGreater(len(data), 0)
+            for returned_wishlist in data:
+                self.assertEqual(returned_wishlist["name"], wishlist.name)
