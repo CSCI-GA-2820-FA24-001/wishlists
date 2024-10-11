@@ -1,30 +1,63 @@
-# NYU DevOps Project Template
+# NYU DevOps Project Wishlist Service
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python](https://img.shields.io/badge/Language-Python-blue.svg)](https://python.org/)
 
-This is a skeleton you can use to start your projects
 
 ## Overview
 
-This project template contains starter code for your class project. The `/service` folder contains your `models.py` file for your model and a `routes.py` file for your service. The `/tests` folder has test case starter code for testing the model and the service separately. All you need to do is add your functionality. You can use the [lab-flask-tdd](https://github.com/nyu-devops/lab-flask-tdd) for code examples to copy from.
+This repository contains code for Wishlist Service for an e-commerce website. 
 
-## Automatic Setup
+The `/service` folder contains `models.py` and `routes.py` file for our Wishlist model and service. 
+The `/tests` folder contains test case for testing the model and the service separately. 
 
-The best way to use this repo is to start your own repo using it as a git template. To do this just press the green **Use this template** button in GitHub and this will become the source for your repository.
+## Setup Development Environment
 
-## Manual Setup
+This repository uses Docker to create a fully isolated and reproducible development environment. We rely on the `.devcontainer` folder's configuration for integration with Docker containers in Visual Studio Code or other development tools that support devcontainer setups.
 
-You can also clone this repository and then copy and paste the starter code into your project repo folder on your local computer. Be careful not to copy over your own `README.md` file so be selective in what you copy.
+Ensure you have the following softwares isntalled before starting:
+- [Docker Desktop](https://www.docker.com/products/docker-desktop)
+- [Visual Studio Code](https://code.visualstudio.com)
+- [Remote Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension from the Visual Studio Marketplace
 
-There are 4 hidden files that you will need to copy manually if you use the Mac Finder or Windows Explorer to copy files from this folder into your repo folder.
+### Steps
+1. Clone the repository using http (or ssh) and open repository in VSCode:
+    ```
+    git clone https://github.com/CSCI-GA-2820-FA24-001/wishlists.git
+    cd your-repo
+    code .
+    ```
+2. If you are using VS Code with the Dev Containers extension installed, you should see a prompt that asks you to reopen the project in a dev container. Click "Reopen in Container."
 
-These should be copied using a bash shell as follows:
+    Alternatively, you can open the Command Palette (Ctrl + Shift + P or Cmd + Shift + P) and search for Remote-Containers: Reopen in Container.
 
-```bash
-    cp .gitignore  ../<your_repo_folder>/
-    cp .flaskenv ../<your_repo_folder>/
-    cp .gitattributes ../<your_repo_folder>/
+After the container is up and running, you can start working on the code within the container. All required tools and dependencies should already be set up for you.
+## Information About this Repo
+These are the RESTful routes for wishlists and items
+
+```
+Methods Rule                        Endpoints
+------  --------------------------  -----------------------------------------------------
+GET      /                           <- Return some json about service
+
+GET      /wishlists                  <- List all wishlists
+POST     /wishlists                  <- Create a new wishlist
+GET      /wishlists/{id}             <- Read a wishlist
+PUT      /wishlists/{id}             <- Update a wishlist
+DELETE   /wishlists/{id}             <- Delete a wishlist
+
+GET      /wishlists/{id}/items       <- List all items in a wishlist
+POST     /wishlists/{id}/items       <- Create a new item in a wishlist
+GET      /wishlists/{id}/items/{id}  <- Read an item from a wishlist
+PUT      /wishlists/{id}/items/{id}  <- Update an item in a wishlist
+DELETE   /wishlists/{id}/items/{id}  <- Delete an item from a wishlist
+```
+
+## Running the Tests
+Run the unit tests using pytest
+
+```
+make test
 ```
 
 ## Contents
