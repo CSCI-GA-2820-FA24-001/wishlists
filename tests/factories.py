@@ -50,4 +50,4 @@ class ItemFactory(Factory):
     name = FuzzyChoice(choices=["phone", "computer", "watch"])
     description = "description"
     price = 100.00
-    # wishlist = SubFactory(WishlistFactory)  # comment this for now as I am still working on this
+    wishlist = SubFactory(WishlistFactory)

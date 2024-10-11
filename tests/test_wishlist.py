@@ -8,8 +8,8 @@ import os
 from unittest import TestCase
 from wsgi import app
 
-from service.models import Wishlist, Item, db
-from tests.factories import WishlistFactory
+from service.models import Wishlist, Item, db, DataValidationError
+from tests.factories import WishlistFactory, ItemFactory
 
 
 DATABASE_URI = os.getenv(
@@ -65,3 +65,35 @@ class TestWishlist(TestCase):
         self.assertEqual(wishlist.userid, fake_wishlist.userid)
         # # issue with matching two date format - AssertionError: '2023-06-18' != datetime.date(2023, 6, 18), .isoformat() works for test_tourtes l94 but not here
         # self.assertEqual(wishlist.date_created, fake_wishlist.date_created)
+
+    def test_deserialize_an_wishlist(self):
+        """It should Deserialize an wishlist"""
+        wishlist = WishlistFactory()
+        wishlist.items.append(ItemFactory())
+        wishlist.create()
+        serial_wishlist = wishlist.serialize()
+        new_wishlist = Wishlist()
+        new_wishlist.deserialize(serial_wishlist)
+        self.assertEqual(new_wishlist.name, wishlist.name)
+        self.assertEqual(new_wishlist.userid, wishlist.userid)
+        self.assertEqual(new_wishlist.date_created, wishlist.date_created)
+
+    def test_deserialize_with_key_error(self):
+        """It should not Deserialize an wishlist with a KeyError"""
+        wishlist = Wishlist()
+        self.assertRaises(DataValidationError, wishlist.deserialize, {})
+
+    def test_deserialize_with_type_error(self):
+        """It should not Deserialize an wishlist with a TypeError"""
+        wishlist = Wishlist()
+        self.assertRaises(DataValidationError, wishlist.deserialize, [])
+
+    def test_deserialize_item_key_error(self):
+        """It should not Deserialize an item with a KeyError"""
+        item = Item()
+        self.assertRaises(DataValidationError, item.deserialize, {})
+
+    def test_deserialize_item_type_error(self):
+        """It should not Deserialize an item with a TypeError"""
+        item = Item()
+        self.assertRaises(DataValidationError, item.deserialize, [])
