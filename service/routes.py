@@ -76,6 +76,36 @@ def create_wishlists():
     return jsonify(wishlist.serialize()), status.HTTP_201_CREATED, {"Location": location_url}
 
 
+######################################################################
+# UPDATE AN EXISTING ACCOUNT
+######################################################################
+@app.route("/wishlists/<int:wishlist_id>", methods=["PUT"])
+def update_wishlists(wishlist_id):
+    """
+    Update an Account
+
+    This endpoint will update an Account based the body that is posted
+    """
+    app.logger.info("Request to update wishlist with id: %s", wishlist_id)
+    check_content_type("application/json")
+
+    # See if the wishlist exists and abort if it doesn't
+    wishlist = Wishlist.find(wishlist_id)
+    if not wishlist:
+        abort(
+            status.HTTP_404_NOT_FOUND, f"Account with id '{wishlist_id}' was not found."
+        )
+
+    # Update from the json in the body of the request
+    wishlist.deserialize(request.get_json())
+    wishlist.id = wishlist_id
+    wishlist.update()
+    app.logger.info("Wishlist with ID: %d updated.", wishlist.id)
+
+    return jsonify(wishlist.serialize()), status.HTTP_200_OK
+
+
+
 
 
 
