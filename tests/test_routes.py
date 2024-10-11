@@ -15,7 +15,7 @@
 ######################################################################
 
 """
-TestYourResourceModel API Service Test Suite
+TestWishlist API Service Test Suite
 """
 
 # pylint: disable=duplicate-code
@@ -25,14 +25,12 @@ from unittest import TestCase
 from wsgi import app
 from service.common import status
 from service.models import db, Item, Wishlist
-from tests.factories import WishlistFactory, ItemFactory
+from .factories import WishlistFactory, ItemFactory
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql+psycopg://postgres:postgres@localhost:5432/testdb"
 )
-
 BASE_URL = "/wishlists"
-
 
 ######################################################################
 #  T E S T   C A S E S
@@ -94,6 +92,33 @@ class TestWishlistService(TestCase):
             wishlists.append(wishlist)
         return wishlists
 
+    def test_create_wishlist(self):
+        """It should Create a new Wishlist"""
+        test_wishlist = WishlistFactory()
+        logging.debug("Test Wishlist: %s", test_wishlist.serialize())
+        response = self.client.post(BASE_URL, json=test_wishlist.serialize())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # Make sure location header is set
+        location = response.headers.get("Location", None)
+        self.assertIsNotNone(location)
+
+        # Check the data is correct
+        new_wishlist = response.get_json()
+        self.assertEqual(new_wishlist["name"], test_wishlist.name)
+        self.assertEqual(new_wishlist["userid"], test_wishlist.userid)
+        self.assertEqual(new_wishlist["date_created"], (test_wishlist.date_created).isoformat())
+
+        # # todo: get_account not implemented yet 
+        # # Check that the location header was correct
+        # response = self.client.get(location)
+        # self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # new_wishlist = response.get_json()
+        # self.assertEqual(new_wishlist["id"], test_wishlist.id)
+        # self.assertEqual(new_wishlist["name"], test_wishlist.name)
+        # self.assertEqual(new_wishlist["userid"], test_wishlist.userid)
+        # self.assertEqual(new_wishlist["date_created"], test_wishlist.date_created)
+
     def test_get_all_wishlists(self):
         """"Test the ability to GET all wishlists"""
         self._create_wishlists(10)
@@ -120,3 +145,4 @@ class TestWishlistService(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), 0)
+    
