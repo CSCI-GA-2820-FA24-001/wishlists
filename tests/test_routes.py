@@ -113,3 +113,10 @@ class TestWishlistService(TestCase):
             self.assertGreater(len(data), 0)
             for returned_wishlist in data:
                 self.assertEqual(returned_wishlist["name"], wishlist.name)
+
+    def test_get_empty_wishlist(self):
+        """Test the behavior with empty database"""
+        resp = self.client.get(BASE_URL)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), 0)
