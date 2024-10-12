@@ -66,6 +66,19 @@ class TestWishlist(TestCase):
         # # issue with matching two date format - AssertionError: '2023-06-18' != datetime.date(2023, 6, 18), .isoformat() works for test_tourtes l94 but not here
         # self.assertEqual(wishlist.date_created, fake_wishlist.date_created)
 
+    def test_read_wishlist(self):
+        """It should Read an wishlist"""
+        wishlist = WishlistFactory()
+        wishlist.create()
+
+        # Read it back
+        found_wishlist = Wishlist.find(wishlist.id)
+        self.assertEqual(found_wishlist.id, wishlist.id)
+        self.assertEqual(found_wishlist.name, wishlist.name)
+        self.assertEqual(found_wishlist.userid, wishlist.userid)
+        self.assertEqual(found_wishlist.date_created, wishlist.date_created)
+        self.assertEqual(found_wishlist.items, [])
+
     def test_deserialize_an_wishlist(self):
         """It should Deserialize an wishlist"""
         wishlist = WishlistFactory()
