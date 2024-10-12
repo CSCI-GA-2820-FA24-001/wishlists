@@ -82,7 +82,7 @@ def create_wishlists():
 
 
 ######################################################################
-# RETRIEVE AN ACCOUNT
+# RETRIEVE A WISHLIST
 ######################################################################
 @app.route("/wishlists/<int:wishlist_id>", methods=["GET"])
 def get_wishlists(wishlist_id):
