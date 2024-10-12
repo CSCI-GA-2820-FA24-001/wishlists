@@ -45,6 +45,7 @@ def index():
 
 # Todo: Place your REST API code here ...
 
+
 ######################################################################
 # CREATE A NEW WISHLIST
 ######################################################################
@@ -68,13 +69,39 @@ def create_wishlists():
     app.logger.info("Wishlist with new id [%s] saved!", wishlist.id)
 
     # Return the location of the new Wishlist
-    
+
     # # todo: unable to get_wishlist as not implemented yet
     # location_url = url_for("get_wishlists", wishlist_id=wishlist.id, _external=True)
     location_url = "unknown"
 
-    return jsonify(wishlist.serialize()), status.HTTP_201_CREATED, {"Location": location_url}
+    return (
+        jsonify(wishlist.serialize()),
+        status.HTTP_201_CREATED,
+        {"Location": location_url},
+    )
 
+
+######################################################################
+# RETRIEVE A WISHLIST
+######################################################################
+@app.route("/wishlists/<int:wishlist_id>", methods=["GET"])
+def get_wishlists(wishlist_id):
+    """
+    Retrieve a single Wishlist
+
+    This endpoint will return an Wishlist based on it's id
+    """
+    app.logger.info("Request for Wishlist with id: %s", wishlist_id)
+
+    # See if the wishlist exists and abort if it doesn't
+    wishlist = Wishlist.find(wishlist_id)
+    if not wishlist:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Wishlist with id '{wishlist_id}' could not be found.",
+        )
+
+    return jsonify(wishlist.serialize()), status.HTTP_200_OK
 
 ######################################################################
 # LIST ALL WISHLISTS
@@ -119,4 +146,3 @@ def check_content_type(content_type) -> None:
         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
         f"Content-Type must be {content_type}",
     )
-

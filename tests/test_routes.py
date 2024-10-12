@@ -65,7 +65,27 @@ class TestWishlistService(TestCase):
         db.session.remove()
 
     ######################################################################
-    #  P L A C E   T E S T   C A S E S   H E R E
+    #  H E L P E R   M E T H O D S
+    ######################################################################
+
+    def _create_wishlists(self, count):
+        """Factory method to create wishlists in bulk"""
+        wishlists = []
+        for _ in range(count):
+            wishlist = WishlistFactory()
+            resp = self.client.post(BASE_URL, json=wishlist.serialize())
+            self.assertEqual(
+                resp.status_code,
+                status.HTTP_201_CREATED,
+                "Could not create test Wishlist",
+            )
+            new_wishlist = resp.get_json()
+            wishlist.id = new_wishlist["id"]
+            wishlists.append(wishlist)
+        return wishlists
+    
+    ######################################################################
+    #  W I S H L I S T   T E S T   C A S E S
     ######################################################################
 
     def test_index(self):
@@ -74,6 +94,21 @@ class TestWishlistService(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
     # Todo: Add your test cases here...
+    def test_get_wishlist(self):
+        """It should Read a single Wishlist"""
+        # get the id of an wishlist
+        wishlist = self._create_wishlists(1)[0]
+        resp = self.client.get(
+            f"{BASE_URL}/{wishlist.id}", content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(data["name"], wishlist.name)
+
+    def test_get_wishlist_not_found(self):
+        """It should not Read an Wishlist that is not found"""
+        resp = self.client.get(f"{BASE_URL}/0")
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def _create_wishlists(self, count):
         """Factory method for creating wishlist in bulk"""
@@ -109,7 +144,7 @@ class TestWishlistService(TestCase):
         self.assertEqual(new_wishlist["userid"], test_wishlist.userid)
         self.assertEqual(new_wishlist["date_created"], (test_wishlist.date_created).isoformat())
 
-        # # todo: get_account not implemented yet 
+        # # todo: get_wishlist not implemented yet 
         # # Check that the location header was correct
         # response = self.client.get(location)
         # self.assertEqual(response.status_code, status.HTTP_200_OK)
