@@ -76,10 +76,22 @@ def create_wishlists():
     return jsonify(wishlist.serialize()), status.HTTP_201_CREATED, {"Location": location_url}
 
 
-
-
-
-
+######################################################################
+# LIST ALL WISHLISTS
+######################################################################
+@app.route("/wishlists", methods=["GET"])
+def list_wishlists():
+    """Returns all wishlists, if GET request contains name, return wishlist by name"""
+    wishlists = []
+    name = request.args.get("name")
+    if name:
+        app.logger.info("Request for listing specific Wishlists")
+        wishlists = Wishlist.find_by_name(name)
+    else:
+        app.logger.info("Request for listing all Wishlists")
+        wishlists = Wishlist.all()
+    results = [wishlist.serialize() for wishlist in wishlists]
+    return jsonify(results), status.HTTP_200_OK
 
 
 ######################################################################
@@ -107,3 +119,4 @@ def check_content_type(content_type) -> None:
         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
         f"Content-Type must be {content_type}",
     )
+
