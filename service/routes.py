@@ -55,30 +55,19 @@ def create_wishlists():
     Create a Wishlist
     This endpoint will create a Wishlist based the data in the body that is posted
     """
-    app.logger.info("Request to Create a Wishlist...")
+    app.logger.info("Request to create an Wishlist")
     check_content_type("application/json")
 
+    # Create the wishlist
     wishlist = Wishlist()
-    # Get the data from the request and deserialize it
-    data = request.get_json()
-    app.logger.info("Processing: %s", data)
-    wishlist.deserialize(data)
-
-    # Save the new Wishlist to the database
+    wishlist.deserialize(request.get_json())
     wishlist.create()
-    app.logger.info("Wishlist with new id [%s] saved!", wishlist.id)
 
-    # Return the location of the new Wishlist
+    # Create a message to return
+    message = wishlist.serialize()
+    location_url = url_for("get_wishlists", wishlist_id=wishlist.id, _external=True)
 
-    # # todo: unable to get_wishlist as not implemented yet
-    # location_url = url_for("get_wishlists", wishlist_id=wishlist.id, _external=True)
-    location_url = "unknown"
-
-    return (
-        jsonify(wishlist.serialize()),
-        status.HTTP_201_CREATED,
-        {"Location": location_url},
-    )
+    return jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
 
 
 ######################################################################
@@ -128,9 +117,9 @@ def list_wishlists():
 @app.route("/wishlists/<int:wishlist_id>", methods=["PUT"])
 def update_wishlists(wishlist_id):
     """
-    Update an Account
+    Update an Wishlist
 
-    This endpoint will update an Account based the body that is posted
+    This endpoint will update an Wishlist based the body that is posted
     """
     app.logger.info("Request to update wishlist with id: %s", wishlist_id)
     check_content_type("application/json")
@@ -139,7 +128,7 @@ def update_wishlists(wishlist_id):
     wishlist = Wishlist.find(wishlist_id)
     if not wishlist:
         abort(
-            status.HTTP_404_NOT_FOUND, f"Account with id '{wishlist_id}' was not found."
+            status.HTTP_404_NOT_FOUND, f"Wishlist with id '{wishlist_id}' was not found."
         )
 
     # Update from the json in the body of the request

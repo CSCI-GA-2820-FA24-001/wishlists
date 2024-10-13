@@ -111,28 +111,14 @@ class TestWishlistService(TestCase):
         resp = self.client.get(f"{BASE_URL}/0")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
-    def _create_wishlists(self, count):
-        """Factory method for creating wishlist in bulk"""
-        wishlists = []
-        for _ in range(count):
-            wishlist = WishlistFactory()
-            # need create end point!
-            resp = self.client.post(BASE_URL, json=wishlist.serialize())
-            self.assertEqual(
-                resp.status_code,
-                status.HTTP_201_CREATED,
-                "Could not create test Wishlist",
-            )
-            new_wishlist = resp.get_json()
-            wishlist.id = new_wishlist["id"]
-            wishlists.append(wishlist)
-        return wishlists
-
     def test_create_wishlist(self):
         """It should Create a new Wishlist"""
         test_wishlist = WishlistFactory()
         logging.debug("Test Wishlist: %s", test_wishlist.serialize())
-        response = self.client.post(BASE_URL, json=test_wishlist.serialize())
+
+        response = self.client.post(
+            BASE_URL, json=test_wishlist.serialize(), content_type="application/json"
+        )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # Make sure location header is set
@@ -141,27 +127,20 @@ class TestWishlistService(TestCase):
 
         # Check the data is correct
         new_wishlist = response.get_json()
-        self.assertEqual(new_wishlist["name"], test_wishlist.name)
-        self.assertEqual(new_wishlist["userid"], test_wishlist.userid)
+        self.assertEqual(new_wishlist["name"], test_wishlist.name, "Name does not match")
+        self.assertEqual(new_wishlist["userid"], test_wishlist.userid, "User ID does not match")
         self.assertEqual(
-            new_wishlist["date_created"], (test_wishlist.date_created).isoformat()
+            new_wishlist["date_created"], (test_wishlist.date_created).isoformat(), "Date Created does not match"
         )
 
-<<<<<<< HEAD
-        # # todo: get_wishlist not implemented yet
-=======
-        # # todo: get_wishlist not implemented yet 
->>>>>>> master
-        # # Check that the location header was correct
-        # response = self.client.get(location)
-        # self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # new_wishlist = response.get_json()
-        # self.assertEqual(new_wishlist["id"], test_wishlist.id)
-        # self.assertEqual(new_wishlist["name"], test_wishlist.name)
-        # self.assertEqual(new_wishlist["userid"], test_wishlist.userid)
-        # self.assertEqual(new_wishlist["date_created"], test_wishlist.date_created)
+        # Check that the location header was correct
+        response = self.client.get(location, content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        new_wishlist = response.get_json()
+        self.assertEqual(new_wishlist["name"], test_wishlist.name, "Name does not match")
+        self.assertEqual(new_wishlist["userid"], test_wishlist.userid, "User ID does not match")
+        self.assertEqual(new_wishlist["date_created"], str(test_wishlist.date_created), "Date Created does not match")
 
-<<<<<<< HEAD
     def test_update_wishlist(self):
         """It should Update an existing Wishlist"""
         # create an Wishlist to update
@@ -177,7 +156,7 @@ class TestWishlistService(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         updated_wishlist = resp.get_json()
         self.assertEqual(updated_wishlist["name"], "new new new Name")
-=======
+
     def test_get_all_wishlists(self):
         """"Test the ability to GET all wishlists"""
         self._create_wishlists(10)
@@ -205,4 +184,3 @@ class TestWishlistService(TestCase):
         data = resp.get_json()
         self.assertEqual(len(data), 0)
     
->>>>>>> master
