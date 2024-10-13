@@ -123,7 +123,7 @@ def list_wishlists():
 
 
 ######################################################################
-# DELETE AN ACCOUNT
+# DELETE A WISHLIST
 ######################################################################
 @app.route("/wishlists/<int:wishlist_id>", methods=["DELETE"])
 def delete_wishlists(wishlist_id):
