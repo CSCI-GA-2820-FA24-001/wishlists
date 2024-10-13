@@ -45,6 +45,7 @@ def index():
 
 # Todo: Place your REST API code here ...
 
+
 ######################################################################
 # CREATE A NEW WISHLIST
 ######################################################################
@@ -68,12 +69,57 @@ def create_wishlists():
     app.logger.info("Wishlist with new id [%s] saved!", wishlist.id)
 
     # Return the location of the new Wishlist
-    
+
     # # todo: unable to get_wishlist as not implemented yet
     # location_url = url_for("get_wishlists", wishlist_id=wishlist.id, _external=True)
     location_url = "unknown"
 
-    return jsonify(wishlist.serialize()), status.HTTP_201_CREATED, {"Location": location_url}
+    return (
+        jsonify(wishlist.serialize()),
+        status.HTTP_201_CREATED,
+        {"Location": location_url},
+    )
+
+
+######################################################################
+# RETRIEVE A WISHLIST
+######################################################################
+@app.route("/wishlists/<int:wishlist_id>", methods=["GET"])
+def get_wishlists(wishlist_id):
+    """
+    Retrieve a single Wishlist
+
+    This endpoint will return an Wishlist based on it's id
+    """
+    app.logger.info("Request for Wishlist with id: %s", wishlist_id)
+
+    # See if the wishlist exists and abort if it doesn't
+    wishlist = Wishlist.find(wishlist_id)
+    if not wishlist:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Wishlist with id '{wishlist_id}' could not be found.",
+        )
+
+    return jsonify(wishlist.serialize()), status.HTTP_200_OK
+
+
+######################################################################
+# LIST ALL WISHLISTS
+######################################################################
+@app.route("/wishlists", methods=["GET"])
+def list_wishlists():
+    """Returns all wishlists, if GET request contains name, return wishlist by name"""
+    wishlists = []
+    name = request.args.get("name")
+    if name:
+        app.logger.info("Request for listing specific Wishlists")
+        wishlists = Wishlist.find_by_name(name)
+    else:
+        app.logger.info("Request for listing all Wishlists")
+        wishlists = Wishlist.all()
+    results = [wishlist.serialize() for wishlist in wishlists]
+    return jsonify(results), status.HTTP_200_OK
 
 
 ######################################################################
@@ -103,13 +149,6 @@ def update_wishlists(wishlist_id):
     app.logger.info("Wishlist with ID: %d updated.", wishlist.id)
 
     return jsonify(wishlist.serialize()), status.HTTP_200_OK
-
-
-
-
-
-
-
 
 
 ######################################################################
