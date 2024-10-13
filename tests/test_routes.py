@@ -110,23 +110,6 @@ class TestWishlistService(TestCase):
         resp = self.client.get(f"{BASE_URL}/0")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
-    def _create_wishlists(self, count):
-        """Factory method for creating wishlist in bulk"""
-        wishlists = []
-        for _ in range(count):
-            wishlist = WishlistFactory()
-            # need create end point!
-            resp = self.client.post(BASE_URL, json=wishlist.serialize())
-            self.assertEqual(
-                resp.status_code,
-                status.HTTP_201_CREATED,
-                "Could not create test Wishlist",
-            )
-            new_wishlist = resp.get_json()
-            wishlist.id = new_wishlist["id"]
-            wishlists.append(wishlist)
-        return wishlists
-
     def test_create_wishlist(self):
         """It should Create a new Wishlist"""
         test_wishlist = WishlistFactory()
