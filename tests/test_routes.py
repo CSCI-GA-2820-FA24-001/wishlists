@@ -158,9 +158,22 @@ class TestWishlistService(TestCase):
                 self.assertEqual(returned_wishlist["name"], wishlist.name)
 
     def test_get_empty_wishlist(self):
-        """Test the behavior with empty database"""
+        """Test the behavior of GET with empty database"""
         resp = self.client.get(BASE_URL)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), 0)
-    
+
+    def test_delete_wishlist(self):
+        """Test to delete a wishlist"""
+        wishlist = self._create_wishlists(1)[0]
+        resp = self.client.delete(f"{BASE_URL}/{wishlist.id}")
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        # Verify deletion
+        resp = self.client.get(f"{BASE_URL}/{wishlist.id}")
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_wishlist_not_found(self):
+        """Test the behavior of DELETE with wishlist not found"""
+        resp = self.client.delete(f"{BASE_URL}/0")
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
