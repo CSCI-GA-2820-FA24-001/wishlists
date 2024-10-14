@@ -63,7 +63,8 @@ class TestWishlist(TestCase):
         self.assertEqual(wishlist.id, None)
         self.assertEqual(wishlist.name, fake_wishlist.name)
         self.assertEqual(wishlist.userid, fake_wishlist.userid)
-        # # issue with matching two date format - AssertionError: '2023-06-18' != datetime.date(2023, 6, 18), .isoformat() works for test_tourtes l94 but not here
+        # # issue with matching two date format - AssertionError: '2023-06-18' != datetime.date(2023, 6, 18)
+        # # .isoformat() works for test_tourtes l94 but not here
         # self.assertEqual(wishlist.date_created, fake_wishlist.date_created)
 
     def test_read_wishlist(self):
@@ -141,3 +142,17 @@ class TestWishlist(TestCase):
         """It should not Deserialize an item with a TypeError"""
         item = Item()
         self.assertRaises(DataValidationError, item.deserialize, [])
+
+    def test_update_wishlist(self):
+        """It should Update an wishlist"""
+        wishlist = WishlistFactory(name="testWishlistName")
+        wishlist.create()
+
+        # Fetch it back
+        wishlist = Wishlist.find(wishlist.id)
+        wishlist.name = "testWishlistName"
+        wishlist.update()
+
+        # Fetch it back again
+        wishlist = Wishlist.find(wishlist.id)
+        self.assertEqual(wishlist.name, "testWishlistName")
