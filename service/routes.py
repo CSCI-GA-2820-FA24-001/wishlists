@@ -247,6 +247,135 @@ def add_item_to_wishlist(wishlistId):
 
 
 ######################################################################
+# UPDATE AN EXISTING ITEM IN A WISHLIST
+######################################################################
+@app.route("/wishlists/<int:wishlistId>/items/<int:itemId>", methods=["PUT"])
+def update_item_in_wishlist(wishlistId, itemId):
+    """
+    Update the details of an existing Item in a specific Wishlist
+
+    This endpoint will update the Item specified by itemId in the Wishlist specified by wishlistId
+    based on the data provided in the request body.
+    """
+    app.logger.info(
+        f"Request to update item with id: {itemId} in wishlist with id: {wishlistId}"
+    )
+
+    # Ensure the request content type is application/json
+    check_content_type("application/json")
+
+    # Parse the JSON request body
+    item_data = request.get_json()
+
+    # Validate required fields
+    required_fields = ["name", "description", "price"]
+    missing_fields = [field for field in required_fields if field not in item_data]
+    if missing_fields:
+        app.logger.error(f"Missing fields in request body: {missing_fields}")
+        abort(
+            status.HTTP_400_BAD_REQUEST,
+            f"Missing fields in request body: {', '.join(missing_fields)}",
+        )
+
+    # Extract fields from the request
+    item_name = item_data["name"]
+    item_description = item_data["description"]
+    item_price = item_data["price"]
+
+    # Validate field types and constraints
+    if not isinstance(item_name, str) or not item_name.strip():
+        app.logger.error("Invalid data type or empty 'name'")
+        abort(
+            status.HTTP_400_BAD_REQUEST,
+            "'name' must be a non-empty string.",
+        )
+
+    if not isinstance(item_description, str) or not item_description.strip():
+        app.logger.error("Invalid data type or empty 'description'")
+        abort(
+            status.HTTP_400_BAD_REQUEST,
+            "'description' must be a non-empty string.",
+        )
+
+    try:
+        # Attempt to convert price to float and ensure it's positive
+        item_price = float(item_price)
+        if item_price <= 0:
+            raise ValueError("Price must be a positive number.")
+    except (ValueError, TypeError) as e:
+        app.logger.error(f"Invalid 'price': {e}")
+        abort(
+            status.HTTP_400_BAD_REQUEST,
+            "'price' must be a positive number.",
+        )
+
+    # Find the wishlist by ID
+    wishlist = Wishlist.find(wishlistId)
+    if not wishlist:
+        app.logger.error(f"Wishlist with id '{wishlistId}' not found.")
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Wishlist with id '{wishlistId}' not found.",
+        )
+
+    # Find the item within the wishlist
+    item = Item.query.filter_by(wishlist_id=wishlistId, id=itemId).first()
+    if not item:
+        app.logger.error(
+            f"Item with id '{itemId}' not found in wishlist '{wishlistId}'."
+        )
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Item with id '{itemId}' not found in wishlist '{wishlistId}'.",
+        )
+
+    # Check for duplicate item name within the same wishlist, excluding the current item
+    existing_item = Item.query.filter_by(wishlist_id=wishlistId, name=item_name).first()
+    if existing_item and existing_item.id != itemId:
+        app.logger.error(
+            f"Item with name '{item_name}' already exists in wishlist '{wishlistId}'."
+        )
+        abort(
+            status.HTTP_409_CONFLICT,
+            f"Item with name '{item_name}' already exists in wishlist '{wishlistId}'.",
+        )
+
+    # Update the item's details
+    item.name = item_name
+    item.description = item_description
+    item.price = item_price
+
+    # Commit the changes to the database
+    try:
+        item.update()
+    except DataValidationError as e:
+        app.logger.error(f"Data validation error during update: {e}")
+        abort(
+            status.HTTP_400_BAD_REQUEST,
+            f"Data validation error: {e}",
+        )
+    except Exception as e:
+        app.logger.error(f"Unexpected error during update: {e}")
+        abort(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            "An unexpected error occurred while updating the item.",
+        )
+
+    # Serialize the updated item for the response
+    serialized_item = item.serialize()
+
+    # Optionally, include Location header pointing to the updated resource
+    location_url = url_for(
+        "get_item",  # Ensure that this endpoint is defined
+        wishlistId=wishlistId,
+        itemId=item.id,
+        _external=True,
+    )
+
+    return jsonify(serialized_item), status.HTTP_200_OK, {"Location": location_url}
+
+
+######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
 
