@@ -206,3 +206,10 @@ class TestWishlistService(TestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.get_json(),[])
+
+    def test_get_all_items_not_found(self):
+        """Test the ability to GET all items"""
+        resp = self.client.get(
+            f"{BASE_URL}/0/items", content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
