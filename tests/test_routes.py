@@ -197,3 +197,12 @@ class TestWishlistService(TestCase):
         """Test the behavior of DELETE with wishlist not found"""
         resp = self.client.delete(f"{BASE_URL}/0")
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_get_all_items(self):
+        """Test the ability to GET all items"""
+        wishlist = self._create_wishlists(1)[0]
+        resp = self.client.get(
+            f"{BASE_URL}/{wishlist.id}/items", content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.get_json(),[])

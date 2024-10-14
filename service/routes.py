@@ -159,6 +159,7 @@ def delete_wishlists(wishlist_id):
         app.logger.info("Wishlist with id: %s not found", wishlist_id)
     return "", status.HTTP_204_NO_CONTENT
 
+
 ######################################################################
 # LIST ALL ITEMS IN AN EXISTING WISHLIST
 ######################################################################
@@ -173,8 +174,6 @@ def list_items(wishlist_id):
         abort(
             status.HTTP_404_NOT_FOUND, f"Wishlist with id '{wishlist_id}' was not found."
         )
-    
-    wishlist = Wishlist.find(wishlist_id)
     myitems = wishlist.items
     results = [item.serialize() for item in myitems]
     return jsonify(results), status.HTTP_200_OK
