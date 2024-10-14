@@ -80,6 +80,37 @@ class TestWishlist(TestCase):
         self.assertEqual(found_wishlist.date_created, wishlist.date_created)
         self.assertEqual(found_wishlist.items, [])
 
+    def test_delete_a_wishlist(self):
+        """It should Delete a wishlist from the database"""
+        wishlists = Wishlist.all()
+        self.assertEqual(wishlists, [])
+        wishlist = WishlistFactory()
+        wishlist.create()
+        self.assertIsNotNone(wishlist.id)
+        wishlists = Wishlist.all()
+        self.assertEqual(len(wishlists), 1)
+        wishlist = wishlists[0]
+        wishlist.delete()
+        wishlists = Wishlist.all()
+        self.assertEqual(len(wishlists), 0)
+
+    def test_list_all_wishlists(self):
+        """It should List all Wishlists in the database"""
+        wishlists = Wishlist.all()
+        self.assertEqual(wishlists, [])
+        for wishlist in WishlistFactory.create_batch(5):
+            wishlist.create()
+        wishlists = Wishlist.all()
+        self.assertEqual(len(wishlists), 5)
+
+    def test_find_by_name(self):
+        """It should Find a Wishlist by name"""
+        wishlist = WishlistFactory()
+        wishlist.create()
+        same_wishlist = Wishlist.find_by_name(wishlist.name)[0]
+        self.assertEqual(same_wishlist.id, wishlist.id)
+        self.assertEqual(same_wishlist.name, wishlist.name)
+
     def test_deserialize_an_wishlist(self):
         """It should Deserialize an wishlist"""
         wishlist = WishlistFactory()
