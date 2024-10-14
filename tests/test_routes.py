@@ -110,23 +110,6 @@ class TestWishlistService(TestCase):
         resp = self.client.get(f"{BASE_URL}/0")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
-    def _create_wishlists(self, count):
-        """Factory method for creating wishlist in bulk"""
-        wishlists = []
-        for _ in range(count):
-            wishlist = WishlistFactory()
-            # need create end point!
-            resp = self.client.post(BASE_URL, json=wishlist.serialize())
-            self.assertEqual(
-                resp.status_code,
-                status.HTTP_201_CREATED,
-                "Could not create test Wishlist",
-            )
-            new_wishlist = resp.get_json()
-            wishlist.id = new_wishlist["id"]
-            wishlists.append(wishlist)
-        return wishlists
-
     def test_create_wishlist(self):
         """It should Create a new Wishlist"""
         test_wishlist = WishlistFactory()
@@ -175,9 +158,22 @@ class TestWishlistService(TestCase):
                 self.assertEqual(returned_wishlist["name"], wishlist.name)
 
     def test_get_empty_wishlist(self):
-        """Test the behavior with empty database"""
+        """Test the behavior of GET with empty database"""
         resp = self.client.get(BASE_URL)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), 0)
-    
+
+    def test_delete_wishlist(self):
+        """Test to delete a wishlist"""
+        wishlist = self._create_wishlists(1)[0]
+        resp = self.client.delete(f"{BASE_URL}/{wishlist.id}")
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        # Verify deletion
+        resp = self.client.get(f"{BASE_URL}/{wishlist.id}")
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_wishlist_not_found(self):
+        """Test the behavior of DELETE with wishlist not found"""
+        resp = self.client.delete(f"{BASE_URL}/0")
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
