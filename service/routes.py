@@ -23,7 +23,7 @@ and Delete YourResourceModel
 
 from flask import jsonify, request, url_for, abort
 from flask import current_app as app  # Import Flask application
-from service.models import Item, Wishlist
+from service.models import Item, Wishlist, DataValidationError
 from service.common import status  # HTTP Status Codes
 
 
@@ -132,7 +132,8 @@ def update_wishlists(wishlist_id):
     wishlist = Wishlist.find(wishlist_id)
     if not wishlist:
         abort(
-            status.HTTP_404_NOT_FOUND, f"Wishlist with id '{wishlist_id}' was not found."
+            status.HTTP_404_NOT_FOUND,
+            f"Wishlist with id '{wishlist_id}' was not found.",
         )
 
     # Update from the json in the body of the request
@@ -142,8 +143,8 @@ def update_wishlists(wishlist_id):
     app.logger.info("Wishlist with ID: %d updated.", wishlist.id)
 
     return jsonify(wishlist.serialize()), status.HTTP_200_OK
-  
-  
+
+
 ######################################################################
 # DELETE A WISHLIST
 ######################################################################
@@ -158,6 +159,91 @@ def delete_wishlists(wishlist_id):
     else:
         app.logger.info("Wishlist with id: %s not found", wishlist_id)
     return "", status.HTTP_204_NO_CONTENT
+
+
+######################################################################
+# ADD A NEW ITEM TO A SPECIFIC WISHLIST
+######################################################################
+@app.route("/wishlists/<int:wishlistId>/items", methods=["POST"])
+def add_item_to_wishlist(wishlistId):
+    """
+    Add a new item to a specific Wishlist
+
+    This endpoint will add a new item to the wishlist specified by wishlistId
+    based on the data provided in the request body.
+    """
+    app.logger.info(f"Request to add a new item to wishlist with id: {wishlistId}")
+    # Ensure the request content type is application/json
+    check_content_type("application/json")
+    # Parse the JSON request body
+    item_data = request.get_json()
+    # Validate required fields
+    required_fields = ["name", "description", "price"]
+    missing_fields = [field for field in required_fields if field not in item_data]
+    if missing_fields:
+        app.logger.error(f"Missing fields in request body: {missing_fields}")
+        abort(
+            status.HTTP_400_BAD_REQUEST,
+            f"Missing fields in request body: {', '.join(missing_fields)}",
+        )
+    # Inject wishlist_id from the URL path into the item data
+    item_data["wishlist_id"] = wishlistId
+
+    # Create a new Item instance and deserialize the data
+    new_item = Item()
+    try:
+        new_item.deserialize(item_data)
+    except DataValidationError as e:
+        app.logger.error(f"Data validation error: {e}")
+        abort(
+            status.HTTP_400_BAD_REQUEST,
+            f"Data validation error: {e}",
+        )
+
+    # Find the wishlist by ID
+    wishlist = Wishlist.find(wishlistId)
+    if not wishlist:
+        app.logger.error(f"Wishlist with id '{wishlistId}' not found.")
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Wishlist with id '{wishlistId}' not found.",
+        )
+
+    # Check if an item with the same name already exists in the wishlist
+    existing_item = Item.query.filter_by(
+        wishlist_id=wishlistId, name=new_item.name
+    ).first()
+    if existing_item:
+        app.logger.error(
+            f"Item with name '{new_item.name}' already exists in wishlist '{wishlistId}'."
+        )
+        abort(
+            status.HTTP_409_CONFLICT,
+            f"Item with name '{new_item.name}' already exists in wishlist '{wishlistId}'.",
+        )
+
+    # Add the new item to the database
+    try:
+        new_item.create()
+    except Exception as e:
+        app.logger.error(f"Unexpected error when creating item: {e}")
+        abort(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            "An unexpected error occurred while creating the item.",
+        )
+    # Serialize the new item for the response
+    serialized_item = new_item.serialize()
+
+    # Generate the Location URL for the newly created item
+    location_url = url_for(
+        "get_item",  # Ensure that this endpoint is defined
+        wishlistId=wishlistId,
+        itemId=new_item.id,
+        _external=True,
+    )
+
+    # Return the response with 201 Created and Location header
+    return jsonify(serialized_item), status.HTTP_201_CREATED, {"Location": location_url}
 
 
 ######################################################################
