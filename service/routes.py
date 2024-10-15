@@ -172,7 +172,7 @@ def delete_wishlists(wishlist_id):
 def list_items(wishlist_id):
     """Returns all items"""
     app.logger.info("Request to list all items from wishlist with id: %s", wishlist_id)    
-    check_content_type("application/json")
+    ###check_content_type("application/json")
 
     wishlist = Wishlist.find(wishlist_id)
     if not wishlist:
