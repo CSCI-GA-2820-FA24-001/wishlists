@@ -284,6 +284,26 @@ class TestWishlistService(TestCase):
         data = response.get_json()
         self.assertIn("must be a positive number", data["message"].lower())
 
+    def test_add_item_nonexistent_wishlist(self):
+        """It should return 404 when adding an item to a non-existent wishlist"""
+        # define valid item data
+        valid_item_data = {
+            "name": "Tablet",
+            "description": "Latest model tablet",
+            "price": 499.99,
+        }
+
+        # send POST request to a non-existent wishlist id
+        response = self.client.post(
+            "/wishlists/999/items",
+            json=valid_item_data,
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        data = response.get_json()
+        self.assertIn("wishlist with id '999' not found", data["message"].lower())
+
     def test_get_item_success(self):
         """It should retrieve an existing item from a wishlist"""
         # create a wishlist
