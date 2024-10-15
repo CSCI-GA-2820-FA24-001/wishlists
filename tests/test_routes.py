@@ -304,6 +304,39 @@ class TestWishlistService(TestCase):
         data = response.get_json()
         self.assertIn("wishlist with id '999' not found", data["message"].lower())
 
+    def test_add_item_duplicate_name(self):
+        """It should return 409 when adding an item with a duplicate name in the wishlist"""
+        # create a wishlist
+        wishlist = self._create_wishlists(1)[0]
+
+        # create an item
+        item_data = {
+            "name": "Headphones",
+            "description": "Noise-cancelling headphones",
+            "price": 199.99,
+        }
+        response = self.client.post(
+            f"{BASE_URL}/{wishlist.id}/items",
+            json=item_data,
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # attempt to add an item with duplicated name
+        duplicate_item_data = {
+            "name": "Headphones",  # duplicated name of "Headphone"
+            "description": "Wireless headphones",
+            "price": 249.99,
+        }
+        response = self.client.post(
+            f"{BASE_URL}/{wishlist.id}/items",
+            json=duplicate_item_data,
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        data = response.get_json()
+        self.assertIn("already exists", data["message"].lower())
+
     def test_get_item_success(self):
         """It should retrieve an existing item from a wishlist"""
         # create a wishlist
