@@ -102,12 +102,16 @@ def get_wishlists(wishlist_id):
 ######################################################################
 @app.route("/wishlists", methods=["GET"])
 def list_wishlists():
-    """Returns all wishlists, if GET request contains name, return wishlist by name"""
+    """Returns all wishlists, if GET request contains name, return wishlist by name, same for userid"""
     wishlists = []
     name = request.args.get("name")
+    userid = request.args.get("userid")
     if name:
-        app.logger.info("Request for listing specific Wishlists")
+        app.logger.info("Request for listing wishlists by name: %s", name)
         wishlists = Wishlist.find_by_name(name)
+    elif userid:
+        app.logger.info("Request for listing wishlists by userid: %s", userid)
+        wishlists = Wishlist.find_by_userid(userid)
     else:
         app.logger.info("Request for listing all Wishlists")
         wishlists = Wishlist.all()
