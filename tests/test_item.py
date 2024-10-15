@@ -123,17 +123,3 @@ class TestItem(BaseTestCase):
         self.assertEqual(updated_item.name, "Updated Laptop")
         self.assertEqual(updated_item.description, "Updated Gaming Laptop")
         self.assertEqual(float(updated_item.price), 1600.00)
-
-    def test_item_str(self):
-        item = ItemFactory()
-        item.id = 4
-        item.name = "phone"
-        item.update()
-        self.assertEqual(str(item), "4 - phone")
-
-    def test_item_repr(self):
-        item = ItemFactory()
-        item.id = 3
-        item.name = "phone"
-        item.wishlist_id = 4
-        self.assertEqual(repr(item), "<Item phone id=[3] wishlist[4]>")

@@ -188,6 +188,14 @@ class Item(db.Model, PersistentBase):
     description = db.Column(db.String(64))
     price = db.Column(db.Numeric(precision=10, scale=2), nullable=False)
 
+    def __init__(self, wishlist_id=None, name=None, description=None, price=None):
+        """Initialize an Item with given parameters"""
+        super().__init__()
+        self.wishlist_id = wishlist_id
+        self.name = name
+        self.description = description
+        self.price = price
+
     def __repr__(self):
         return f"<Item {self.name} id=[{self.id}] wishlist[{self.wishlist_id}]>"
 
