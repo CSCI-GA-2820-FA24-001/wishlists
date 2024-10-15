@@ -27,12 +27,11 @@ class TestItem(BaseTestCase):
     def test_create_an_item(self):
         """It should create an Item"""
         fake_item = ItemFactory()
-        item = Item(
-            wishlist_id=fake_item.wishlist_id,
-            name=fake_item.name,
-            description=fake_item.description,
-            price=fake_item.price,
-        )
+        item = Item()
+        item.wishlist_id = fake_item.wishlist_id
+        item.name = fake_item.name
+        item.description = fake_item.description
+        item.price = fake_item.price
         self.assertIsNotNone(item)
 
     ######################################################################

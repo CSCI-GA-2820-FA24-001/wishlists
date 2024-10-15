@@ -23,6 +23,7 @@ and Delete YourResourceModel
 
 from flask import jsonify, request, url_for, abort
 from flask import current_app as app  # Import Flask application
+from sqlalchemy.exc import SQLAlchemyError
 from service.models import Item, Wishlist, DataValidationError
 from service.common import status  # HTTP Status Codes
 
@@ -247,7 +248,7 @@ def add_item_to_wishlist(wishlist_id):
     # Add the new item to the database
     try:
         new_item.create()
-    except Exception as e:
+    except SQLAlchemyError as e:
         app.logger.error(f"Unexpected error when creating item: {e}")
         abort(
             status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -493,7 +494,7 @@ def delete_item_from_wishlist(wishlist_id, item_id):
     # Delete the item
     try:
         item.delete()
-    except Exception as e:
+    except SQLAlchemyError as e:
         app.logger.error(f"Unexpected error when deleting item: {e}")
         abort(
             status.HTTP_500_INTERNAL_SERVER_ERROR,

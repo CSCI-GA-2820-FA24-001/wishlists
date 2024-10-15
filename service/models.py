@@ -188,14 +188,6 @@ class Item(db.Model, PersistentBase):
     description = db.Column(db.String(64))
     price = db.Column(db.Numeric(precision=10, scale=2), nullable=False)
 
-    def __init__(self, wishlist_id=None, name=None, description=None, price=None):
-        """Initialize an Item with given parameters"""
-        super().__init__()
-        self.wishlist_id = wishlist_id
-        self.name = name
-        self.description = description
-        self.price = price
-
     def __repr__(self):
         return f"<Item {self.name} id=[{self.id}] wishlist[{self.wishlist_id}]>"
 
@@ -224,25 +216,14 @@ class Item(db.Model, PersistentBase):
             self.name = data["name"]
             self.description = data["description"]
 
-            # verify and transform the type of price
-            try:
-                self.price = float(data["price"])
-                if self.price <= 0:
-                    raise ValueError("Price must be a positive number.")
-            except (ValueError, TypeError) as error:
-                raise DataValidationError(
-                    "Invalid Item: 'price' must be a positive number."
-                ) from error
+            # Verify and transform the type of price
+            self.price = float(data["price"])
+            if self.price <= 0:
+                raise ValueError("Price must be a positive number.")
 
-        except AttributeError as error:
-            raise DataValidationError("Invalid attribute: " + error.args[0]) from error
-        except KeyError as error:
-            raise DataValidationError(
-                "Invalid Item: missing " + error.args[0]
-            ) from error
-        except TypeError as error:
-            raise DataValidationError(
-                "Invalid Item: body of request contained bad or no data " + str(error)
-            ) from error
+        except (KeyError, AttributeError) as error:
+            raise DataValidationError(f"Invalid Item: missing or invalid field {error.args[0]}") from error
+        except (ValueError, TypeError) as error:
+            raise DataValidationError("Invalid Item: 'price' must be a positive number.") from error
 
         return self
