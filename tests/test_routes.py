@@ -24,7 +24,7 @@ import logging
 from unittest import TestCase
 from wsgi import app
 from service.common import status
-from service.models import db, Item, Wishlist
+from service.models import db, Wishlist
 from .factories import WishlistFactory, ItemFactory
 
 DATABASE_URI = os.getenv(
@@ -88,9 +88,12 @@ class TestWishlistService(TestCase):
     def _create_items(self, wishlist_id, count=1):
         """Factory method to create items in bulk for a specific wishlist"""
         items = []
-        for _ in range(count):
-            # Create an instance of item with ItemFactory with given wishlist_id
-            item = ItemFactory(wishlist_id=wishlist_id)
+        for i in range(count):
+            # dynamically generate unique name and avoid repetition
+            unique_name = f"Item-{i}"
+
+            # Create an instance of item with given wishlist_id and unique name
+            item = ItemFactory(wishlist_id=wishlist_id, name=unique_name)
 
             # send a POST request to /wishlists/{wishlist_id}/items endpoint
             resp = self.client.post(
@@ -581,7 +584,7 @@ class TestWishlistService(TestCase):
         updated_data = {
             "name": "UpdatedName",
             "description": "Updated Description",
-            "price": 299.99
+            "price": 299.99,
         }
 
         # Use a non-existent wishlist ID
@@ -591,12 +594,15 @@ class TestWishlistService(TestCase):
         response = self.client.put(
             f"{BASE_URL}/{non_existent_wishlist_id}/items/{item.id}",
             json=updated_data,
-            content_type="application/json"
+            content_type="application/json",
         )
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         data = response.get_json()
-        self.assertIn(f"wishlist with id '{non_existent_wishlist_id}' not found", data["message"].lower())
+        self.assertIn(
+            f"wishlist with id '{non_existent_wishlist_id}' not found",
+            data["message"].lower(),
+        )
 
     def test_update_item_nonexistent_item(self):
         """It should return 404 when updating a non-existent item in a wishlist"""
@@ -607,7 +613,7 @@ class TestWishlistService(TestCase):
         updated_data = {
             "name": "UpdatedName",
             "description": "Updated Description",
-            "price": 299.99
+            "price": 299.99,
         }
 
         # Use a non-existent item ID
@@ -617,12 +623,15 @@ class TestWishlistService(TestCase):
         response = self.client.put(
             f"{BASE_URL}/{wishlist.id}/items/{non_existent_item_id}",
             json=updated_data,
-            content_type="application/json"
+            content_type="application/json",
         )
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         data = response.get_json()
-        self.assertIn(f"item with id '{non_existent_item_id}' not found in wishlist '{wishlist.id}'", data["message"].lower())
+        self.assertIn(
+            f"item with id '{non_existent_item_id}' not found in wishlist '{wishlist.id}'",
+            data["message"].lower(),
+        )
 
     def test_update_item_duplicate_name(self):
         """It should return 409 when updating an item with a duplicate name in the same wishlist"""
@@ -635,14 +644,14 @@ class TestWishlistService(TestCase):
         duplicate_name_data = {
             "name": item1.name,  # Duplicate name
             "description": "Updated Description",
-            "price": 299.99
+            "price": 299.99,
         }
 
         # Send PUT request to update item2
         response = self.client.put(
             f"{BASE_URL}/{wishlist.id}/items/{item2.id}",
             json=duplicate_name_data,
-            content_type="application/json"
+            content_type="application/json",
         )
 
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
@@ -660,19 +669,47 @@ class TestWishlistService(TestCase):
         invalid_data = {
             "name": "A" * 100,  # Assuming max length is less than 100
             "description": "Valid Description",
-            "price": 299.99
+            "price": 299.99,
         }
 
         # Send PUT request to update the item
         response = self.client.put(
             f"{BASE_URL}/{wishlist.id}/items/{item.id}",
             json=invalid_data,
-            content_type="application/json"
+            content_type="application/json",
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         data = response.get_json()
         self.assertIn("data validation error", data["message"].lower())
+
+    # def test_update_item_unexpected_error(self):
+    #     """It should return 500 when updating an item with a name exceeding length limit"""
+    #     # Create a wishlist and two items
+    #     wishlist = self._create_wishlists(1)[0]
+    #     items = self._create_items(wishlist.id, count=1)
+    #     item1 = items[0]
+
+    #     # Define updated data with a name exceeding 100 characters
+    #     long_name = "a" * 101  # Assuming the name length limit is 100 characters
+
+    #     updated_data = {
+    #         "name": long_name,  # Exceeding name length
+    #         "description": "Updated Description",
+    #         "price": 299.99,
+    #     }
+
+    #     # Send PUT request to update item2
+    #     response = self.client.put(
+    #         f"{BASE_URL}/{wishlist.id}/items/{item1.id}",
+    #         json=updated_data,
+    #         content_type="application/json",
+    #     )
+
+    #     # Assert that it should return 500 Internal Server Error
+    #     self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+    #     data = response.get_json()
+    #     self.assertIn("unexpected error", data["message"].lower())
 
     # Endpoint: DELETE   /wishlists/{id}/items/{id}
     def test_delete_item_success(self):
