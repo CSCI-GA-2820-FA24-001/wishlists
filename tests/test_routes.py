@@ -172,7 +172,7 @@ class TestWishlistService(TestCase):
         self.assertEqual(updated_wishlist["name"], "new new new Name")
 
     def test_get_all_wishlists(self):
-        """ Test the ability to GET all wishlists"""
+        """Test the ability to GET all wishlists"""
         self._create_wishlists(10)
         resp = self.client.get(BASE_URL)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
@@ -215,6 +215,30 @@ class TestWishlistService(TestCase):
     ######################################################################
     #  I T E M   E N D P O I N T   T E S T   C A S E S
     ######################################################################
+
+    def test_add_item_missing_fields(self):
+        """It should return 400 when required fields are missing"""
+        # create a wishlist
+        wishlist = self._create_wishlists(1)[0]
+
+        # define am object data without 'price' field
+        incomplete_item_data = {
+            "name": "Smartphone",
+            "description": "Latest model smartphone",
+            # 'price' is missing
+        }
+
+        # Send a POST request to add this object
+        response = self.client.post(
+            f"{BASE_URL}/{wishlist.id}/items",
+            json=incomplete_item_data,
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        data = response.get_json()
+        self.assertIn("missing fields", data["message"].lower())
+        self.assertIn("price", data["message"].lower())
 
     def test_get_item_success(self):
         """It should retrieve an existing item from a wishlist"""
