@@ -291,7 +291,34 @@ def update_item_in_wishlist(wishlist_id, item_id):
     # Parse the JSON request body
     item_data = request.get_json()
 
-    # Validate required fields
+    # Validate the request data
+    validate_request_data(item_data)
+
+    # Find the wishlist and item
+    wishlist = Wishlist.find(wishlist_id)
+    if not wishlist:
+        app.logger.error(f"Wishlist with id '{wishlist_id}' not found.")
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Wishlist with id '{wishlist_id}' not found.",
+        )
+    item = find_item_in_wishlist(wishlist_id, item_id)
+
+    # Check for duplicate item name within the same wishlist
+    check_for_duplicate_item(wishlist_id, item_data["name"], item_id)
+
+    # Update the item's details
+    update_item_details(item, item_data)
+
+    # Commit the changes to the database
+    save_updated_item(item)
+
+    # Serialize the updated item and return the response
+    return generate_update_response(wishlist_id, item)
+
+
+def validate_request_data(item_data):
+    """Validate request data for updating an item"""
     required_fields = ["name", "description", "price"]
     missing_fields = [field for field in required_fields if field not in item_data]
     if missing_fields:
@@ -301,12 +328,15 @@ def update_item_in_wishlist(wishlist_id, item_id):
             f"Missing fields in request body: {', '.join(missing_fields)}",
         )
 
-    # Extract fields from the request
+    validate_field_types(item_data)
+
+
+def validate_field_types(item_data):
+    """Validate the types and constraints of the fields"""
     item_name = item_data["name"]
     item_description = item_data["description"]
     item_price = item_data["price"]
 
-    # Validate field types and constraints
     if not isinstance(item_name, str) or not item_name.strip():
         app.logger.error("Invalid data type or empty 'name'")
         abort(
@@ -322,7 +352,6 @@ def update_item_in_wishlist(wishlist_id, item_id):
         )
 
     try:
-        # Attempt to convert price to float and ensure it's positive
         item_price = float(item_price)
         if item_price <= 0:
             raise ValueError("Price must be a positive number.")
@@ -333,16 +362,9 @@ def update_item_in_wishlist(wishlist_id, item_id):
             "'price' must be a positive number.",
         )
 
-    # Find the wishlist by ID
-    wishlist = Wishlist.find(wishlist_id)
-    if not wishlist:
-        app.logger.error(f"Wishlist with id '{wishlist_id}' not found.")
-        abort(
-            status.HTTP_404_NOT_FOUND,
-            f"Wishlist with id '{wishlist_id}' not found.",
-        )
 
-    # Find the item within the wishlist
+def find_item_in_wishlist(wishlist_id, item_id):
+    """Find an item in the wishlist by its ID"""
     item = Item.query.filter_by(wishlist_id=wishlist_id, id=item_id).first()
     if not item:
         app.logger.error(
@@ -352,8 +374,11 @@ def update_item_in_wishlist(wishlist_id, item_id):
             status.HTTP_404_NOT_FOUND,
             f"Item with id '{item_id}' not found in wishlist '{wishlist_id}'.",
         )
+    return item
 
-    # Check for duplicate item name within the same wishlist, excluding the current item
+
+def check_for_duplicate_item(wishlist_id, item_name, item_id):
+    """Check if an item with the same name already exists in the wishlist"""
     existing_item = Item.query.filter_by(
         wishlist_id=wishlist_id, name=item_name
     ).first()
@@ -366,12 +391,16 @@ def update_item_in_wishlist(wishlist_id, item_id):
             f"Item with name '{item_name}' already exists in wishlist '{wishlist_id}'.",
         )
 
-    # Update the item's details
-    item.name = item_name
-    item.description = item_description
-    item.price = item_price
 
-    # Commit the changes to the database
+def update_item_details(item, item_data):
+    """Update the item details"""
+    item.name = item_data["name"]
+    item.description = item_data["description"]
+    item.price = float(item_data["price"])
+
+
+def save_updated_item(item):
+    """Save the updated item to the database"""
     try:
         item.update()
     except DataValidationError as e:
@@ -381,17 +410,16 @@ def update_item_in_wishlist(wishlist_id, item_id):
             "An unexpected error occurred while updating the item.",
         )
 
-    # Serialize the updated item for the response
-    serialized_item = item.serialize()
 
-    # Optionally, include Location header pointing to the updated resource
+def generate_update_response(wishlist_id, item):
+    """Generate the response for a successful item update"""
+    serialized_item = item.serialize()
     location_url = url_for(
         "get_item",  # Ensure that this endpoint is defined
         wishlist_id=wishlist_id,
         item_id=item.id,
         _external=True,
     )
-
     return jsonify(serialized_item), status.HTTP_200_OK, {"Location": location_url}
 
 
