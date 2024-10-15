@@ -570,6 +570,60 @@ class TestWishlistService(TestCase):
         data = response.get_json()
         self.assertIn("must be a positive number", data["message"].lower())
 
+    def test_update_item_nonexistent_wishlist(self):
+        """It should return 404 when updating an item in a non-existent wishlist"""
+        # Create a wishlist and an item
+        wishlist = self._create_wishlists(1)[0]
+        items = self._create_items(wishlist.id, count=1)
+        item = items[0]
+
+        # Define updated data
+        updated_data = {
+            "name": "UpdatedName",
+            "description": "Updated Description",
+            "price": 299.99
+        }
+
+        # Use a non-existent wishlist ID
+        non_existent_wishlist_id = 999
+
+        # Send PUT request to update the item
+        response = self.client.put(
+            f"{BASE_URL}/{non_existent_wishlist_id}/items/{item.id}",
+            json=updated_data,
+            content_type="application/json"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        data = response.get_json()
+        self.assertIn(f"wishlist with id '{non_existent_wishlist_id}' not found", data["message"].lower())
+
+    def test_update_item_nonexistent_item(self):
+        """It should return 404 when updating a non-existent item in a wishlist"""
+        # Create a wishlist
+        wishlist = self._create_wishlists(1)[0]
+
+        # Define updated data
+        updated_data = {
+            "name": "UpdatedName",
+            "description": "Updated Description",
+            "price": 299.99
+        }
+
+        # Use a non-existent item ID
+        non_existent_item_id = 999
+
+        # Send PUT request to update the item
+        response = self.client.put(
+            f"{BASE_URL}/{wishlist.id}/items/{non_existent_item_id}",
+            json=updated_data,
+            content_type="application/json"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        data = response.get_json()
+        self.assertIn(f"item with id '{non_existent_item_id}' not found in wishlist '{wishlist.id}'", data["message"].lower())
+
     # Endpoint: DELETE   /wishlists/{id}/items/{id}
     def test_delete_item_success(self):
         """It should delete an existing item from a wishlist"""
