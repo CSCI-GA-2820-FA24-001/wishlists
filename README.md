@@ -53,12 +53,22 @@ PUT      /wishlists/{id}/items/{id}  <- Update an item in a wishlist
 DELETE   /wishlists/{id}/items/{id}  <- Delete an item from a wishlist
 ```
 
-## Running the Tests
-Run the unit tests using pytest
+## Running the Service and Tests
+To run the service at local host, run the code below. And go to http://localhost:8080/ to see service locally. Alternatively, you can also use VSCode ```Thunder Client``` extension to test services.
+
+```
+flask run
+```
+
+
+
+Run the unit tests using pytest with following code:
 
 ```
 make test
 ```
+
+
 
 ## Contents
 
