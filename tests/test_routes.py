@@ -228,7 +228,7 @@ class TestWishlistService(TestCase):
             # 'price' is missing
         }
 
-        # Send a POST request to add this object
+        # Send a POST request to add this item
         response = self.client.post(
             f"{BASE_URL}/{wishlist.id}/items",
             json=incomplete_item_data,
@@ -239,6 +239,50 @@ class TestWishlistService(TestCase):
         data = response.get_json()
         self.assertIn("missing fields", data["message"].lower())
         self.assertIn("price", data["message"].lower())
+
+    def test_add_item_invalid_price_string(self):
+        """It should return 400 when the price is invalid as a string"""
+        # create a wishlist
+        wishlist = self._create_wishlists(1)[0]
+
+        # define an invalid item data
+        invalid_price_item_data = {
+            "name": "Laptop",
+            "description": "Gaming Laptop",
+            "price": "invalid_price",
+        }
+        # Send a POST request to add this item
+        response = self.client.post(
+            f"{BASE_URL}/{wishlist.id}/items",
+            json=invalid_price_item_data,
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        data = response.get_json()
+        self.assertIn("must be a positive number", data["message"].lower())
+
+    def test_add_item_invalid_price_nonpositive(self):
+        """It should return 400 when the price is invalid as a non-positive number"""
+        # create a wishlist
+        wishlist = self._create_wishlists(1)[0]
+
+        # define an invalid item data
+        invalid_price_item_data = {
+            "name": "Laptop",
+            "description": "Gaming Laptop",
+            "price": -3.1415926,
+        }
+        # Send a POST request to add this item
+        response = self.client.post(
+            f"{BASE_URL}/{wishlist.id}/items",
+            json=invalid_price_item_data,
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        data = response.get_json()
+        self.assertIn("must be a positive number", data["message"].lower())
 
     def test_get_item_success(self):
         """It should retrieve an existing item from a wishlist"""
