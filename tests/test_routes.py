@@ -85,6 +85,32 @@ class TestWishlistService(TestCase):
             wishlists.append(wishlist)
         return wishlists
 
+    def _create_items(self, wishlist_id, count=1):
+        """Factory method to create items in bulk for a specific wishlist"""
+        items = []
+        for _ in range(count):
+            # Create an instance of item with ItemFactory with given wishlist_id
+            item = ItemFactory(wishlist_id=wishlist_id)
+
+            # send a POST request to /wishlists/{wishlist_id}/items endpoint
+            resp = self.client.post(
+                f"{BASE_URL}/{wishlist_id}/items",
+                json=item.serialize(),
+                content_type="application/json",
+            )
+
+            # Make sure that the response status code is 201 Created
+            self.assertEqual(
+                resp.status_code, status.HTTP_201_CREATED, "Could not create test Item"
+            )
+
+            # get the item data in response json
+            new_item = resp.get_json()
+            item.id = new_item["id"]
+            items.append(item)
+
+        return items
+
     ######################################################################
     #  W I S H L I S T   T E S T   C A S E S
     ######################################################################
@@ -230,12 +256,11 @@ class TestWishlistService(TestCase):
         resp = self.client.delete(f"{BASE_URL}/0")
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
-
     ######################################################################
     #  I T E M   E N D P O I N T   T E S T   C A S E S
     ######################################################################
 
-    
+    # Endpoint: GET /wishlists/{id}/items
     def test_get_all_items(self):
         """Test the ability to GET all items"""
         wishlist = self._create_wishlists(1)[0]
@@ -243,15 +268,14 @@ class TestWishlistService(TestCase):
             f"{BASE_URL}/{wishlist.id}/items", content_type="application/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual(resp.get_json(),[])
+        self.assertEqual(resp.get_json(), [])
 
     def test_get_all_items_not_found(self):
         """Test the ability to GET all items"""
-        resp = self.client.get(
-            f"{BASE_URL}/0/items", content_type="application/json"
-        )
+        resp = self.client.get(f"{BASE_URL}/0/items", content_type="application/json")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
-        
+
+    # Endpoint: POST /wishlists/{id}/items
     def test_add_item_missing_fields(self):
         """It should return 400 when required fields are missing"""
         # create a wishlist
@@ -373,6 +397,7 @@ class TestWishlistService(TestCase):
         data = response.get_json()
         self.assertIn("already exists", data["message"].lower())
 
+    # Endpoint: GET /wishlists/{id}/items/{id}
     def test_get_item_success(self):
         """It should retrieve an existing item from a wishlist"""
         # create a wishlist
@@ -418,6 +443,35 @@ class TestWishlistService(TestCase):
         data = response.get_json()
         self.assertIn("not found", data["message"].lower())
 
+    # Endpoint: PUT /wishlists/{id}/items/{id}
+    def test_update_item_success(self):
+        """It should update an existing item successfully"""
+        # Create a wishlist and an item
+        wishlist = self._create_wishlists(1)[0]
+        items = self._create_items(wishlist.id, count=1)
+        item = items[0]
+
+        # Define updated data
+        updated_data = {
+            "name": "UpdatedName",
+            "description": "Updated Description",
+            "price": 299.99,
+        }
+
+        # Send PUT request to update the item
+        response = self.client.put(
+            f"{BASE_URL}/{wishlist.id}/items/{item.id}",
+            json=updated_data,
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(data["name"], updated_data["name"])
+        self.assertEqual(data["description"], updated_data["description"])
+        self.assertEqual(float(data["price"]), updated_data["price"])
+
+    # Endpoint: DELETE   /wishlists/{id}/items/{id}
     def test_delete_item_success(self):
         """It should delete an existing item from a wishlist"""
         # create a wishlist
