@@ -90,7 +90,7 @@ def get_wishlists(wishlist_id):
     if not wishlist:
         abort(
             status.HTTP_404_NOT_FOUND,
-            f"Wishlist with id '{wishlist_id}' could not be found.",
+            description=f"Wishlist with id '{wishlist_id}' could not be found.",
         )
 
     return jsonify(wishlist.serialize()), status.HTTP_200_OK
@@ -136,7 +136,7 @@ def update_wishlists(wishlist_id):
     if not wishlist:
         abort(
             status.HTTP_404_NOT_FOUND,
-            f"Wishlist with id '{wishlist_id}' was not found.",
+            description=f"Wishlist with id '{wishlist_id}' was not found.",
         )
 
     # Update from the json in the body of the request
@@ -177,7 +177,7 @@ def list_items(wishlist_id):
     if not wishlist:
         abort(
             status.HTTP_404_NOT_FOUND,
-            f"Wishlist with id '{wishlist_id}' was not found.",
+            description=f"Wishlist with id '{wishlist_id}' was not found.",
         )
     myitems = wishlist.items
     results = [item.serialize() for item in myitems]
@@ -207,7 +207,7 @@ def add_item_to_wishlist(wishlist_id):
         app.logger.error(f"Missing fields in request body: {missing_fields}")
         abort(
             status.HTTP_400_BAD_REQUEST,
-            f"Missing fields in request body: {', '.join(missing_fields)}",
+            description=f"Missing fields in request body: {', '.join(missing_fields)}",
         )
     # Inject wishlist_id from the URL path into the item data
     item_data["wishlist_id"] = wishlist_id
@@ -220,7 +220,7 @@ def add_item_to_wishlist(wishlist_id):
         app.logger.error(f"Data validation error: {e}")
         abort(
             status.HTTP_400_BAD_REQUEST,
-            f"Data validation error: {e}",
+            description=f"Data validation error: {e}",
         )
 
     # Find the wishlist by ID
@@ -229,7 +229,7 @@ def add_item_to_wishlist(wishlist_id):
         app.logger.error(f"Wishlist with id '{wishlist_id}' not found.")
         abort(
             status.HTTP_404_NOT_FOUND,
-            f"Wishlist with id '{wishlist_id}' not found.",
+            description=f"Wishlist with id '{wishlist_id}' not found.",
         )
 
     # Check if an item with the same name already exists in the wishlist
@@ -242,7 +242,7 @@ def add_item_to_wishlist(wishlist_id):
         )
         abort(
             status.HTTP_409_CONFLICT,
-            f"Item with name '{new_item.name}' already exists in wishlist '{wishlist_id}'.",
+            description=f"Item with name '{new_item.name}' already exists in wishlist '{wishlist_id}'.",
         )
 
     # Add the new item to the database
@@ -252,7 +252,7 @@ def add_item_to_wishlist(wishlist_id):
         app.logger.error(f"Unexpected error when creating item: {e}")
         abort(
             status.HTTP_500_INTERNAL_SERVER_ERROR,
-            "An unexpected error occurred while creating the item.",
+            description="An unexpected error occurred while creating the item.",
         )
     # Serialize the new item for the response
     serialized_item = new_item.serialize()
@@ -299,7 +299,7 @@ def update_item_in_wishlist(wishlist_id, item_id):
         app.logger.error(f"Wishlist with id '{wishlist_id}' not found.")
         abort(
             status.HTTP_404_NOT_FOUND,
-            f"Wishlist with id '{wishlist_id}' not found.",
+            description=f"Wishlist with id '{wishlist_id}' not found.",
         )
     item = find_item_in_wishlist(wishlist_id, item_id)
 
@@ -324,7 +324,7 @@ def validate_request_data(item_data):
         app.logger.error(f"Missing fields in request body: {missing_fields}")
         abort(
             status.HTTP_400_BAD_REQUEST,
-            f"Missing fields in request body: {', '.join(missing_fields)}",
+            description=f"Missing fields in request body: {', '.join(missing_fields)}",
         )
 
     validate_field_types(item_data)
@@ -340,14 +340,14 @@ def validate_field_types(item_data):
         app.logger.error("Invalid data type or empty 'name'")
         abort(
             status.HTTP_400_BAD_REQUEST,
-            "'name' must be a non-empty string.",
+            description="'name' must be a non-empty string.",
         )
 
     if not isinstance(item_description, str) or not item_description.strip():
         app.logger.error("Invalid data type or empty 'description'")
         abort(
             status.HTTP_400_BAD_REQUEST,
-            "'description' must be a non-empty string.",
+            description="'description' must be a non-empty string.",
         )
 
     try:
@@ -358,7 +358,7 @@ def validate_field_types(item_data):
         app.logger.error(f"Invalid 'price': {e}")
         abort(
             status.HTTP_400_BAD_REQUEST,
-            "'price' must be a positive number.",
+            description="'price' must be a positive number.",
         )
 
 
@@ -371,7 +371,7 @@ def find_item_in_wishlist(wishlist_id, item_id):
         )
         abort(
             status.HTTP_404_NOT_FOUND,
-            f"Item with id '{item_id}' not found in wishlist '{wishlist_id}'.",
+            description=f"Item with id '{item_id}' not found in wishlist '{wishlist_id}'.",
         )
     return item
 
@@ -387,7 +387,7 @@ def check_for_duplicate_item(wishlist_id, item_name, item_id):
         )
         abort(
             status.HTTP_409_CONFLICT,
-            f"Item with name '{item_name}' already exists in wishlist '{wishlist_id}'.",
+            description=f"Item with name '{item_name}' already exists in wishlist '{wishlist_id}'.",
         )
 
 
@@ -406,7 +406,7 @@ def save_updated_item(item):
         app.logger.error(f"Unexpected data validation error during update: {e}")
         abort(
             status.HTTP_500_INTERNAL_SERVER_ERROR,
-            "An unexpected error occurred while updating the item.",
+            description="An unexpected error occurred while updating the item.",
         )
 
 
@@ -440,7 +440,7 @@ def get_item(wishlist_id, item_id):
         app.logger.error(f"Wishlist with id '{wishlist_id}' not found.")
         abort(
             status.HTTP_404_NOT_FOUND,
-            f"Wishlist with id '{wishlist_id}' not found.",
+            description=f"Wishlist with id '{wishlist_id}' not found.",
         )
 
     # Find the item within the wishlist
@@ -451,7 +451,7 @@ def get_item(wishlist_id, item_id):
         )
         abort(
             status.HTTP_404_NOT_FOUND,
-            f"Item with id '{item_id}' not found in wishlist '{wishlist_id}'.",
+            description=f"Item with id '{item_id}' not found in wishlist '{wishlist_id}'.",
         )
 
     return jsonify(item.serialize()), status.HTTP_200_OK
@@ -477,7 +477,7 @@ def delete_item_from_wishlist(wishlist_id, item_id):
         app.logger.error(f"Wishlist with id '{wishlist_id}' not found.")
         abort(
             status.HTTP_404_NOT_FOUND,
-            f"Wishlist with id '{wishlist_id}' not found.",
+            description=f"Wishlist with id '{wishlist_id}' not found.",
         )
 
     # Find the item within the wishlist
@@ -488,7 +488,7 @@ def delete_item_from_wishlist(wishlist_id, item_id):
         )
         abort(
             status.HTTP_404_NOT_FOUND,
-            f"Item with id '{item_id}' not found in wishlist '{wishlist_id}'.",
+            description=f"Item with id '{item_id}' not found in wishlist '{wishlist_id}'.",
         )
 
     # Delete the item
@@ -498,7 +498,7 @@ def delete_item_from_wishlist(wishlist_id, item_id):
         app.logger.error(f"Unexpected error when deleting item: {e}")
         abort(
             status.HTTP_500_INTERNAL_SERVER_ERROR,
-            "An unexpected error occurred while deleting the item.",
+            description="An unexpected error occurred while deleting the item.",
         )
 
     app.logger.info(f"Item with id '{item_id}' deleted from wishlist '{wishlist_id}'.")
@@ -519,7 +519,7 @@ def check_content_type(content_type) -> None:
         app.logger.error("No Content-Type specified.")
         abort(
             status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-            f"Content-Type must be {content_type}",
+            description=f"Content-Type must be {content_type}",
         )
 
     if request.headers["Content-Type"] == content_type:
@@ -528,5 +528,5 @@ def check_content_type(content_type) -> None:
     app.logger.error("Invalid Content-Type: %s", request.headers["Content-Type"])
     abort(
         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-        f"Content-Type must be {content_type}",
+        description=f"Content-Type must be {content_type}",
     )
