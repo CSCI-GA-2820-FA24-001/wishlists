@@ -390,8 +390,8 @@ def update_item_in_wishlist(wishlistId, itemId):
     # Optionally, include Location header pointing to the updated resource
     location_url = url_for(
         "get_item",  # Ensure that this endpoint is defined
-        wishlistId=wishlistId,
-        itemId=item.id,
+        wishlist_id=wishlistId,
+        item_id=item.id,
         _external=True,
     )
 
