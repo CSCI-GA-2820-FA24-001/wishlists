@@ -103,26 +103,31 @@ class TestWishlist(TestCase):
         }
         with self.assertRaises(DataValidationError) as context:
             item.deserialize(item_data)
-        self.assertIn("invalid item: 'price' must be a positive number.", str(context.exception).lower())
+        self.assertIn(
+            "invalid item: 'price' must be a positive number.",
+            str(context.exception).lower(),
+        )
 
-    # def test_serialize_item(self):
-    #     """It should serialize an item to a dictionary"""
-    #     # wishlist = WishlistFactory()
-    #     fake_item = ItemFactory()
-    #     item = Item(
-    #         wishlist_id=fake_item.wishlist_id,
-    #         name=fake_item.name,
-    #         description=fake_item.description,
-    #         price=fake_item.price,
-    #     )
-    #     item.create()
-    #     serialized = item.serialize()
-    #     self.assertIsInstance(serialized, dict)
-    #     self.assertEqual(serialized["id"], item.id)
-    #     self.assertEqual(serialized["wishlist_id"], item.wishlist_id)
-    #     self.assertEqual(serialized["name"], item.name)
-    #     self.assertEqual(serialized["description"], item.description)
-    #     self.assertEqual(float(serialized["price"]), float(item.price))
+    def test_serialize_an_item(self):
+        """It should serialize an Item"""
+        item = ItemFactory()
+        serial_item = item.serialize()
+        self.assertEqual(serial_item["id"], item.id)
+        self.assertEqual(serial_item["wishlist_id"], item.wishlist_id)
+        self.assertEqual(serial_item["name"], item.name)
+        self.assertEqual(serial_item["description"], item.description)
+        self.assertEqual(serial_item["price"], item.price)
+
+    def test_deserialize_an_item(self):
+        """It should deserialize an Item"""
+        item = ItemFactory()
+        item.create()
+        new_item = Item()
+        new_item.deserialize(item.serialize())
+        self.assertEqual(new_item.wishlist_id, item.wishlist_id)
+        self.assertEqual(new_item.name, item.name)
+        self.assertEqual(new_item.description, item.description)
+        self.assertEqual(new_item.price, item.price)
 
     def test_update_item_model_success(self):
         """It should update an item's attributes and commit to the database"""
@@ -144,3 +149,17 @@ class TestWishlist(TestCase):
         self.assertEqual(updated_item.name, "Updated Laptop")
         self.assertEqual(updated_item.description, "Updated Gaming Laptop")
         self.assertEqual(float(updated_item.price), 1600.00)
+
+    def test_item_str(self):
+        item = ItemFactory()
+        item.id = 4
+        item.name = "phone"
+        item.update()
+        self.assertEqual(str(item), "4 - phone")
+
+    def test_item_repr(self):
+        item = ItemFactory()
+        item.id = 3
+        item.name = "phone"
+        item.wishlist_id = 4
+        self.assertEqual(repr(item), "<Item phone id=[3] wishlist[4]>")
