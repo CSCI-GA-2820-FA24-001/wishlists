@@ -172,7 +172,7 @@ def delete_wishlists(wishlist_id):
 def list_items(wishlist_id):
     """Returns all items"""
     app.logger.info("Request to list all items from wishlist with id: %s", wishlist_id)    
-    check_content_type("application/json")
+    ###check_content_type("application/json")
 
     wishlist = Wishlist.find(wishlist_id)
     if not wishlist:
@@ -272,16 +272,16 @@ def add_item_to_wishlist(wishlist_id):
 ######################################################################
 # UPDATE AN EXISTING ITEM IN A WISHLIST
 ######################################################################
-@app.route("/wishlists/<int:wishlistId>/items/<int:itemId>", methods=["PUT"])
-def update_item_in_wishlist(wishlistId, itemId):
+@app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["PUT"])
+def update_item_in_wishlist(wishlist_id, item_id):
     """
     Update the details of an existing Item in a specific Wishlist
 
-    This endpoint will update the Item specified by itemId in the Wishlist specified by wishlistId
+    This endpoint will update the Item specified by item_id in the Wishlist specified by wishlist_id
     based on the data provided in the request body.
     """
     app.logger.info(
-        f"Request to update item with id: {itemId} in wishlist with id: {wishlistId}"
+        f"Request to update item with id: {item_id} in wishlist with id: {wishlist_id}"
     )
 
     # Ensure the request content type is application/json
@@ -333,34 +333,34 @@ def update_item_in_wishlist(wishlistId, itemId):
         )
 
     # Find the wishlist by ID
-    wishlist = Wishlist.find(wishlistId)
+    wishlist = Wishlist.find(wishlist_id)
     if not wishlist:
-        app.logger.error(f"Wishlist with id '{wishlistId}' not found.")
+        app.logger.error(f"Wishlist with id '{wishlist_id}' not found.")
         abort(
             status.HTTP_404_NOT_FOUND,
-            f"Wishlist with id '{wishlistId}' not found.",
+            f"Wishlist with id '{wishlist_id}' not found.",
         )
 
     # Find the item within the wishlist
-    item = Item.query.filter_by(wishlist_id=wishlistId, id=itemId).first()
+    item = Item.query.filter_by(wishlist_id=wishlist_id, id=item_id).first()
     if not item:
         app.logger.error(
-            f"Item with id '{itemId}' not found in wishlist '{wishlistId}'."
+            f"Item with id '{item_id}' not found in wishlist '{wishlist_id}'."
         )
         abort(
             status.HTTP_404_NOT_FOUND,
-            f"Item with id '{itemId}' not found in wishlist '{wishlistId}'.",
+            f"Item with id '{item_id}' not found in wishlist '{wishlist_id}'.",
         )
 
     # Check for duplicate item name within the same wishlist, excluding the current item
-    existing_item = Item.query.filter_by(wishlist_id=wishlistId, name=item_name).first()
-    if existing_item and existing_item.id != itemId:
+    existing_item = Item.query.filter_by(wishlist_id=wishlist_id, name=item_name).first()
+    if existing_item and existing_item.id != item_id:
         app.logger.error(
-            f"Item with name '{item_name}' already exists in wishlist '{wishlistId}'."
+            f"Item with name '{item_name}' already exists in wishlist '{wishlist_id}'."
         )
         abort(
             status.HTTP_409_CONFLICT,
-            f"Item with name '{item_name}' already exists in wishlist '{wishlistId}'.",
+            f"Item with name '{item_name}' already exists in wishlist '{wishlist_id}'.",
         )
 
     # Update the item's details
@@ -372,13 +372,7 @@ def update_item_in_wishlist(wishlistId, itemId):
     try:
         item.update()
     except DataValidationError as e:
-        app.logger.error(f"Data validation error during update: {e}")
-        abort(
-            status.HTTP_400_BAD_REQUEST,
-            f"Data validation error: {e}",
-        )
-    except Exception as e:
-        app.logger.error(f"Unexpected error during update: {e}")
+        app.logger.error(f"Unexpected data validation error during update: {e}")
         abort(
             status.HTTP_500_INTERNAL_SERVER_ERROR,
             "An unexpected error occurred while updating the item.",
@@ -390,7 +384,7 @@ def update_item_in_wishlist(wishlistId, itemId):
     # Optionally, include Location header pointing to the updated resource
     location_url = url_for(
         "get_item",  # Ensure that this endpoint is defined
-        wishlist_id=wishlistId,
+        wishlist_id=wishlist_id,
         item_id=item.id,
         _external=True,
     )
