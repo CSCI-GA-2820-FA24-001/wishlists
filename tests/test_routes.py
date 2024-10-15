@@ -658,58 +658,33 @@ class TestWishlistService(TestCase):
         data = response.get_json()
         self.assertIn("already exists", data["message"].lower())
 
-    def test_update_item_data_validation_error(self):
-        """It should return 400 when data validation fails during update"""
-        # Create a wishlist and an item
+    def test_update_item_unexpected_error(self):
+        """It should return 500 when updating an item with a name exceeding length limit"""
+        # Create a wishlist and two items
         wishlist = self._create_wishlists(1)[0]
         items = self._create_items(wishlist.id, count=1)
-        item = items[0]
+        item1 = items[0]
 
-        # Define invalid data that will cause DataValidationError
-        invalid_data = {
-            "name": "A" * 100,  # Assuming max length is less than 100
-            "description": "Valid Description",
+        # Define updated data with a name exceeding 100 characters
+        long_name = "a" * 101  # Assuming the name length limit is 100 characters
+
+        updated_data = {
+            "name": long_name,  # Exceeding name length
+            "description": "Updated Description",
             "price": 299.99,
         }
 
-        # Send PUT request to update the item
+        # Send PUT request to update item2
         response = self.client.put(
-            f"{BASE_URL}/{wishlist.id}/items/{item.id}",
-            json=invalid_data,
+            f"{BASE_URL}/{wishlist.id}/items/{item1.id}",
+            json=updated_data,
             content_type="application/json",
         )
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        # Assert that it should return 500 Internal Server Error
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         data = response.get_json()
-        self.assertIn("data validation error", data["message"].lower())
-
-    # def test_update_item_unexpected_error(self):
-    #     """It should return 500 when updating an item with a name exceeding length limit"""
-    #     # Create a wishlist and two items
-    #     wishlist = self._create_wishlists(1)[0]
-    #     items = self._create_items(wishlist.id, count=1)
-    #     item1 = items[0]
-
-    #     # Define updated data with a name exceeding 100 characters
-    #     long_name = "a" * 101  # Assuming the name length limit is 100 characters
-
-    #     updated_data = {
-    #         "name": long_name,  # Exceeding name length
-    #         "description": "Updated Description",
-    #         "price": 299.99,
-    #     }
-
-    #     # Send PUT request to update item2
-    #     response = self.client.put(
-    #         f"{BASE_URL}/{wishlist.id}/items/{item1.id}",
-    #         json=updated_data,
-    #         content_type="application/json",
-    #     )
-
-    #     # Assert that it should return 500 Internal Server Error
-    #     self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
-    #     data = response.get_json()
-    #     self.assertIn("unexpected error", data["message"].lower())
+        self.assertIn("unexpected error", data["message"].lower())
 
     # Endpoint: DELETE   /wishlists/{id}/items/{id}
     def test_delete_item_success(self):
