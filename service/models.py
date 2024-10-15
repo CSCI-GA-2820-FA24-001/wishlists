@@ -170,6 +170,7 @@ class Wishlist(db.Model, PersistentBase):
         logger.info("Processing userid query for %s ...", userid)
         return cls.query.filter(cls.userid == userid)
 
+
 ######################################################################
 #  I T E M   M O D E L
 ######################################################################

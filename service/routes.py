@@ -171,13 +171,14 @@ def delete_wishlists(wishlist_id):
 @app.route("/wishlists/<int:wishlist_id>/items", methods=["GET"])
 def list_items(wishlist_id):
     """Returns all items"""
-    app.logger.info("Request to list all items from wishlist with id: %s", wishlist_id)    
+    app.logger.info("Request to list all items from wishlist with id: %s", wishlist_id)
     check_content_type("application/json")
 
     wishlist = Wishlist.find(wishlist_id)
     if not wishlist:
         abort(
-            status.HTTP_404_NOT_FOUND, f"Wishlist with id '{wishlist_id}' was not found."
+            status.HTTP_404_NOT_FOUND,
+            f"Wishlist with id '{wishlist_id}' was not found.",
         )
     myitems = wishlist.items
     results = [item.serialize() for item in myitems]
@@ -353,7 +354,9 @@ def update_item_in_wishlist(wishlist_id, item_id):
         )
 
     # Check for duplicate item name within the same wishlist, excluding the current item
-    existing_item = Item.query.filter_by(wishlist_id=wishlist_id, name=item_name).first()
+    existing_item = Item.query.filter_by(
+        wishlist_id=wishlist_id, name=item_name
+    ).first()
     if existing_item and existing_item.id != item_id:
         app.logger.error(
             f"Item with name '{item_name}' already exists in wishlist '{wishlist_id}'."
@@ -416,7 +419,9 @@ def get_item(wishlist_id, item_id):
     # Find the item within the wishlist
     item = Item.query.filter_by(wishlist_id=wishlist_id, id=item_id).first()
     if not item:
-        app.logger.error(f"Item with id '{item_id}' not found in wishlist '{wishlist_id}'.")
+        app.logger.error(
+            f"Item with id '{item_id}' not found in wishlist '{wishlist_id}'."
+        )
         abort(
             status.HTTP_404_NOT_FOUND,
             f"Item with id '{item_id}' not found in wishlist '{wishlist_id}'.",
@@ -435,7 +440,9 @@ def delete_item_from_wishlist(wishlist_id, item_id):
 
     This endpoint will delete an Item based on its id within the specified wishlist
     """
-    app.logger.info(f"Request to delete item with id: {item_id} from wishlist with id: {wishlist_id}")
+    app.logger.info(
+        f"Request to delete item with id: {item_id} from wishlist with id: {wishlist_id}"
+    )
 
     # Find the wishlist
     wishlist = Wishlist.find(wishlist_id)
@@ -449,7 +456,9 @@ def delete_item_from_wishlist(wishlist_id, item_id):
     # Find the item within the wishlist
     item = Item.query.filter_by(wishlist_id=wishlist_id, id=item_id).first()
     if not item:
-        app.logger.error(f"Item with id '{item_id}' not found in wishlist '{wishlist_id}'.")
+        app.logger.error(
+            f"Item with id '{item_id}' not found in wishlist '{wishlist_id}'."
+        )
         abort(
             status.HTTP_404_NOT_FOUND,
             f"Item with id '{item_id}' not found in wishlist '{wishlist_id}'.",
