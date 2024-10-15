@@ -212,10 +212,28 @@ class TestWishlistService(TestCase):
         resp = self.client.delete(f"{BASE_URL}/0")
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
+
     ######################################################################
     #  I T E M   E N D P O I N T   T E S T   C A S E S
     ######################################################################
 
+    
+    def test_get_all_items(self):
+        """Test the ability to GET all items"""
+        wishlist = self._create_wishlists(1)[0]
+        resp = self.client.get(
+            f"{BASE_URL}/{wishlist.id}/items", content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.get_json(),[])
+
+    def test_get_all_items_not_found(self):
+        """Test the ability to GET all items"""
+        resp = self.client.get(
+            f"{BASE_URL}/0/items", content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+        
     def test_add_item_missing_fields(self):
         """It should return 400 when required fields are missing"""
         # create a wishlist
