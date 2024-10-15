@@ -21,10 +21,14 @@ TestWishlist API Service Test Suite
 # pylint: disable=duplicate-code
 import os
 import logging
+from unittest.mock import patch
 from unittest import TestCase
+from werkzeug.exceptions import UnsupportedMediaType
 from wsgi import app
+
 from service.common import status
 from service.models import db, Wishlist
+from service.routes import check_content_type
 from .factories import WishlistFactory, ItemFactory
 
 DATABASE_URI = os.getenv(
@@ -750,3 +754,13 @@ class TestWishlistService(TestCase):
         """It should not allow an illegal method call"""
         resp = self.client.put(BASE_URL, json={"not": "today"})
         self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_check_content_type_missing(self):
+        """It should raise a 415 error if Content-Type is missing"""
+        # create a valid request context with test_request_context of Flask
+        with app.test_request_context():
+            with patch("service.routes.request") as mock_request:
+                mock_request.headers = {}
+                # Ensure that check_content_type raises UnsupportedMediaType when Content-Type is missing
+                with self.assertRaises(UnsupportedMediaType):
+                    check_content_type("application/json")
