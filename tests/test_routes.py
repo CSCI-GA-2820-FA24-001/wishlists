@@ -84,7 +84,7 @@ class TestWishlistService(TestCase):
             wishlist.id = new_wishlist["id"]
             wishlists.append(wishlist)
         return wishlists
-    
+
     ######################################################################
     #  W I S H L I S T   T E S T   C A S E S
     ######################################################################
@@ -127,19 +127,33 @@ class TestWishlistService(TestCase):
 
         # Check the data is correct
         new_wishlist = response.get_json()
-        self.assertEqual(new_wishlist["name"], test_wishlist.name, "Name does not match")
-        self.assertEqual(new_wishlist["userid"], test_wishlist.userid, "User ID does not match")
         self.assertEqual(
-            new_wishlist["date_created"], (test_wishlist.date_created).isoformat(), "Date Created does not match"
+            new_wishlist["name"], test_wishlist.name, "Name does not match"
+        )
+        self.assertEqual(
+            new_wishlist["userid"], test_wishlist.userid, "User ID does not match"
+        )
+        self.assertEqual(
+            new_wishlist["date_created"],
+            (test_wishlist.date_created).isoformat(),
+            "Date Created does not match",
         )
 
         # Check that the location header was correct
         response = self.client.get(location, content_type="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         new_wishlist = response.get_json()
-        self.assertEqual(new_wishlist["name"], test_wishlist.name, "Name does not match")
-        self.assertEqual(new_wishlist["userid"], test_wishlist.userid, "User ID does not match")
-        self.assertEqual(new_wishlist["date_created"], str(test_wishlist.date_created), "Date Created does not match")
+        self.assertEqual(
+            new_wishlist["name"], test_wishlist.name, "Name does not match"
+        )
+        self.assertEqual(
+            new_wishlist["userid"], test_wishlist.userid, "User ID does not match"
+        )
+        self.assertEqual(
+            new_wishlist["date_created"],
+            str(test_wishlist.date_created),
+            "Date Created does not match",
+        )
 
     def test_update_wishlist(self):
         """It should Update an existing Wishlist"""
@@ -158,7 +172,7 @@ class TestWishlistService(TestCase):
         self.assertEqual(updated_wishlist["name"], "new new new Name")
 
     def test_get_all_wishlists(self):
-        """"Test the ability to GET all wishlists"""
+        """Test the ability to GET all wishlists"""
         self._create_wishlists(10)
         resp = self.client.get(BASE_URL)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
@@ -197,3 +211,221 @@ class TestWishlistService(TestCase):
         """Test the behavior of DELETE with wishlist not found"""
         resp = self.client.delete(f"{BASE_URL}/0")
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+
+    ######################################################################
+    #  I T E M   E N D P O I N T   T E S T   C A S E S
+    ######################################################################
+
+    def test_add_item_missing_fields(self):
+        """It should return 400 when required fields are missing"""
+        # create a wishlist
+        wishlist = self._create_wishlists(1)[0]
+
+        # define am object data without 'price' field
+        incomplete_item_data = {
+            "name": "Smartphone",
+            "description": "Latest model smartphone",
+            # 'price' is missing
+        }
+
+        # Send a POST request to add this item
+        response = self.client.post(
+            f"{BASE_URL}/{wishlist.id}/items",
+            json=incomplete_item_data,
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        data = response.get_json()
+        self.assertIn("missing fields", data["message"].lower())
+        self.assertIn("price", data["message"].lower())
+
+    def test_add_item_invalid_price_string(self):
+        """It should return 400 when the price is invalid as a string"""
+        # create a wishlist
+        wishlist = self._create_wishlists(1)[0]
+
+        # define an invalid item data
+        invalid_price_item_data = {
+            "name": "Laptop",
+            "description": "Gaming Laptop",
+            "price": "invalid_price",
+        }
+        # Send a POST request to add this item
+        response = self.client.post(
+            f"{BASE_URL}/{wishlist.id}/items",
+            json=invalid_price_item_data,
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        data = response.get_json()
+        self.assertIn("must be a positive number", data["message"].lower())
+
+    def test_add_item_invalid_price_nonpositive(self):
+        """It should return 400 when the price is invalid as a non-positive number"""
+        # create a wishlist
+        wishlist = self._create_wishlists(1)[0]
+
+        # define an invalid item data
+        invalid_price_item_data = {
+            "name": "Laptop",
+            "description": "Gaming Laptop",
+            "price": -3.1415926,
+        }
+        # Send a POST request to add this item
+        response = self.client.post(
+            f"{BASE_URL}/{wishlist.id}/items",
+            json=invalid_price_item_data,
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        data = response.get_json()
+        self.assertIn("must be a positive number", data["message"].lower())
+
+    def test_add_item_nonexistent_wishlist(self):
+        """It should return 404 when adding an item to a non-existent wishlist"""
+        # define valid item data
+        valid_item_data = {
+            "name": "Tablet",
+            "description": "Latest model tablet",
+            "price": 499.99,
+        }
+
+        # send POST request to a non-existent wishlist id
+        response = self.client.post(
+            "/wishlists/999/items",
+            json=valid_item_data,
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        data = response.get_json()
+        self.assertIn("wishlist with id '999' not found", data["message"].lower())
+
+    def test_add_item_duplicate_name(self):
+        """It should return 409 when adding an item with a duplicate name in the wishlist"""
+        # create a wishlist
+        wishlist = self._create_wishlists(1)[0]
+
+        # create an item
+        item_data = {
+            "name": "Headphones",
+            "description": "Noise-cancelling headphones",
+            "price": 199.99,
+        }
+        response = self.client.post(
+            f"{BASE_URL}/{wishlist.id}/items",
+            json=item_data,
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # attempt to add an item with duplicated name
+        duplicate_item_data = {
+            "name": "Headphones",  # duplicated name of "Headphone"
+            "description": "Wireless headphones",
+            "price": 249.99,
+        }
+        response = self.client.post(
+            f"{BASE_URL}/{wishlist.id}/items",
+            json=duplicate_item_data,
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        data = response.get_json()
+        self.assertIn("already exists", data["message"].lower())
+
+    def test_get_item_success(self):
+        """It should retrieve an existing item from a wishlist"""
+        # create a wishlist
+        wishlist = self._create_wishlists(1)[0]
+        # create an item
+        item = ItemFactory(wishlist_id=wishlist.id)
+        response = self.client.post(
+            f"{BASE_URL}/{wishlist.id}/items",
+            json=item.serialize(),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        created_item = response.get_json()
+
+        # Access the item by GET request
+        get_response = self.client.get(
+            f"{BASE_URL}/{wishlist.id}/items/{created_item['id']}",
+            content_type="application/json",
+        )
+        self.assertEqual(get_response.status_code, status.HTTP_200_OK)
+        fetched_item = get_response.get_json()
+        self.assertEqual(fetched_item["name"], item.name)
+        self.assertEqual(fetched_item["description"], item.description)
+        self.assertEqual(float(fetched_item["price"]), float(item.price))
+
+    def test_get_item_nonexistent_wishlist(self):
+        """It should return 404 when retrieving an item from a non-existent wishlist"""
+        response = self.client.get(
+            "/wishlists/999/items/1", content_type="application/json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        data = response.get_json()
+        self.assertIn("not found", data["message"].lower())
+
+    def test_get_nonexistent_item(self):
+        """It should return 404 when retrieving a non-existent item from a wishlist"""
+        # create a wishlist
+        wishlist = self._create_wishlists(1)[0]
+        response = self.client.get(
+            f"{BASE_URL}/{wishlist.id}/items/999", content_type="application/json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        data = response.get_json()
+        self.assertIn("not found", data["message"].lower())
+
+    def test_delete_item_success(self):
+        """It should delete an existing item from a wishlist"""
+        # create a wishlist
+        wishlist = self._create_wishlists(1)[0]
+        # create an item
+        item = ItemFactory(wishlist_id=wishlist.id)
+        response = self.client.post(
+            f"{BASE_URL}/{wishlist.id}/items",
+            json=item.serialize(),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        created_item = response.get_json()
+
+        # Request deleting that item by sending a DELETE request
+        delete_response = self.client.delete(
+            f"{BASE_URL}/{wishlist.id}/items/{created_item['id']}",
+            content_type="application/json",
+        )
+        self.assertEqual(delete_response.status_code, status.HTTP_204_NO_CONTENT)
+
+        # verify that the item is deleted successfully
+        get_response = self.client.get(
+            f"{BASE_URL}/{wishlist.id}/items/{created_item['id']}",
+            content_type="application/json",
+        )
+        self.assertEqual(get_response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_item_nonexistent_wishlist(self):
+        """It should return 404 when deleting an item from a non-existent wishlist"""
+        response = self.client.delete(
+            "/wishlists/999/items/1", content_type="application/json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        data = response.get_json()
+        self.assertIn("not found", data["message"].lower())
+
+    def test_delete_nonexistent_item(self):
+        """It should return 404 when deleting a non-existent item from a wishlist"""
+        # create a wishlist
+        wishlist = self._create_wishlists(1)[0]
+        response = self.client.delete(
+            f"{BASE_URL}/{wishlist.id}/items/999", content_type="application/json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        data = response.get_json()
+        self.assertIn("not found", data["message"].lower())

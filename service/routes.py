@@ -164,15 +164,15 @@ def delete_wishlists(wishlist_id):
 ######################################################################
 # ADD A NEW ITEM TO A SPECIFIC WISHLIST
 ######################################################################
-@app.route("/wishlists/<int:wishlistId>/items", methods=["POST"])
-def add_item_to_wishlist(wishlistId):
+@app.route("/wishlists/<int:wishlist_id>/items", methods=["POST"])
+def add_item_to_wishlist(wishlist_id):
     """
     Add a new item to a specific Wishlist
 
-    This endpoint will add a new item to the wishlist specified by wishlistId
+    This endpoint will add a new item to the wishlist specified by wishlist_id
     based on the data provided in the request body.
     """
-    app.logger.info(f"Request to add a new item to wishlist with id: {wishlistId}")
+    app.logger.info(f"Request to add a new item to wishlist with id: {wishlist_id}")
     # Ensure the request content type is application/json
     check_content_type("application/json")
     # Parse the JSON request body
@@ -187,7 +187,7 @@ def add_item_to_wishlist(wishlistId):
             f"Missing fields in request body: {', '.join(missing_fields)}",
         )
     # Inject wishlist_id from the URL path into the item data
-    item_data["wishlist_id"] = wishlistId
+    item_data["wishlist_id"] = wishlist_id
 
     # Create a new Item instance and deserialize the data
     new_item = Item()
@@ -201,25 +201,25 @@ def add_item_to_wishlist(wishlistId):
         )
 
     # Find the wishlist by ID
-    wishlist = Wishlist.find(wishlistId)
+    wishlist = Wishlist.find(wishlist_id)
     if not wishlist:
-        app.logger.error(f"Wishlist with id '{wishlistId}' not found.")
+        app.logger.error(f"Wishlist with id '{wishlist_id}' not found.")
         abort(
             status.HTTP_404_NOT_FOUND,
-            f"Wishlist with id '{wishlistId}' not found.",
+            f"Wishlist with id '{wishlist_id}' not found.",
         )
 
     # Check if an item with the same name already exists in the wishlist
     existing_item = Item.query.filter_by(
-        wishlist_id=wishlistId, name=new_item.name
+        wishlist_id=wishlist_id, name=new_item.name
     ).first()
     if existing_item:
         app.logger.error(
-            f"Item with name '{new_item.name}' already exists in wishlist '{wishlistId}'."
+            f"Item with name '{new_item.name}' already exists in wishlist '{wishlist_id}'."
         )
         abort(
             status.HTTP_409_CONFLICT,
-            f"Item with name '{new_item.name}' already exists in wishlist '{wishlistId}'.",
+            f"Item with name '{new_item.name}' already exists in wishlist '{wishlist_id}'.",
         )
 
     # Add the new item to the database
@@ -237,13 +237,90 @@ def add_item_to_wishlist(wishlistId):
     # Generate the Location URL for the newly created item
     location_url = url_for(
         "get_item",  # Ensure that this endpoint is defined
-        wishlistId=wishlistId,
-        itemId=new_item.id,
+        wishlist_id=wishlist_id,
+        item_id=new_item.id,
         _external=True,
     )
 
     # Return the response with 201 Created and Location header
     return jsonify(serialized_item), status.HTTP_201_CREATED, {"Location": location_url}
+
+
+######################################################################
+# RETRIEVE A SPECIFIC ITEM FROM A WISHLIST
+######################################################################
+@app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["GET"])
+def get_item(wishlist_id, item_id):
+    """
+    Retrieve a specific Item from a Wishlist
+
+    This endpoint will return an Item based on its id within the specified wishlist
+    """
+    app.logger.info(f"Request for item with id: {item_id} in wishlist {wishlist_id}")
+
+    # Find the wishlist
+    wishlist = Wishlist.find(wishlist_id)
+    if not wishlist:
+        app.logger.error(f"Wishlist with id '{wishlist_id}' not found.")
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Wishlist with id '{wishlist_id}' not found.",
+        )
+
+    # Find the item within the wishlist
+    item = Item.query.filter_by(wishlist_id=wishlist_id, id=item_id).first()
+    if not item:
+        app.logger.error(f"Item with id '{item_id}' not found in wishlist '{wishlist_id}'.")
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Item with id '{item_id}' not found in wishlist '{wishlist_id}'.",
+        )
+
+    return jsonify(item.serialize()), status.HTTP_200_OK
+
+
+######################################################################
+# DELETE A SPECIFIC ITEM FROM A WISHLIST
+######################################################################
+@app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["DELETE"])
+def delete_item_from_wishlist(wishlist_id, item_id):
+    """
+    Delete a specific Item from a Wishlist
+
+    This endpoint will delete an Item based on its id within the specified wishlist
+    """
+    app.logger.info(f"Request to delete item with id: {item_id} from wishlist with id: {wishlist_id}")
+
+    # Find the wishlist
+    wishlist = Wishlist.find(wishlist_id)
+    if not wishlist:
+        app.logger.error(f"Wishlist with id '{wishlist_id}' not found.")
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Wishlist with id '{wishlist_id}' not found.",
+        )
+
+    # Find the item within the wishlist
+    item = Item.query.filter_by(wishlist_id=wishlist_id, id=item_id).first()
+    if not item:
+        app.logger.error(f"Item with id '{item_id}' not found in wishlist '{wishlist_id}'.")
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Item with id '{item_id}' not found in wishlist '{wishlist_id}'.",
+        )
+
+    # Delete the item
+    try:
+        item.delete()
+    except Exception as e:
+        app.logger.error(f"Unexpected error when deleting item: {e}")
+        abort(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            "An unexpected error occurred while deleting the item.",
+        )
+
+    app.logger.info(f"Item with id '{item_id}' deleted from wishlist '{wishlist_id}'.")
+    return "", status.HTTP_204_NO_CONTENT
 
 
 ######################################################################
