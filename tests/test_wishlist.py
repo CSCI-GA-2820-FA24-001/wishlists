@@ -6,6 +6,7 @@ Test cases for Wishlist Model
 import logging
 import os
 from unittest import TestCase
+from unittest.mock import patch
 from wsgi import app
 
 from service.models import Wishlist, Item, db, DataValidationError
@@ -67,6 +68,24 @@ class TestWishlist(TestCase):
         # # .isoformat() works for test_tourtes l94 but not here
         # self.assertEqual(wishlist.date_created, fake_wishlist.date_created)
 
+    def test_add_a_wishlist(self):
+        """It should Create a wishlist and add it to the database"""
+        wishlists = Wishlist.all()
+        self.assertEqual(wishlists, [])
+        wishlist = WishlistFactory()
+        wishlist.create()
+        # Assert that it was assigned an id and shows up in the database
+        self.assertIsNotNone(wishlist.id)
+        wishlists = Wishlist.all()
+        self.assertEqual(len(wishlists), 1)
+
+    @patch("service.models.db.session.commit")
+    def test_add_wishlist_failed(self, exception_mock):
+        """It should not create an Wishlist on database error"""
+        exception_mock.side_effect = Exception()
+        wishlist = WishlistFactory()
+        self.assertRaises(DataValidationError, wishlist.create)
+
     def test_read_wishlist(self):
         """It should Read an wishlist"""
         wishlist = WishlistFactory()
@@ -93,6 +112,13 @@ class TestWishlist(TestCase):
         wishlist.delete()
         wishlists = Wishlist.all()
         self.assertEqual(len(wishlists), 0)
+
+    @patch("service.models.db.session.commit")
+    def test_delete_wishlist_failed(self, exception_mock):
+        """It should not delete a Wishlist on database error"""
+        exception_mock.side_effect = Exception()
+        wishlist = WishlistFactory()
+        self.assertRaises(DataValidationError, wishlist.delete)
 
     def test_list_all_wishlists(self):
         """It should List all Wishlists in the database"""
@@ -124,12 +150,19 @@ class TestWishlist(TestCase):
         self.assertEqual(new_wishlist.date_created, wishlist.date_created)
 
     def test_deserialize_with_key_error(self):
-        """It should not Deserialize an wishlist with a KeyError"""
+        """It should not Deserialize a wishlist with a KeyError"""
         wishlist = Wishlist()
         self.assertRaises(DataValidationError, wishlist.deserialize, {})
 
+    def test_deserialize_with_attribution_error(self):
+        """It should not Deserialize a wishlist with a AttributeError"""
+        wishlist = Wishlist()
+        self.assertRaises(
+            DataValidationError, wishlist.deserialize, {"date_created": 123}
+        )
+
     def test_deserialize_with_type_error(self):
-        """It should not Deserialize an wishlist with a TypeError"""
+        """It should not Deserialize a wishlist with a TypeError"""
         wishlist = Wishlist()
         self.assertRaises(DataValidationError, wishlist.deserialize, [])
 
@@ -156,3 +189,10 @@ class TestWishlist(TestCase):
         # Fetch it back again
         wishlist = Wishlist.find(wishlist.id)
         self.assertEqual(wishlist.name, "testWishlistName")
+
+    @patch("service.models.db.session.commit")
+    def test_update_wishlist_failed(self, exception_mock):
+        """It should not update a Wishlist on database error"""
+        exception_mock.side_effect = Exception()
+        wishlist = WishlistFactory()
+        self.assertRaises(DataValidationError, wishlist.update)
