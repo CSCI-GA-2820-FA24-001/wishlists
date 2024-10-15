@@ -191,6 +191,18 @@ class TestWishlistService(TestCase):
             for returned_wishlist in data:
                 self.assertEqual(returned_wishlist["name"], wishlist.name)
 
+    def test_get_wishlists_by_userid(self):
+        """Test the ability to GET wishlists by userid"""
+        wishlists = self._create_wishlists(3)
+        # test for all three created wishlists
+        for wishlist in wishlists:
+            resp = self.client.get(BASE_URL, query_string=f"userid={wishlist.userid}")
+            self.assertEqual(resp.status_code, status.HTTP_200_OK)
+            data = resp.get_json()
+            self.assertGreater(len(data), 0)
+            for returned_wishlist in data:
+                self.assertEqual(returned_wishlist["userid"], wishlist.userid)
+
     def test_get_empty_wishlist(self):
         """Test the behavior of GET with empty database"""
         resp = self.client.get(BASE_URL)
