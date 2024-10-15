@@ -19,7 +19,7 @@ DATABASE_URI = os.getenv(
 
 
 ######################################################################
-#        A C C O U N T   M O D E L   T E S T   C A S E S
+#        W I S H L I S T   M O D E L   T E S T   C A S E S
 ######################################################################
 class TestWishlist(TestCase):
     """Wishlist Model Test Cases"""

@@ -123,7 +123,6 @@ class TestWishlistService(TestCase):
         resp = self.client.get("/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
-    # Todo: Add your test cases here...
     def test_get_wishlist(self):
         """It should Read a single Wishlist"""
         # get the id of an wishlist
@@ -638,18 +637,17 @@ class TestWishlistService(TestCase):
         # Create a wishlist and two items
         wishlist = self._create_wishlists(1)[0]
         items = self._create_items(wishlist.id, count=2)
-        item1, item2 = items
 
         # Define updated data for item2 to have the same name as item1
         duplicate_name_data = {
-            "name": item1.name,  # Duplicate name
+            "name": items[0].name,  # Duplicate name
             "description": "Updated Description",
             "price": 299.99,
         }
 
         # Send PUT request to update item2
         response = self.client.put(
-            f"{BASE_URL}/{wishlist.id}/items/{item2.id}",
+            f"{BASE_URL}/{wishlist.id}/items/{items[1].id}",
             json=duplicate_name_data,
             content_type="application/json",
         )
