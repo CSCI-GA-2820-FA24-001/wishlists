@@ -164,12 +164,12 @@ def delete_wishlists(wishlist_id):
 ######################################################################
 # ADD A NEW ITEM TO A SPECIFIC WISHLIST
 ######################################################################
-@app.route("/wishlists/<int:wishlistId>/items", methods=["POST"])
+@app.route("/wishlists/<int:wishlist_id>/items", methods=["POST"])
 def add_item_to_wishlist(wishlist_id):
     """
     Add a new item to a specific Wishlist
 
-    This endpoint will add a new item to the wishlist specified by wishlistId
+    This endpoint will add a new item to the wishlist specified by wishlist_id
     based on the data provided in the request body.
     """
     app.logger.info(f"Request to add a new item to wishlist with id: {wishlist_id}")
@@ -237,8 +237,8 @@ def add_item_to_wishlist(wishlist_id):
     # Generate the Location URL for the newly created item
     location_url = url_for(
         "get_item",  # Ensure that this endpoint is defined
-        wishlistId=wishlist_id,
-        itemId=new_item.id,
+        wishlist_id=wishlist_id,
+        item_id=new_item.id,
         _external=True,
     )
 
@@ -249,7 +249,7 @@ def add_item_to_wishlist(wishlist_id):
 ######################################################################
 # RETRIEVE A SPECIFIC ITEM FROM A WISHLIST
 ######################################################################
-@app.route("/wishlists/<int:wishlistId>/items/<int:itemId>", methods=["GET"])
+@app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["GET"])
 def get_item(wishlist_id, item_id):
     """
     Retrieve a specific Item from a Wishlist
@@ -282,7 +282,7 @@ def get_item(wishlist_id, item_id):
 ######################################################################
 # DELETE A SPECIFIC ITEM FROM A WISHLIST
 ######################################################################
-@app.route("/wishlists/<int:wishlistId>/items/<int:itemId>", methods=["DELETE"])
+@app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["DELETE"])
 def delete_item_from_wishlist(wishlist_id, item_id):
     """
     Delete a specific Item from a Wishlist

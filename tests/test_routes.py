@@ -172,7 +172,7 @@ class TestWishlistService(TestCase):
         self.assertEqual(updated_wishlist["name"], "new new new Name")
 
     def test_get_all_wishlists(self):
-        """ "Test the ability to GET all wishlists"""
+        """ Test the ability to GET all wishlists"""
         self._create_wishlists(10)
         resp = self.client.get(BASE_URL)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
