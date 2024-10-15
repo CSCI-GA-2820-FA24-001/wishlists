@@ -624,6 +624,56 @@ class TestWishlistService(TestCase):
         data = response.get_json()
         self.assertIn(f"item with id '{non_existent_item_id}' not found in wishlist '{wishlist.id}'", data["message"].lower())
 
+    def test_update_item_duplicate_name(self):
+        """It should return 409 when updating an item with a duplicate name in the same wishlist"""
+        # Create a wishlist and two items
+        wishlist = self._create_wishlists(1)[0]
+        items = self._create_items(wishlist.id, count=2)
+        item1, item2 = items
+
+        # Define updated data for item2 to have the same name as item1
+        duplicate_name_data = {
+            "name": item1.name,  # Duplicate name
+            "description": "Updated Description",
+            "price": 299.99
+        }
+
+        # Send PUT request to update item2
+        response = self.client.put(
+            f"{BASE_URL}/{wishlist.id}/items/{item2.id}",
+            json=duplicate_name_data,
+            content_type="application/json"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        data = response.get_json()
+        self.assertIn("already exists", data["message"].lower())
+
+    def test_update_item_data_validation_error(self):
+        """It should return 400 when data validation fails during update"""
+        # Create a wishlist and an item
+        wishlist = self._create_wishlists(1)[0]
+        items = self._create_items(wishlist.id, count=1)
+        item = items[0]
+
+        # Define invalid data that will cause DataValidationError
+        invalid_data = {
+            "name": "A" * 100,  # Assuming max length is less than 100
+            "description": "Valid Description",
+            "price": 299.99
+        }
+
+        # Send PUT request to update the item
+        response = self.client.put(
+            f"{BASE_URL}/{wishlist.id}/items/{item.id}",
+            json=invalid_data,
+            content_type="application/json"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        data = response.get_json()
+        self.assertIn("data validation error", data["message"].lower())
+
     # Endpoint: DELETE   /wishlists/{id}/items/{id}
     def test_delete_item_success(self):
         """It should delete an existing item from a wishlist"""
