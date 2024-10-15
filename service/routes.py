@@ -372,13 +372,7 @@ def update_item_in_wishlist(wishlist_id, item_id):
     try:
         item.update()
     except DataValidationError as e:
-        app.logger.error(f"Data validation error during update: {e}")
-        abort(
-            status.HTTP_400_BAD_REQUEST,
-            f"Data validation error: {e}",
-        )
-    except Exception as e:
-        app.logger.error(f"Unexpected error during update: {e}")
+        app.logger.error(f"Unexpected data validation error during update: {e}")
         abort(
             status.HTTP_500_INTERNAL_SERVER_ERROR,
             "An unexpected error occurred while updating the item.",
