@@ -471,6 +471,32 @@ class TestWishlistService(TestCase):
         self.assertEqual(data["description"], updated_data["description"])
         self.assertEqual(float(data["price"]), updated_data["price"])
 
+    def test_update_item_missing_fields(self):
+        """It should return 400 when required fields are missing"""
+        # Create a wishlist and an item
+        wishlist = self._create_wishlists(1)[0]
+        items = self._create_items(wishlist.id, count=1)
+        item = items[0]
+
+        # Define incomplete data missing 'price'
+        incomplete_data = {
+            "name": "UpdatedName",
+            "description": "Updated Description",
+            # 'price' is missing
+        }
+
+        # Send PUT request to update the item
+        response = self.client.put(
+            f"{BASE_URL}/{wishlist.id}/items/{item.id}",
+            json=incomplete_data,
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        data = response.get_json()
+        self.assertIn("missing fields", data["message"].lower())
+        self.assertIn("price", data["message"].lower())
+
     # Endpoint: DELETE   /wishlists/{id}/items/{id}
     def test_delete_item_success(self):
         """It should delete an existing item from a wishlist"""
