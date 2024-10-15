@@ -21,10 +21,14 @@ TestWishlist API Service Test Suite
 # pylint: disable=duplicate-code
 import os
 import logging
+from unittest.mock import patch
 from unittest import TestCase
+from werkzeug.exceptions import UnsupportedMediaType
 from wsgi import app
+
 from service.common import status
 from service.models import db, Wishlist
+from service.routes import check_content_type
 from .factories import WishlistFactory, ItemFactory
 
 DATABASE_URI = os.getenv(
@@ -123,7 +127,6 @@ class TestWishlistService(TestCase):
         resp = self.client.get("/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
-    # Todo: Add your test cases here...
     def test_get_wishlist(self):
         """It should Read a single Wishlist"""
         # get the id of an wishlist
@@ -640,18 +643,17 @@ class TestWishlistService(TestCase):
         # Create a wishlist and two items
         wishlist = self._create_wishlists(1)[0]
         items = self._create_items(wishlist.id, count=2)
-        item1, item2 = items
 
         # Define updated data for item2 to have the same name as item1
         duplicate_name_data = {
-            "name": item1.name,  # Duplicate name
+            "name": items[0].name,  # Duplicate name
             "description": "Updated Description",
             "price": 299.99,
         }
 
         # Send PUT request to update item2
         response = self.client.put(
-            f"{BASE_URL}/{wishlist.id}/items/{item2.id}",
+            f"{BASE_URL}/{wishlist.id}/items/{items[1].id}",
             json=duplicate_name_data,
             content_type="application/json",
         )
@@ -754,6 +756,16 @@ class TestWishlistService(TestCase):
         """It should not allow an illegal method call"""
         resp = self.client.put(BASE_URL, json={"not": "today"})
         self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_check_content_type_missing(self):
+        """It should raise a 415 error if Content-Type is missing"""
+        # create a valid request context with test_request_context of Flask
+        with app.test_request_context():
+            with patch("service.routes.request") as mock_request:
+                mock_request.headers = {}
+                # Ensure that check_content_type raises UnsupportedMediaType when Content-Type is missing
+                with self.assertRaises(UnsupportedMediaType):
+                    check_content_type("application/json")
 
     # NOTE: the following may contain redundant test cases
     def test_update_item_in_wishlist_success(self):

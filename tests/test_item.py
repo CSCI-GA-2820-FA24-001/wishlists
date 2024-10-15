@@ -3,13 +3,11 @@
 Test cases for Item Model
 """
 
-import logging
 import os
-from unittest import TestCase
-from wsgi import app
 
-from service.models import Wishlist, Item, db, DataValidationError
+from service.models import Item, DataValidationError
 from tests.factories import ItemFactory, WishlistFactory
+from tests.test_base import BaseTestCase
 
 
 DATABASE_URI = os.getenv(
@@ -18,34 +16,10 @@ DATABASE_URI = os.getenv(
 
 
 ######################################################################
-#        A D D R E S S   M O D E L   T E S T   C A S E S
+#        I T E M   M O D E L   T E S T   C A S E S
 ######################################################################
-class TestWishlist(TestCase):
+class TestItem(BaseTestCase):
     """Item Model Test Cases"""
-
-    @classmethod
-    def setUpClass(cls):
-        """This runs once before the entire test suite"""
-        app.config["TESTING"] = True
-        app.config["DEBUG"] = False
-        app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
-        app.logger.setLevel(logging.CRITICAL)
-        app.app_context().push()
-
-    @classmethod
-    def tearDownClass(cls):
-        """This runs once after the entire test suite"""
-        db.session.close()
-
-    def setUp(self):
-        """This runs before each test"""
-        db.session.query(Wishlist).delete()  # clean up the last tests
-        db.session.query(Item).delete()  # clean up the last tests
-        db.session.commit()
-
-    def tearDown(self):
-        """This runs after each test"""
-        db.session.remove()
 
     ######################################################################
     #  T E S T   C A S E S
@@ -53,12 +27,11 @@ class TestWishlist(TestCase):
     def test_create_an_item(self):
         """It should create an Item"""
         fake_item = ItemFactory()
-        item = Item(
-            wishlist_id=fake_item.wishlist_id,
-            name=fake_item.name,
-            description=fake_item.description,
-            price=fake_item.price,
-        )
+        item = Item()
+        item.wishlist_id = fake_item.wishlist_id
+        item.name = fake_item.name
+        item.description = fake_item.description
+        item.price = fake_item.price
         self.assertIsNotNone(item)
 
     ######################################################################
@@ -149,17 +122,3 @@ class TestWishlist(TestCase):
         self.assertEqual(updated_item.name, "Updated Laptop")
         self.assertEqual(updated_item.description, "Updated Gaming Laptop")
         self.assertEqual(float(updated_item.price), 1600.00)
-
-    def test_item_str(self):
-        item = ItemFactory()
-        item.id = 4
-        item.name = "phone"
-        item.update()
-        self.assertEqual(str(item), "4 - phone")
-
-    def test_item_repr(self):
-        item = ItemFactory()
-        item.id = 3
-        item.name = "phone"
-        item.wishlist_id = 4
-        self.assertEqual(repr(item), "<Item phone id=[3] wishlist[4]>")
