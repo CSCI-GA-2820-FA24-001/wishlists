@@ -209,7 +209,17 @@ class Item(db.Model, PersistentBase):
             self.wishlist_id = data["wishlist_id"]
             self.name = data["name"]
             self.description = data["description"]
-            self.price = data["price"]
+
+            # verify and transform the type of price
+            try:
+                self.price = float(data["price"])
+                if self.price <= 0:
+                    raise ValueError("Price must be a positive number.")
+            except (ValueError, TypeError) as error:
+                raise DataValidationError(
+                    "Invalid Item: 'price' must be a positive number."
+                ) from error
+
         except AttributeError as error:
             raise DataValidationError("Invalid attribute: " + error.args[0]) from error
         except KeyError as error:
