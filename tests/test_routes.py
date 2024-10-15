@@ -171,6 +171,12 @@ class TestWishlistService(TestCase):
         updated_wishlist = resp.get_json()
         self.assertEqual(updated_wishlist["name"], "new new new Name")
 
+    def test_update_wishlist_not_found(self):
+        """Test the behavior of UPDATE with wishlist not found"""
+        test_wishlist = WishlistFactory()
+        resp = self.client.put(f"{BASE_URL}/0", json=test_wishlist.serialize())
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_get_all_wishlists(self):
         """Test the ability to GET all wishlists"""
         self._create_wishlists(10)
