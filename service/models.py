@@ -182,7 +182,22 @@ class Wishlist(db.Model, PersistentBase):
                 "Invalid date format. Use YYYY-MM-DD format."
             ) from error
 
-    
+    @classmethod
+    def find_by_date_range(cls, start_date, end_date):
+        """Returns all Wishlists with the given date"""
+        logger.info("Processing date range query from %s to %s ...", start_date, end_date)
+        try:
+            search_start = date.fromisoformat(start_date)
+            search_end = date.fromisoformat(end_date)
+            return cls.query.filter(
+                cls.date_created >= search_start,
+                cls.date_created <= search_end
+            )
+        except ValueError as error:
+            raise DataValidationError(
+                "Invalid date format. Use YYYY-MM-DD format."
+            ) from error
+
 ######################################################################
 #  I T E M   M O D E L
 ######################################################################
