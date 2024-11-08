@@ -111,6 +111,14 @@ class TestWishlist(BaseTestCase):
         self.assertEqual(same_wishlist.id, wishlist.id)
         self.assertEqual(same_wishlist.name, wishlist.name)
 
+    def test_find_by_userid(self):
+        """It should Find a Wishlist by name"""
+        wishlist = WishlistFactory()
+        wishlist.create()
+        same_wishlist = Wishlist.find_by_userid(wishlist.userid)[0]
+        self.assertEqual(same_wishlist.id, wishlist.id)
+        self.assertEqual(same_wishlist.userid, wishlist.userid)
+
     def test_deserialize_an_wishlist(self):
         """It should Deserialize an wishlist"""
         wishlist = WishlistFactory()
