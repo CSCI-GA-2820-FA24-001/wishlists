@@ -119,6 +119,14 @@ class TestWishlist(BaseTestCase):
         self.assertEqual(same_wishlist.id, wishlist.id)
         self.assertEqual(same_wishlist.userid, wishlist.userid)
 
+    def test_find_by_date_created(self):
+        """It should Find a Wishlist by date created"""
+        wishlist = WishlistFactory()
+        wishlist.create()
+        same_wishlist = Wishlist.find_by_date_created(wishlist.date_created.isoformat())[0]
+        self.assertEqual(same_wishlist.id, wishlist.id)
+        self.assertEqual(same_wishlist.date_created, wishlist.date_created)
+
     def test_deserialize_an_wishlist(self):
         """It should Deserialize an wishlist"""
         wishlist = WishlistFactory()

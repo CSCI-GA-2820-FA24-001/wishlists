@@ -171,7 +171,7 @@ class Wishlist(db.Model, PersistentBase):
         return cls.query.filter(cls.userid == userid)
 
     @classmethod
-    def find_by_date_create(cls, date_created):
+    def find_by_date_created(cls, date_created):
         """Returns all Wishlists with the given date"""
         logger.info("Processing date_created query for %s ...", date_created)
         try:
