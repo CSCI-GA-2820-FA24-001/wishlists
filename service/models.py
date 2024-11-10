@@ -154,6 +154,9 @@ class Wishlist(db.Model, PersistentBase):
 
         return self
 
+    ######################################################################
+    #  C L A S S  M E T H O D S
+    ######################################################################
     @classmethod
     def find_by_name(cls, name):
         """Returns all Wishlists with the given name
@@ -170,6 +173,29 @@ class Wishlist(db.Model, PersistentBase):
         logger.info("Processing userid query for %s ...", userid)
         return cls.query.filter(cls.userid == userid)
 
+    @classmethod
+    def find_by_date_created(cls, date_created):
+        """Returns all Wishlists with the given date created"""
+        logger.info("Processing date_created query for %s ...", date_created)
+        try:
+            search_date = date.fromisoformat(date_created)
+            return cls.query.filter(cls.date_created == search_date)
+        except ValueError as error:
+            raise DataValidationError(
+                "Invalid date format. Use YYYY-MM-DD format."
+            ) from error
+
+    @classmethod
+    def find_since_date(cls, target_date):
+        """Returns all Wishlists created since the given date"""
+        logger.info("Processing since date query for %s ...", target_date)
+        try:
+            search_date = date.fromisoformat(target_date)
+            return cls.query.filter(cls.date_created >= search_date)
+        except ValueError as error:
+            raise DataValidationError(
+                "Invalid date format. Use YYYY-MM-DD format."
+            ) from error
 
 ######################################################################
 #  I T E M   M O D E L
