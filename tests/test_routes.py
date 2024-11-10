@@ -122,6 +122,11 @@ class TestWishlistService(TestCase):
     #  W I S H L I S T   T E S T   C A S E S
     ######################################################################
 
+    def test_health_check(self):
+        """It should call the health check."""
+        resp = self.client.get("/health")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
     def test_index(self):
         """It should call the home page"""
         resp = self.client.get("/")
