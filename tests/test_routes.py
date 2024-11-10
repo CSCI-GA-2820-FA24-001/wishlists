@@ -285,7 +285,6 @@ class TestWishlistService(TestCase):
         wishlist = self._create_wishlists(1)[0]
         resp = self.client.delete(f"{BASE_URL}/{wishlist.id}")
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
-        # Verify deletion
         resp = self.client.get(f"{BASE_URL}/{wishlist.id}")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
