@@ -246,6 +246,19 @@ class TestWishlistService(TestCase):
             for returned_wishlist in data:
                 self.assertEqual(returned_wishlist["userid"], wishlist.userid)
 
+    def test_get_wishlists_by_date_created(self):
+        """Test the ability to GET wishlists by date created"""
+        wishlists = self._create_wishlists(3)
+        # test for all three created wishlists
+        for wishlist in wishlists:
+            date_str = wishlist.date_created.isoformat()
+            resp = self.client.get(BASE_URL, query_string=f"date_created={date_str}")
+            self.assertEqual(resp.status_code, status.HTTP_200_OK)
+            data = resp.get_json()
+            self.assertGreater(len(data), 0)
+            for returned_wishlist in data:
+                self.assertEqual(returned_wishlist["date_created"], date_str)
+    
     def test_get_empty_wishlist(self):
         """Test the behavior of GET with empty database"""
         resp = self.client.get(BASE_URL)
