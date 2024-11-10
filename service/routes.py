@@ -23,8 +23,7 @@ and Delete YourResourceModel
 
 from flask import jsonify, request, url_for, abort
 from flask import current_app as app  # Import Flask application
-from sqlalchemy.exc import SQLAlchemyError
-from service.models import Item, Wishlist, DataValidationError
+from service.models import Item, Wishlist
 from service.common import status  # HTTP Status Codes
 
 
@@ -207,30 +206,6 @@ def add_item_to_wishlist(wishlist_id):
     app.logger.info(f"Request to add a new item to wishlist with id: {wishlist_id}")
     # Ensure the request content type is application/json
     check_content_type("application/json")
-    # Parse the JSON request body
-    item_data = request.get_json()
-    # Validate required fields
-    required_fields = ["name", "description", "price"]
-    missing_fields = [field for field in required_fields if field not in item_data]
-    if missing_fields:
-        app.logger.error(f"Missing fields in request body: {missing_fields}")
-        abort(
-            status.HTTP_400_BAD_REQUEST,
-            description=f"Missing fields in request body: {', '.join(missing_fields)}",
-        )
-    # Inject wishlist_id from the URL path into the item data
-    item_data["wishlist_id"] = wishlist_id
-
-    # Create a new Item instance and deserialize the data
-    new_item = Item()
-    try:
-        new_item.deserialize(item_data)
-    except DataValidationError as e:
-        app.logger.error(f"Data validation error: {e}")
-        abort(
-            status.HTTP_400_BAD_REQUEST,
-            description=f"Data validation error: {e}",
-        )
 
     # Find the wishlist by ID
     wishlist = Wishlist.find(wishlist_id)
@@ -240,6 +215,12 @@ def add_item_to_wishlist(wishlist_id):
             status.HTTP_404_NOT_FOUND,
             description=f"Wishlist with id '{wishlist_id}' not found.",
         )
+
+    # Create a new Item instance and deserialize the data
+    new_item = Item()
+    item_data = request.get_json()
+    item_data["wishlist_id"] = wishlist_id
+    new_item.deserialize(item_data)
 
     # Check if an item with the same name already exists in the wishlist
     existing_item = Item.query.filter_by(
@@ -255,15 +236,7 @@ def add_item_to_wishlist(wishlist_id):
         )
 
     # Add the new item to the database
-    try:
-        new_item.create()
-    except SQLAlchemyError as e:
-        app.logger.error(f"Unexpected error when creating item: {e}")
-        abort(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
-            description="An unexpected error occurred while creating the item.",
-        )
-    # Serialize the new item for the response
+    new_item.create()
     serialized_item = new_item.serialize()
 
     # Generate the Location URL for the newly created item
@@ -299,9 +272,6 @@ def update_item_in_wishlist(wishlist_id, item_id):
     # Parse the JSON request body
     item_data = request.get_json()
 
-    # Validate the request data
-    validate_request_data(item_data)
-
     # Find the wishlist and item
     wishlist = Wishlist.find(wishlist_id)
     if not wishlist:
@@ -323,52 +293,6 @@ def update_item_in_wishlist(wishlist_id, item_id):
 
     # Serialize the updated item and return the response
     return generate_update_response(wishlist_id, item)
-
-
-def validate_request_data(item_data):
-    """Validate request data for updating an item"""
-    required_fields = ["name", "description", "price"]
-    missing_fields = [field for field in required_fields if field not in item_data]
-    if missing_fields:
-        app.logger.error(f"Missing fields in request body: {missing_fields}")
-        abort(
-            status.HTTP_400_BAD_REQUEST,
-            description=f"Missing fields in request body: {', '.join(missing_fields)}",
-        )
-
-    validate_field_types(item_data)
-
-
-def validate_field_types(item_data):
-    """Validate the types and constraints of the fields"""
-    item_name = item_data["name"]
-    item_description = item_data["description"]
-    item_price = item_data["price"]
-
-    if not isinstance(item_name, str) or not item_name.strip():
-        app.logger.error("Invalid data type or empty 'name'")
-        abort(
-            status.HTTP_400_BAD_REQUEST,
-            description="'name' must be a non-empty string.",
-        )
-
-    if not isinstance(item_description, str) or not item_description.strip():
-        app.logger.error("Invalid data type or empty 'description'")
-        abort(
-            status.HTTP_400_BAD_REQUEST,
-            description="'description' must be a non-empty string.",
-        )
-
-    try:
-        item_price = float(item_price)
-        if item_price <= 0:
-            raise ValueError("Price must be a positive number.")
-    except (ValueError, TypeError) as e:
-        app.logger.error(f"Invalid 'price': {e}")
-        abort(
-            status.HTTP_400_BAD_REQUEST,
-            description="'price' must be a positive number.",
-        )
 
 
 def find_item_in_wishlist(wishlist_id, item_id):
@@ -409,14 +333,7 @@ def update_item_details(item, item_data):
 
 def save_updated_item(item):
     """Save the updated item to the database"""
-    try:
-        item.update()
-    except DataValidationError as e:
-        app.logger.error(f"Unexpected data validation error during update: {e}")
-        abort(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
-            description="An unexpected error occurred while updating the item.",
-        )
+    item.update()
 
 
 def generate_update_response(wishlist_id, item):
@@ -492,20 +409,15 @@ def delete_item_from_wishlist(wishlist_id, item_id):
     # Find the item within the wishlist
     item = Item.query.filter_by(wishlist_id=wishlist_id, id=item_id).first()
     if item:
-        try:
-            item.delete()
-        except SQLAlchemyError as e:
-            app.logger.error(f"Unexpected error when deleting item: {e}")
-            abort(
-                status.HTTP_500_INTERNAL_SERVER_ERROR,
-                description="An unexpected error occurred while deleting the item.",
-            )
+        item.delete()
     else:
         app.logger.error(
             f"Item with id '{item_id}' not found in wishlist '{wishlist_id}'."
         )
 
-    app.logger.info(f"Item with id '{item_id}' not found in wishlist '{wishlist_id}', returning 204.")
+    app.logger.info(
+        f"Item with id '{item_id}' not found in wishlist '{wishlist_id}', returning 204."
+    )
     return "", status.HTTP_204_NO_CONTENT
 
 

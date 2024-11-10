@@ -287,73 +287,56 @@ class TestWishlistService(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     # Endpoint: POST /wishlists/{id}/items
-    def test_add_item_missing_fields(self):
-        """It should return 400 when required fields are missing"""
-        # create a wishlist
+    def test_add_item_to_wishlist(self):
+        """It should Create an item and add it to a wishlist"""
+        # Create a test wishlist
         wishlist = self._create_wishlists(1)[0]
 
-        # define am object data without 'price' field
-        incomplete_item_data = {
-            "name": "Smartphone",
-            "description": "Latest model smartphone",
-            # 'price' is missing
-        }
-
-        # Send a POST request to add this item
+        # Create fake item and post it
+        fake_item = ItemFactory()
         response = self.client.post(
             f"{BASE_URL}/{wishlist.id}/items",
-            json=incomplete_item_data,
+            json=fake_item.serialize(),
             content_type="application/json",
         )
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # Check the response data
         data = response.get_json()
-        self.assertIn("missing fields", data["message"].lower())
-        self.assertIn("price", data["message"].lower())
+        self.assertEqual(data["name"], fake_item.name)
+        self.assertEqual(data["description"], fake_item.description)
+        self.assertEqual(float(data["price"]), float(fake_item.price))
+        self.assertEqual(data["wishlist_id"], wishlist.id)
 
-    def test_add_item_invalid_price_string(self):
-        """It should return 400 when the price is invalid as a string"""
-        # create a wishlist
+        # Check that Location header was set
+        self.assertIn("Location", response.headers)
+
+        # Check that item was actually created in database
+        item_url = response.headers["Location"]
+        resp = self.client.get(item_url)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.get_json()["name"], fake_item.name)
+
+    def test_add_item_unsupported_media_type(self):
+        """It should not Create an item when sending wrong media type"""
         wishlist = self._create_wishlists(1)[0]
+        fake_item = ItemFactory()
 
-        # define an invalid item data
-        invalid_price_item_data = {
-            "name": "Laptop",
-            "description": "Gaming Laptop",
-            "price": "invalid_price",
-        }
-        # Send a POST request to add this item
         response = self.client.post(
             f"{BASE_URL}/{wishlist.id}/items",
-            json=invalid_price_item_data,
-            content_type="application/json",
+            json=fake_item.serialize(),
+            content_type="text/plain",
         )
+        self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        data = response.get_json()
-        self.assertIn("must be a positive number", data["message"].lower())
-
-    def test_add_item_invalid_price_nonpositive(self):
-        """It should return 400 when the price is invalid as a non-positive number"""
-        # create a wishlist
+    def test_add_item_bad_data(self):
+        """It should not Create an item with bad data"""
         wishlist = self._create_wishlists(1)[0]
-
-        # define an invalid item data
-        invalid_price_item_data = {
-            "name": "Laptop",
-            "description": "Gaming Laptop",
-            "price": -3.1415926,
-        }
-        # Send a POST request to add this item
         response = self.client.post(
-            f"{BASE_URL}/{wishlist.id}/items",
-            json=invalid_price_item_data,
-            content_type="application/json",
+            f"{BASE_URL}/{wishlist.id}/items", json={}, content_type="application/json"
         )
-
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        data = response.get_json()
-        self.assertIn("must be a positive number", data["message"].lower())
 
     def test_add_item_nonexistent_wishlist(self):
         """It should return 404 when adding an item to a non-existent wishlist"""
@@ -464,7 +447,7 @@ class TestWishlistService(TestCase):
 
         # Define updated data
         updated_data = {
-            "name": "UpdatedName",
+            "name": "Updated Name",
             "description": "Updated Description",
             "price": 299.99,
         }
@@ -481,105 +464,6 @@ class TestWishlistService(TestCase):
         self.assertEqual(data["name"], updated_data["name"])
         self.assertEqual(data["description"], updated_data["description"])
         self.assertEqual(float(data["price"]), updated_data["price"])
-
-    def test_update_item_missing_fields(self):
-        """It should return 400 when required fields are missing"""
-        # Create a wishlist and an item
-        wishlist = self._create_wishlists(1)[0]
-        items = self._create_items(wishlist.id, count=1)
-        item = items[0]
-
-        # Define incomplete data missing 'price'
-        incomplete_data = {
-            "name": "UpdatedName",
-            "description": "Updated Description",
-            # 'price' is missing
-        }
-
-        # Send PUT request to update the item
-        response = self.client.put(
-            f"{BASE_URL}/{wishlist.id}/items/{item.id}",
-            json=incomplete_data,
-            content_type="application/json",
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        data = response.get_json()
-        self.assertIn("missing fields", data["message"].lower())
-        self.assertIn("price", data["message"].lower())
-
-    def test_update_item_invalid_name(self):
-        """It should return 400 when the name is invalid"""
-        # Create a wishlist and an item
-        wishlist = self._create_wishlists(1)[0]
-        items = self._create_items(wishlist.id, count=1)
-        item = items[0]
-
-        # Define invalid name (empty string)
-        invalid_data = {
-            "name": "   ",
-            "description": "Updated Description",
-            "price": 299.99,
-        }
-
-        # Send PUT request to update the item
-        response = self.client.put(
-            f"{BASE_URL}/{wishlist.id}/items/{item.id}",
-            json=invalid_data,
-            content_type="application/json",
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        data = response.get_json()
-        self.assertIn("'name' must be a non-empty string", data["message"].lower())
-
-    def test_update_item_invalid_description(self):
-        """It should return 400 when the description is invalid"""
-        # Create a wishlist and an item
-        wishlist = self._create_wishlists(1)[0]
-        items = self._create_items(wishlist.id, count=1)
-        item = items[0]
-
-        # Define invalid description (empty string)
-        invalid_data = {"name": "UpdatedName", "description": "   ", "price": 299.99}
-
-        # Send PUT request to update the item
-        response = self.client.put(
-            f"{BASE_URL}/{wishlist.id}/items/{item.id}",
-            json=invalid_data,
-            content_type="application/json",
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        data = response.get_json()
-        self.assertIn(
-            "'description' must be a non-empty string", data["message"].lower()
-        )
-
-    def test_update_item_invalid_price(self):
-        """It should return 400 when the price is invalid"""
-        # Create a wishlist and an item
-        wishlist = self._create_wishlists(1)[0]
-        items = self._create_items(wishlist.id, count=1)
-        item = items[0]
-
-        # Define invalid price (negative number)
-        invalid_data = {
-            "name": "UpdatedName",
-            "description": "Updated Description",
-            "price": -50.00,
-        }
-
-        # Send PUT request to update the item
-        response = self.client.put(
-            f"{BASE_URL}/{wishlist.id}/items/{item.id}",
-            json=invalid_data,
-            content_type="application/json",
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        data = response.get_json()
-        self.assertIn("must be a positive number", data["message"].lower())
 
     def test_update_item_nonexistent_wishlist(self):
         """It should return 404 when updating an item in a non-existent wishlist"""
@@ -666,7 +550,7 @@ class TestWishlistService(TestCase):
         self.assertIn("already exists", data["message"].lower())
 
     def test_update_item_unexpected_error(self):
-        """It should return 500 when updating an item with a name exceeding length limit"""
+        """It should return 400 when updating an item with a name exceeding length limit"""
         # Create a wishlist and two items
         wishlist = self._create_wishlists(1)[0]
         items = self._create_items(wishlist.id, count=1)
@@ -688,10 +572,7 @@ class TestWishlistService(TestCase):
             content_type="application/json",
         )
 
-        # Assert that it should return 500 Internal Server Error
-        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
-        data = response.get_json()
-        self.assertIn("unexpected error", data["message"].lower())
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     # Endpoint: DELETE   /wishlists/{id}/items/{id}
     def test_delete_item_success(self):
