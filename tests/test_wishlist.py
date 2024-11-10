@@ -5,12 +5,11 @@ Test cases for Wishlist Model
 
 import os
 from unittest.mock import patch
+from datetime import timedelta
 
 from service.models import Wishlist, Item, DataValidationError
 from tests.factories import WishlistFactory, ItemFactory
 from tests.test_base import BaseTestCase
-from datetime import timedelta
-
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql+psycopg://postgres:postgres@localhost:5432/postgres"
