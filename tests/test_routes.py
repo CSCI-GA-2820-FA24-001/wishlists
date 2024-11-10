@@ -626,9 +626,9 @@ class TestWishlistService(TestCase):
 
     def test_unsupported_media_type(self):
         """It should not Create when sending wrong media type"""
-        account = WishlistFactory()
+        wishlist = WishlistFactory()
         resp = self.client.post(
-            BASE_URL, json=account.serialize(), content_type="test/html"
+            BASE_URL, json=wishlist.serialize(), content_type="test/html"
         )
         self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
