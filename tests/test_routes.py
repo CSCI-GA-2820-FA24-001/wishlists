@@ -259,7 +259,7 @@ class TestWishlistService(TestCase):
             self.assertGreater(len(data), 0)
             for returned_wishlist in data:
                 self.assertEqual(returned_wishlist["date_created"], date_str)
-    
+
     def test_get_wishlists_since_date(self):
         """Test the ability to GET wishlists created since a date"""
         wishlists = self._create_wishlists(3)
