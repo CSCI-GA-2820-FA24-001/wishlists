@@ -23,9 +23,9 @@ import os
 import logging
 from unittest.mock import patch
 from unittest import TestCase
+from datetime import date
 from werkzeug.exceptions import UnsupportedMediaType
 from wsgi import app
-from datetime import date
 
 from service.common import status
 from service.models import db, Wishlist
