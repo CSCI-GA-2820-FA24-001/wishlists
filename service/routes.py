@@ -491,26 +491,21 @@ def delete_item_from_wishlist(wishlist_id, item_id):
 
     # Find the item within the wishlist
     item = Item.query.filter_by(wishlist_id=wishlist_id, id=item_id).first()
-    if not item:
+    if item:
+        try:
+            item.delete()
+        except SQLAlchemyError as e:
+            app.logger.error(f"Unexpected error when deleting item: {e}")
+            abort(
+                status.HTTP_500_INTERNAL_SERVER_ERROR,
+                description="An unexpected error occurred while deleting the item.",
+            )
+    else:
         app.logger.error(
             f"Item with id '{item_id}' not found in wishlist '{wishlist_id}'."
         )
-        abort(
-            status.HTTP_404_NOT_FOUND,
-            description=f"Item with id '{item_id}' not found in wishlist '{wishlist_id}'.",
-        )
 
-    # Delete the item
-    try:
-        item.delete()
-    except SQLAlchemyError as e:
-        app.logger.error(f"Unexpected error when deleting item: {e}")
-        abort(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
-            description="An unexpected error occurred while deleting the item.",
-        )
-
-    app.logger.info(f"Item with id '{item_id}' deleted from wishlist '{wishlist_id}'.")
+    app.logger.info(f"Item with id '{item_id}' not found in wishlist '{wishlist_id}', returning 204.")
     return "", status.HTTP_204_NO_CONTENT
 
 

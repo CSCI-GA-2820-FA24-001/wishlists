@@ -715,6 +715,13 @@ class TestWishlistService(TestCase):
         )
         self.assertEqual(delete_response.status_code, status.HTTP_204_NO_CONTENT)
 
+        # Request deleting item again to test idempotency
+        delete_response = self.client.delete(
+            f"{BASE_URL}/{wishlist.id}/items/{created_item['id']}",
+            content_type="application/json",
+        )
+        self.assertEqual(delete_response.status_code, status.HTTP_204_NO_CONTENT)
+
         # verify that the item is deleted successfully
         get_response = self.client.get(
             f"{BASE_URL}/{wishlist.id}/items/{created_item['id']}",
@@ -726,17 +733,6 @@ class TestWishlistService(TestCase):
         """It should return 404 when deleting an item from a non-existent wishlist"""
         response = self.client.delete(
             "/wishlists/999/items/1", content_type="application/json"
-        )
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        data = response.get_json()
-        self.assertIn("not found", data["message"].lower())
-
-    def test_delete_nonexistent_item(self):
-        """It should return 404 when deleting a non-existent item from a wishlist"""
-        # create a wishlist
-        wishlist = self._create_wishlists(1)[0]
-        response = self.client.delete(
-            f"{BASE_URL}/{wishlist.id}/items/999", content_type="application/json"
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         data = response.get_json()
