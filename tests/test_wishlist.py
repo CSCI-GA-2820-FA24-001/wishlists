@@ -9,6 +9,7 @@ from unittest.mock import patch
 from service.models import Wishlist, Item, DataValidationError
 from tests.factories import WishlistFactory, ItemFactory
 from tests.test_base import BaseTestCase
+from datetime import timedelta
 
 
 DATABASE_URI = os.getenv(
@@ -112,7 +113,7 @@ class TestWishlist(BaseTestCase):
         self.assertEqual(same_wishlist.name, wishlist.name)
 
     def test_find_by_userid(self):
-        """It should Find a Wishlist by name"""
+        """It should Find a Wishlist by userid"""
         wishlist = WishlistFactory()
         wishlist.create()
         same_wishlist = Wishlist.find_by_userid(wishlist.userid)[0]
@@ -126,6 +127,26 @@ class TestWishlist(BaseTestCase):
         same_wishlist = Wishlist.find_by_date_created(wishlist.date_created.isoformat())[0]
         self.assertEqual(same_wishlist.id, wishlist.id)
         self.assertEqual(same_wishlist.date_created, wishlist.date_created)
+
+    def test_find_since_date(self):
+        """It should Find Wishlists created on or after a given date"""
+        wishlist1 = WishlistFactory()
+        wishlist2 = WishlistFactory()
+        wishlist3 = WishlistFactory()
+        target_date = wishlist1.date_created + timedelta(days=1)
+        wishlist2.date_created = target_date
+        wishlist3.date_created = target_date + timedelta(days=1)
+        wishlist1.create()
+        wishlist2.create()
+        wishlist3.create()
+        # should only return wishlist2 and wishlist3
+        wishlists = Wishlist.find_since_date(target_date.isoformat())
+        wishlist_list = list(wishlists)
+        self.assertEqual(len(wishlist_list), 2)
+        ret_ids = [wishlist.id for wishlist in wishlist_list]
+        self.assertNotIn(wishlist1.id, ret_ids)
+        self.assertIn(wishlist2.id, ret_ids)
+        self.assertIn(wishlist3.id, ret_ids)
 
     def test_deserialize_an_wishlist(self):
         """It should Deserialize an wishlist"""
