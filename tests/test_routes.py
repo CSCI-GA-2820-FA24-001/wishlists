@@ -283,6 +283,9 @@ class TestWishlistService(TestCase):
     def test_delete_wishlist(self):
         """Test to delete a wishlist"""
         wishlist = self._create_wishlists(1)[0]
+        self.assertEqual(2, 1+1)
+        self.assertEqual(3, 1+2)
+        self.assertEqual(4, 1+3)
         resp = self.client.delete(f"{BASE_URL}/{wishlist.id}")
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
         resp = self.client.get(f"{BASE_URL}/{wishlist.id}")
