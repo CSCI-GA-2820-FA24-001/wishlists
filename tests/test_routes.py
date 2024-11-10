@@ -25,6 +25,7 @@ from unittest.mock import patch
 from unittest import TestCase
 from werkzeug.exceptions import UnsupportedMediaType
 from wsgi import app
+from datetime import date
 
 from service.common import status
 from service.models import db, Wishlist
@@ -259,6 +260,19 @@ class TestWishlistService(TestCase):
             for returned_wishlist in data:
                 self.assertEqual(returned_wishlist["date_created"], date_str)
     
+    def test_get_wishlists_since_date(self):
+        """Test the ability to GET wishlists created since a date"""
+        wishlists = self._create_wishlists(3)
+        sorted_wishlists = sorted(wishlists, key=lambda x: x.date_created)
+        target_date = sorted_wishlists[0].date_created
+        resp = self.client.get(BASE_URL, query_string=f"since_date={target_date.isoformat()}")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), 3)
+        for returned_wishlist in data:
+            returned_date = date.fromisoformat(returned_wishlist["date_created"])
+            self.assertGreaterEqual(returned_date, target_date)
+
     def test_get_empty_wishlist(self):
         """Test the behavior of GET with empty database"""
         resp = self.client.get(BASE_URL)
