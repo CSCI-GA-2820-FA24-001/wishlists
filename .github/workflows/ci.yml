@@ -39,6 +39,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.11.10"
+
       - name: Upgrade pip and setuptools
         run: |
           python -m pip install --upgrade pip setuptools
@@ -46,9 +51,15 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install poetry==1.7.1
+          # This version restriction is referenced from:
+          # https://github.com/CSCI-GA-2820-FA24-001/products/pull/44/commits/019cd580f217e8966407980b7ce2887e4ffecade
           poetry config virtualenvs.create false
           poetry lock --no-update
           poetry install
+      
+      - name: Install flake8 to specific version
+        run: |
+          python -m pip install flake8==7.1.1
 
       - name: Linting
         run: |
