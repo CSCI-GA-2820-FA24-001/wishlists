@@ -47,13 +47,15 @@ jobs:
           poetry config virtualenvs.create false
           poetry lock --no-update
           poetry install
-      
-      - name: Check flake8 configuration
+
+      - name: Run Code Quality Checks
         run: |
-          echo "Checking .flake8, setup.cfg, and tox.ini configuration files..."
-          cat .flake8 || echo ".flake8 not found"
-          cat setup.cfg || echo "setup.cfg not found"
-          cat tox.ini || echo "tox.ini not found"
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 service tests --count --select=E9,F63,F7,F82 --show-source --statistics
+          # check for complexity. The GitHub editor is 127 chars wide
+          flake8 service tests --count --max-complexity=10 --max-line-length=127 --statistics
+          # Run pylint on the service
+          pylint service tests --max-line-length=127
 
       - name: Linting
         run: |
@@ -66,7 +68,8 @@ jobs:
 
       - name: Run unit tests with PyTest
         run: |
-          pytest --pspec --cov=service --cov-fail-under=95
+          green -vvv --processes=1 --run-coverage --termcolor --minimum-coverage=95
+          # pytest --pspec --cov=service --cov-fail-under=95 --disable-warnings
         env:
           FLASK_APP: wsgi:app
           DATABASE_URI: "postgresql://postgres:postgres@localhost:5432/testdb"
