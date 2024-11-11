@@ -440,17 +440,12 @@ def delete_item_from_wishlist(wishlist_id, item_id):
 ######################################################################
 def purchase_item_from_wishlist(item):
     """Action of purchasing an item from a wishlist."""
-    # TODO: add ItemStatus if necessary
+    # NOTE: add ItemStatus if necessary
     # item.status = ItemStatus.PURCHASED
     # item.update()
 
     # After purchasing, delete the item from the wishlist.
-    if item:
-        item.delete()
-    else:
-        app.logger.error(
-            f"Item with id '{item.id}' not found in wishlist '{item.wishlist_id}'."
-        )
+    item.delete()
 
 
 @app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>/purchase", methods=["PUT"])

@@ -693,7 +693,20 @@ class TestWishlistService(TestCase):
 
     def test_purchase_item_nonexistent_wishlist(self):
         """It should return 404 when purchasing an item from a non-existent wishlist"""
-        response = self.client.put(
-            "{BASE_URL}/999/items/1/purchase", content_type="application/json"
-        )
+        with patch("service.routes.app.logger") as mock_logger:
+            response = self.client.put(
+                f"{BASE_URL}/999/items/1/purchase", content_type="application/json"
+            )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        mock_logger.error.assert_called_with("Wishlist with id '999' not found.")
+
+    def test_purchase_nonexistent_item(self):
+        """It should return 404 when purchasing a non-existent item from a wishlist"""
+        wishlist = self._create_wishlists(1)[0]
+
+        # Attempt to purchase a non-existent item, which will trigger abort in find_item_in_wishlist
+        response = self.client.put(
+            f"{BASE_URL}/{wishlist.id}/items/999/purchase",
+            content_type="application/json",
+        )
+        assert response.status_code == status.HTTP_404_NOT_FOUND
