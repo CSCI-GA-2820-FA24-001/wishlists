@@ -111,14 +111,24 @@ def get_wishlists(wishlist_id):
 def list_wishlists():
     """Returns all wishlists, if GET request contains name, return wishlist by name, same for userid"""
     wishlists = []
+
     name = request.args.get("name")
     userid = request.args.get("userid")
+    date_created = request.args.get("date_created")
+    since_date = request.args.get("since_date")
+
     if name:
         app.logger.info("Request for listing wishlists by name: %s", name)
         wishlists = Wishlist.find_by_name(name)
     elif userid:
         app.logger.info("Request for listing wishlists by userid: %s", userid)
         wishlists = Wishlist.find_by_userid(userid)
+    elif date_created:
+        app.logger.info("Request for listing wishlists created on date: %s", date_created)
+        wishlists = Wishlist.find_by_date_created(date_created)
+    elif since_date:
+        app.logger.info("Request for listing wishlists since date: %s", since_date)
+        wishlists = Wishlist.find_since_date(since_date)
     else:
         app.logger.info("Request for listing all Wishlists")
         wishlists = Wishlist.all()
@@ -204,6 +214,7 @@ def add_item_to_wishlist(wishlist_id):
     based on the data provided in the request body.
     """
     app.logger.info(f"Request to add a new item to wishlist with id: {wishlist_id}")
+
     # Ensure the request content type is application/json
     check_content_type("application/json")
 
@@ -237,6 +248,7 @@ def add_item_to_wishlist(wishlist_id):
 
     # Add the new item to the database
     new_item.create()
+    # Serialize the new item for the response
     serialized_item = new_item.serialize()
 
     # Generate the Location URL for the newly created item

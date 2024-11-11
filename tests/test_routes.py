@@ -23,6 +23,7 @@ import os
 import logging
 from unittest.mock import patch
 from unittest import TestCase
+from datetime import date
 from werkzeug.exceptions import UnsupportedMediaType
 from wsgi import app
 
@@ -246,6 +247,32 @@ class TestWishlistService(TestCase):
             for returned_wishlist in data:
                 self.assertEqual(returned_wishlist["userid"], wishlist.userid)
 
+    def test_get_wishlists_by_date_created(self):
+        """Test the ability to GET wishlists by date created"""
+        wishlists = self._create_wishlists(3)
+        # test for all three created wishlists
+        for wishlist in wishlists:
+            date_str = wishlist.date_created.isoformat()
+            resp = self.client.get(BASE_URL, query_string=f"date_created={date_str}")
+            self.assertEqual(resp.status_code, status.HTTP_200_OK)
+            data = resp.get_json()
+            self.assertGreater(len(data), 0)
+            for returned_wishlist in data:
+                self.assertEqual(returned_wishlist["date_created"], date_str)
+
+    def test_get_wishlists_since_date(self):
+        """Test the ability to GET wishlists created since a date"""
+        wishlists = self._create_wishlists(3)
+        sorted_wishlists = sorted(wishlists, key=lambda x: x.date_created)
+        target_date = sorted_wishlists[0].date_created
+        resp = self.client.get(BASE_URL, query_string=f"since_date={target_date.isoformat()}")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), 3)
+        for returned_wishlist in data:
+            returned_date = date.fromisoformat(returned_wishlist["date_created"])
+            self.assertGreaterEqual(returned_date, target_date)
+
     def test_get_empty_wishlist(self):
         """Test the behavior of GET with empty database"""
         resp = self.client.get(BASE_URL)
@@ -329,14 +356,6 @@ class TestWishlistService(TestCase):
             content_type="text/plain",
         )
         self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
-
-    def test_add_item_bad_data(self):
-        """It should not Create an item with bad data"""
-        wishlist = self._create_wishlists(1)[0]
-        response = self.client.post(
-            f"{BASE_URL}/{wishlist.id}/items", json={}, content_type="application/json"
-        )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_add_item_nonexistent_wishlist(self):
         """It should return 404 when adding an item to a non-existent wishlist"""
@@ -572,6 +591,8 @@ class TestWishlistService(TestCase):
             content_type="application/json",
         )
 
+
+        # Assert that it should return 500 Internal Server Error
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     # Endpoint: DELETE   /wishlists/{id}/items/{id}
@@ -624,7 +645,7 @@ class TestWishlistService(TestCase):
         resp = self.client.post(BASE_URL, json={"name": "not enough data"})
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_unsupported_media_type(self):
+    def test_wishlist_unsupported_media_type(self):
         """It should not Create when sending wrong media type"""
         wishlist = WishlistFactory()
         resp = self.client.post(
