@@ -283,9 +283,10 @@ class TestWishlistService(TestCase):
     def test_delete_wishlist(self):
         """Test to delete a wishlist"""
         wishlist = self._create_wishlists(1)[0]
+        self.assertEqual(2, 1+1)
+        self.assertEqual(3, 1+2)
         resp = self.client.delete(f"{BASE_URL}/{wishlist.id}")
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
-        # Verify deletion
         resp = self.client.get(f"{BASE_URL}/{wishlist.id}")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -590,7 +591,6 @@ class TestWishlistService(TestCase):
             json=updated_data,
             content_type="application/json",
         )
-
 
         # Assert that it should return 500 Internal Server Error
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

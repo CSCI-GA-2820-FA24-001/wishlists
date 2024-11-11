@@ -197,6 +197,7 @@ class Wishlist(db.Model, PersistentBase):
                 "Invalid date format. Use YYYY-MM-DD format."
             ) from error
 
+
 ######################################################################
 #  I T E M   M O D E L
 ######################################################################
