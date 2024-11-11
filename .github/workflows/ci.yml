@@ -45,7 +45,6 @@ jobs:
           # This version restriction is referenced from:
           # https://github.com/CSCI-GA-2820-FA24-001/products/pull/44/commits/019cd580f217e8966407980b7ce2887e4ffecade
           python -m pip install psycopg2-binary
-          python -m pip install build-essential
           poetry config virtualenvs.create false
           poetry lock --no-update
           poetry install
