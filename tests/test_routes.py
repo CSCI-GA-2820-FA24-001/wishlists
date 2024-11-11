@@ -592,7 +592,6 @@ class TestWishlistService(TestCase):
             content_type="application/json",
         )
 
-
         # Assert that it should return 500 Internal Server Error
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
