@@ -314,33 +314,47 @@ class TestWishlistService(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     # Endpoint: POST /wishlists/{id}/items
-    def test_add_item_bad_data(self):
-        """It should return 400 when required fields are missing"""
-        # create a wishlist
+    def test_add_item_to_wishlist(self):
+        """It should Create an item and add it to a wishlist"""
+        # Create a test wishlist
         wishlist = self._create_wishlists(1)[0]
 
-        # Send a POST request to add empty item
+        # Create fake item and post it
+        fake_item = ItemFactory()
         response = self.client.post(
             f"{BASE_URL}/{wishlist.id}/items",
-            json={},
+            json=fake_item.serialize(),
             content_type="application/json",
         )
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_add_item_unsupported_media(self):
-        """It should nont create an item when item has unsupported media type"""
-        # create a wishlist
+        # Check the response data
+        data = response.get_json()
+        self.assertEqual(data["name"], fake_item.name)
+        self.assertEqual(data["description"], fake_item.description)
+        self.assertEqual(float(data["price"]), float(fake_item.price))
+        self.assertEqual(data["wishlist_id"], wishlist.id)
+
+        # Check that Location header was set
+        self.assertIn("Location", response.headers)
+
+        # Check that item was actually created in database
+        item_url = response.headers["Location"]
+        resp = self.client.get(item_url)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.get_json()["name"], fake_item.name)
+
+    def test_add_item_unsupported_media_type(self):
+        """It should not Create an item when sending wrong media type"""
         wishlist = self._create_wishlists(1)[0]
-
         fake_item = ItemFactory()
-        # Send a POST request to add this item
+
         response = self.client.post(
             f"{BASE_URL}/{wishlist.id}/items",
             json=fake_item.serialize(),
             content_type="text/plain",
         )
-
         self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
     def test_add_item_nonexistent_wishlist(self):
@@ -452,7 +466,7 @@ class TestWishlistService(TestCase):
 
         # Define updated data
         updated_data = {
-            "name": "UpdatedName",
+            "name": "Updated Name",
             "description": "Updated Description",
             "price": 299.99,
         }
@@ -576,6 +590,7 @@ class TestWishlistService(TestCase):
             json=updated_data,
             content_type="application/json",
         )
+
 
         # Assert that it should return 500 Internal Server Error
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

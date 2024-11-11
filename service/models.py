@@ -39,7 +39,7 @@ class PersistentBase:
 
     def create(self) -> None:
         """
-        Creates a Account to the database
+        Creates a Wishlist to the database
         """
         logger.info("Creating %s", self)
         # id must be none to generate next primary key
@@ -54,7 +54,7 @@ class PersistentBase:
 
     def update(self) -> None:
         """
-        Updates a Account to the database
+        Updates a Wishlist to the database
         """
         logger.info("Updating %s", self)
         if not self.id:
@@ -67,7 +67,7 @@ class PersistentBase:
             raise DataValidationError(e) from e
 
     def delete(self) -> None:
-        """Removes a Account from the data store"""
+        """Removes a Wishlist from the data store"""
         logger.info("Deleting %s", self)
         try:
             db.session.delete(self)

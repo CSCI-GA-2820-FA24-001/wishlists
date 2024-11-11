@@ -137,7 +137,7 @@ def list_wishlists():
 
 
 ######################################################################
-# UPDATE AN EXISTING ACCOUNT
+# UPDATE AN EXISTING WISHLIST
 ######################################################################
 @app.route("/wishlists/<int:wishlist_id>", methods=["PUT"])
 def update_wishlists(wishlist_id):
