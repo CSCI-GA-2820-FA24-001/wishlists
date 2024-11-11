@@ -265,7 +265,9 @@ class TestWishlistService(TestCase):
         wishlists = self._create_wishlists(3)
         sorted_wishlists = sorted(wishlists, key=lambda x: x.date_created)
         target_date = sorted_wishlists[0].date_created
-        resp = self.client.get(BASE_URL, query_string=f"since_date={target_date.isoformat()}")
+        resp = self.client.get(
+            BASE_URL, query_string=f"since_date={target_date.isoformat()}"
+        )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), 3)
@@ -667,3 +669,31 @@ class TestWishlistService(TestCase):
                 # Ensure that check_content_type raises UnsupportedMediaType when Content-Type is missing
                 with self.assertRaises(UnsupportedMediaType):
                     check_content_type("application/json")
+
+    # Action: purchase   /wishlists/<int:wishlist_id>/items/<int:item_id>/purchase
+    def test_purchase_item_success(self):
+        """It should purchase an existing item from a wishlist"""
+        # Create a wishlist and two items
+        wishlist = self._create_wishlists(1)[0]
+        items = self._create_items(wishlist.id, count=2)
+
+        # Purchase the first item.
+        response = self.client.put(
+            f"{BASE_URL}/{wishlist.id}/items/{items[0].id}/purchase",
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # verify that the purchased item has been deleted.
+        response = self.client.get(
+            f"{BASE_URL}/{wishlist.id}/items/{items[0].id}",
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_purchase_item_nonexistent_wishlist(self):
+        """It should return 404 when purchasing an item from a non-existent wishlist"""
+        response = self.client.put(
+            "{BASE_URL}/999/items/1/purchase", content_type="application/json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

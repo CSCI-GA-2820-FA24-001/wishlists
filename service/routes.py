@@ -124,7 +124,9 @@ def list_wishlists():
         app.logger.info("Request for listing wishlists by userid: %s", userid)
         wishlists = Wishlist.find_by_userid(userid)
     elif date_created:
-        app.logger.info("Request for listing wishlists created on date: %s", date_created)
+        app.logger.info(
+            "Request for listing wishlists created on date: %s", date_created
+        )
         wishlists = Wishlist.find_by_date_created(date_created)
     elif since_date:
         app.logger.info("Request for listing wishlists since date: %s", since_date)
@@ -431,6 +433,46 @@ def delete_item_from_wishlist(wishlist_id, item_id):
         f"Item with id '{item_id}' not found in wishlist '{wishlist_id}', returning 204."
     )
     return "", status.HTTP_204_NO_CONTENT
+
+
+######################################################################
+# ACTION: Purchased an item.
+######################################################################
+def purchase_item_from_wishlist(item):
+    """Action of purchasing an item from a wishlist."""
+    # TODO: add ItemStatus if necessary
+    # item.status = ItemStatus.PURCHASED
+    # item.update()
+
+    # After purchasing, delete the item from the wishlist.
+    if item:
+        item.delete()
+    else:
+        app.logger.error(
+            f"Item with id '{item.id}' not found in wishlist '{item.wishlist_id}'."
+        )
+
+
+@app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>/purchase", methods=["PUT"])
+def purchase_item(wishlist_id, item_id):
+    """Purchase an item from a wishlist."""
+    app.logger.info(f"Request for item with id: {item_id} in wishlist {wishlist_id}")
+
+    # Find the wishlist and item
+    wishlist = Wishlist.find(wishlist_id)
+    if not wishlist:
+        app.logger.error(f"Wishlist with id '{wishlist_id}' not found.")
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            description=f"Wishlist with id '{wishlist_id}' not found.",
+        )
+    item = find_item_in_wishlist(wishlist_id, item_id)
+
+    app.logger.info(f"Purchase item id: {item_id} from Wishlist {wishlist_id}...")
+    purchase_item_from_wishlist(item)
+
+    # Return the updated order
+    return jsonify(item.serialize()), status.HTTP_200_OK
 
 
 ######################################################################
