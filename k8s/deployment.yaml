@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nyu-project
+  labels:
+    app: nyu-project
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: nyu-project
+  template:
+    metadata:
+      labels:
+        app: nyu-project
+    spec:
+      containers:
+        - name: nyu-project
+          image: cluster-registry:5000/nyu-project:1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          env:
+            - name: PORT
+              value: "8080"
+          resources:
+            limits:
+              cpu: "0.25"
+              memory: "64Mi"
+            requests:
+              cpu: "0.10"
+              memory: "32Mi"
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nyu-project-service
+spec:
+  selector:
+    app: nyu-project
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
