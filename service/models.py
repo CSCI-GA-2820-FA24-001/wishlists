@@ -8,12 +8,24 @@ All of the models are stored in this module
 from abc import abstractmethod
 import logging
 from datetime import date
+from enum import Enum
 from flask_sqlalchemy import SQLAlchemy
 
 logger = logging.getLogger("flask.app")
 
 # Create the SQLAlchemy object to be initialized later in init_db()
 db = SQLAlchemy()
+
+
+class ItemStatus(Enum):
+    """
+    Class that represents the status of a wishlist item
+    """
+    PENDING = "pending"
+    PURCHASED = "purchased"
+    OUT_OF_STOCK = "out_of_stock"
+    EXPIRED = "expired"
+    FAVORITE = "favorite"
 
 
 class DataValidationError(Exception):
