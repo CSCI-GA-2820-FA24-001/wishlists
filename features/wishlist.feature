@@ -14,6 +14,7 @@ Background:
         | name          | description            | price    | status    |
         | iPhone        | iPhone Latest model    | 999.99   | pending   |
         | AirPods       | AirPods Pro 2nd gen    | 199.00   | purchased |
+        
 Scenario: The server is running
     When I visit the "Home Page"
     Then I should see "Wishlist Admin Service" in the title
