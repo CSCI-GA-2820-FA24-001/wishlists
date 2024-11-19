@@ -26,10 +26,10 @@ def after_all(context):
     """ Executed after all tests """
     context.driver.quit()
 
+
 ######################################################################
 # Utility functions to create web drivers
 ######################################################################
-
 def get_chrome():
     """Creates a headless Chrome driver"""
     options = webdriver.ChromeOptions()
@@ -43,5 +43,4 @@ def get_firefox():
     """Creates a headless Firefox driver"""
     options = webdriver.FirefoxOptions()
     options.add_argument("--headless")
-    return webdriver.Firefox(options=options)    
-    
+    return webdriver.Firefox(options=options)
