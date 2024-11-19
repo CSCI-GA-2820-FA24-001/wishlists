@@ -58,23 +58,24 @@ $(function () {
     //     let gender = $("#pet_gender").val();
     //     let birthday = $("#pet_birthday").val();
 
-    //     let data = {
-    //         "name": name,
-    //         "category": category,
-    //         "available": available,
-    //         "gender": gender,
-    //         "birthday": birthday
-    //     };
+        let data = {
+            "name": name,
+            "userid": userid,
+            "date_created": date_created,
+            "items": []
+        };
 
-    //     $("#flash_message").empty();
-        
-    //     let ajax = $.ajax({
-    //         type: "POST",
-    //         url: "/pets",
-    //         contentType: "application/json",
-    //         data: JSON.stringify(data),
-    //     });
+        let ajax = $.ajax({
+            type: "POST",
+            url: "/wishlists",
+            contentType: "application/json",
+            data: JSON.stringify(data),
+        })
 
+        ajax.done(function(res) {
+            update_wishlist_form(res);
+            flash_message("Wishlist Creation Success");
+        })
     //     ajax.done(function(res){
     //         update_form_data(res)
     //         flash_message("Success")
@@ -150,6 +151,10 @@ $(function () {
     //         flash_message("Success")
     //     });
 
+        ajax.fail(function(res) {
+            flash_message(res.responseJSON.message);
+        });
+    });
     //     ajax.fail(function(res){
     //         clear_form_data()
     //         flash_message(res.responseJSON.message)
