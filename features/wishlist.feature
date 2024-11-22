@@ -55,7 +55,6 @@ Scenario: Delete a Wishlist
     # And I press the "Search" button
     # Then I should see the message "Not Found"
 
-
 Scenario: Update a Wishlist
     When I visit the "Home Page"
     And I set the "Name" to "Gift List"
@@ -77,3 +76,4 @@ Scenario: Update a Wishlist
     And I should see "Discount List" in the "Name" field
     And I should see "user987" in the "UserId" field
     And I should see "2024-01-01" in the "Date" field
+

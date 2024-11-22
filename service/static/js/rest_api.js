@@ -45,7 +45,18 @@ $(function () {
     function flash_message(message) {
         $("#flash_message").empty();
         $("#flash_message").append(message);
+        $("#flash_message").show();
     }
+
+    // ****************************************
+    // Clear wishlist form
+    // ****************************************
+    $("#clear-btn").click(function () {
+        $("#wishlist_id").val("");
+        $("#flash_message").empty();
+        clear_wishlist_form()
+
+    });
 
     // ****************************************
     // Create a Wishlist
@@ -76,7 +87,8 @@ $(function () {
         ajax.done(function(res) {
             console.log("Success response:", res);
             update_wishlist_form(res);
-            flash_message("Success");
+            flash_message("Wishlist Creation is Successful");
+            console.log("Verification - Flash message is:", $("#flash_message").text());
         })
 
         ajax.fail(function(res) {
@@ -150,14 +162,25 @@ $(function () {
 
     });
 
-    // ****************************************
-    // Clear wishlist form
-    // ****************************************
-    $("#clear-btn").click(function () {
-        $("#wishlist_id").val("");
-        $("#flash_message").empty();
-        clear_wishlist_form()
 
+    // ****************************************
+    // Delete a Wishlist
+    // ****************************************
+    $("#delete-btn").click(function () {
+        let wishlist_id = $("#wishlist_id").val();
+
+        $.ajax({
+            type: "DELETE",
+            url: `/wishlists/${wishlist_id}`,
+            contentType: "application/json"
+        })
+        .done(function() {
+            clear_wishlist_form();
+            flash_message("Wishlist Deletion is Successful");
+        })
+        .fail(function() {
+            flash_message(res.responseJSON.message);
+        });
     });
 
 })
