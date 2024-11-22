@@ -46,6 +46,43 @@ $(function () {
     }
 
     // ****************************************
+    // Create a Wishlist
+    // ****************************************
+    $("#create-btn").click(function () {
+        console.log("Create button clicked");
+        let name = $("#wishlist_name").val();
+        let userid = $("#wishlist_userid").val();
+        let date_created = $("#wishlist_date").val()
+
+        let data = {
+            "name": name,
+            "userid": userid,
+            "date_created": date_created,
+            "items": []
+        };
+
+        $("#flash_message").empty();
+
+        let ajax = $.ajax({
+            type: "POST",
+            url: "/wishlists",
+            contentType: "application/json",
+            data: JSON.stringify(data),
+        })
+
+        ajax.done(function(res) {
+            console.log("Success response:", res);
+            update_wishlist_form(res);
+            flash_message("Wishlist Creation Success");
+        })
+
+        ajax.fail(function(res) {
+            console.log("Failed response:", res);
+            flash_message(res.responseJSON.message);
+        });
+    });
+
+    // ****************************************
     // Retrieve a Wishlist
     // ****************************************
 
