@@ -62,7 +62,7 @@ $(function () {
             "items": []
         };
 
-        // $("#flash_message").empty();
+        $("#flash_message").empty();
 
         let ajax = $.ajax({
             type: "POST",

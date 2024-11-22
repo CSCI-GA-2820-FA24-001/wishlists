@@ -24,7 +24,7 @@ Scenario: Create a Wishlist
     When I visit the "Home Page"
     And I set the "Name" to "Gift List"
     And I set the "UserID" to "user987"
-    And I set the "Date" to "2024-01-01"
+    And I set the "Date" to "01-01-2024"
     And I press the "Create" button
     Then I should see the message "Success"
     
