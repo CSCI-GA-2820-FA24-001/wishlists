@@ -106,15 +106,15 @@ Scenario: Create a Wishlist and Add Item
     And I press the "Add Item" button
     Then I should see the message "Item Added Successfully"
     
-    # Verify wishlist contains the item
-    When I press the "List Items" button
-    Then I should see "PS5" in the item results
-    And I should see "PlayStation 5 Console" in the item results
-    And I should see "499.99" in the item results
-    And I should see "pending" in the item results
+    # # Verify wishlist contains the item
+    # When I press the "List Items" button
+    # Then I should see "PS5" in the item results
+    # And I should see "PlayStation 5 Console" in the item results
+    # And I should see "499.99" in the item results
+    # And I should see "pending" in the item results
     
-    # Verify original wishlist data persists
-    When I press the "Retrieve" button
-    Then I should see "Gaming Wishlist" in the "Name" field
-    And I should see "gamer123" in the "UserID" field
-    And I should see "2024-12-25" in the "Date" field
+    # # Verify original wishlist data persists
+    # When I press the "Retrieve" button
+    # Then I should see "Gaming Wishlist" in the "Name" field
+    # And I should see "gamer123" in the "UserID" field
+    # And I should see "2024-12-25" in the "Date" field

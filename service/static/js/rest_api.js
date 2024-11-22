@@ -16,10 +16,14 @@ $(function () {
         $("#wishlist_item_id").val(res.id);
         $("#wishlist_item_name").val(res.name);
 <<<<<<< HEAD
+<<<<<<< HEAD
         $("#wishlist_item_parent").val(res.wishlist_id);
 =======
         $("#wishlist_item_wishlist").val(res.wishlist_id);
 >>>>>>> 8cb2dfb (verified add item!!)
+=======
+        $("#wishlist_item_parent").val(res.wishlist_id);
+>>>>>>> ec1fbd0 (update some variable name like wishlist_item_parent)
         $("#wishlist_item_description").val(res.description);
         $("#wishlist_item_price").val(res.price);
         $("#wishlist_item_status").val(res.status);
@@ -38,10 +42,14 @@ $(function () {
         $("#wishlist_item_id").val("");
         $("#wishlist_item_name").val("");
 <<<<<<< HEAD
+<<<<<<< HEAD
         $("#wishlist_item_parent").val("");
 =======
         $("#wishlist_item_wishlist").val("");
 >>>>>>> 8cb2dfb (verified add item!!)
+=======
+        $("#wishlist_item_parent").val("");
+>>>>>>> ec1fbd0 (update some variable name like wishlist_item_parent)
         $("#wishlist_item_description").val("");
         $("#wishlist_item_price").val("");
         $("#wishlist_item_status").val("");
@@ -203,10 +211,14 @@ $(function () {
     $("#add_item-btn").click(function () {
         console.log("Add item button clicked");
 <<<<<<< HEAD
+<<<<<<< HEAD
         let wishlist_id = $("#wishlist_item_parent").val();
 =======
         let wishlist_id = $("#wishlist_item_wishlist").val();
 >>>>>>> 8cb2dfb (verified add item!!)
+=======
+        let wishlist_id = $("#wishlist_item_parent").val();
+>>>>>>> ec1fbd0 (update some variable name like wishlist_item_parent)
         let name = $("#wishlist_item_name").val();
         let description = $("#wishlist_item_description").val();
         let price = $("#wishlist_item_price").val();
@@ -251,10 +263,14 @@ $(function () {
     $("#update_item-btn").click(function () {
         console.log("Update item button clicked");
 <<<<<<< HEAD
+<<<<<<< HEAD
         let wishlist_id = $("#wishlist_item_parent").val();
 =======
         let wishlist_id = $("#wishlist_item_wishlist").val();
 >>>>>>> 8cb2dfb (verified add item!!)
+=======
+        let wishlist_id = $("#wishlist_item_parent").val();
+>>>>>>> ec1fbd0 (update some variable name like wishlist_item_parent)
         let wishlist_item_id = $("#wishlist_item_id").val();
         let name = $("#wishlist_item_name").val();
         let description = $("#wishlist_item_description").val();
@@ -295,10 +311,14 @@ $(function () {
     $("#delete_item-btn").click(function () {
         console.log("Delete item button clicked");
 <<<<<<< HEAD
+<<<<<<< HEAD
         let wishlist_id = $("#wishlist_item_parent").val();
 =======
         let wishlist_id = $("#wishlist_item_wishlist").val();
 >>>>>>> 8cb2dfb (verified add item!!)
+=======
+        let wishlist_id = $("#wishlist_item_parent").val();
+>>>>>>> ec1fbd0 (update some variable name like wishlist_item_parent)
         let wishlist_item_id = $("#wishlist_item_id").val();
 
         $("#flash_message").empty();
@@ -330,10 +350,14 @@ $(function () {
     $("#retrieve_item-btn").click(function () {
         console.log("Retrieve item button clicked");
 <<<<<<< HEAD
+<<<<<<< HEAD
         let wishlist_id = $("#wishlist_item_parent").val();
 =======
         let wishlist_id = $("#wishlist_item_wishlist").val();
 >>>>>>> 8cb2dfb (verified add item!!)
+=======
+        let wishlist_id = $("#wishlist_item_parent").val();
+>>>>>>> ec1fbd0 (update some variable name like wishlist_item_parent)
         let wishlist_item_id = $("#wishlist_item_id").val();
 
         $("#flash_message").empty();
@@ -359,7 +383,13 @@ $(function () {
     // ****************************************
     // Purchase an Item
     // ****************************************
+<<<<<<< HEAD
     function purchaseItem(wishlistId, itemId) {
+=======
+    $("#list_items-btn").click(function () {
+        let wishlist_id = $("#wishlist_id").val();
+        
+>>>>>>> ec1fbd0 (update some variable name like wishlist_item_parent)
         $("#flash_message").empty();
 
         let ajax = $.ajax({
