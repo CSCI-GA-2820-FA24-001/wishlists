@@ -55,3 +55,34 @@ Scenario: Delete a Wishlist
     # And I press the "Search" button
     # Then I should see the message "Not Found"
 
+Scenario: Create a Wishlist and Add Item
+    When I visit the "Home Page"
+    And I set the "Name" to "Gaming Wishlist"
+    And I set the "UserID" to "gamer123"
+    And I set the "Date" to "12-25-2024"
+    And I press the "Create" button
+    Then I should see the message "Success"
+    When I copy the "Id" field
+    And I press the "Clear" button
+    
+    # Add an item to the newly created wishlist
+    When I paste the "Wishlist ID" 
+    And I set the "Item Name" to "PS5"
+    And I set the "Item Description" to "PlayStation 5 Console"
+    And I set the "Item Price" to "499.99"
+    And I set the "Item Status" to "pending"
+    And I press the "Add Item" button
+    Then I should see the message "Item Added Successfully"
+    
+    # # Verify wishlist contains the item
+    # When I press the "List Items" button
+    # Then I should see "PS5" in the results
+    # And I should see "PlayStation 5 Console" in the results
+    # And I should see "499.99" in the results
+    # And I should see "pending" in the results
+    
+    # # Verify original wishlist data persists
+    # When I press the "Retrieve" button
+    # Then I should see "Gaming Wishlist" in the "Name" field
+    # And I should see "gamer123" in the "UserID" field
+    # And I should see "2024-12-25" in the "Date" field

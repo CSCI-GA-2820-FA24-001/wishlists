@@ -120,7 +120,7 @@ def step_impl(context, button):
     context.driver.find_element(By.ID, button_id).click()
 
 
-@then('I should see "{name}" in the results')
+@then('I should see "{name}" in the wishlist results')
 def step_impl(context, name):
     found = WebDriverWait(context.driver, context.wait_seconds).until(
         EC.text_to_be_present_in_element((By.ID, "search_results"), name)
@@ -128,9 +128,23 @@ def step_impl(context, name):
     assert found
 
 
-@then('I should not see "{name}" in the results')
+@then('I should see "{name}" in the item results')
+def step_impl(context, name):
+    found = WebDriverWait(context.driver, context.wait_seconds).until(
+        EC.text_to_be_present_in_element((By.ID, "list_results"), name)
+    )
+    assert found
+
+
+@then('I should not see "{name}" in the wishlist results')
 def step_impl(context, name):
     element = context.driver.find_element(By.ID, "search_results")
+    assert name not in element.text
+
+
+@then('I should not see "{name}" in the item results')
+def step_impl(context, name):
+    element = context.driver.find_element(By.ID, "list_results")
     assert name not in element.text
 
 

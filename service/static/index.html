@@ -74,6 +74,8 @@
                 <button type="submit" class="btn btn-success" id="create-btn">Create</button>
                 <button type="submit" class="btn btn-warning" id="update-btn">Update</button>
                 <button type="submit" class="btn btn-primary" id="clear-btn">Clear</button>
+                <button type="submit" class="btn btn-primary" id="list-btn">List Wishlists</button>
+                <button type="submit" class="btn btn-primary" id="list-item-btn">List Items</button>
               </div>
             </div>
           </div>
@@ -90,11 +92,25 @@
               </div>
             </div>
 
+            <!-- Item Retrieve or Delete Button -->
+            <div class="col-sm-4">
+              <button type="submit" class="btn btn-primary" id="retrieve_item-btn">Search</button>
+              <button type="submit" class="btn btn-danger" id="delete_item-btn">Delete</button>
+            </div>
+
             <!-- Item Name -->
             <div class="form-group">
               <label class="control-label col-sm-2" for="item_name">Name:</label>
               <div class="col-sm-10">
                 <input type="text" class="form-control" id="item_name" placeholder="Enter Item Name">
+              </div>
+            </div>
+
+            <!-- Item Wishlist ID -->
+            <div class="form-group">
+              <label class="control-label col-sm-2" for="item_wishlist">Wishlist ID:</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control" id="item_wishlist" placeholder="Enter Item's Wishlist ID">
               </div>
             </div>
 
@@ -131,10 +147,9 @@
             <!-- Item Buttons -->
             <div class="form-group">
               <div class="col-sm-offset-2 col-sm-10">
-                <button type="submit" class="btn btn-success" id="add-item-btn">Add Item</button>
-                <button type="submit" class="btn btn-warning" id="update-item-btn">Update Item</button>
-                <button type="submit" class="btn btn-danger" id="delete-item-btn">Delete Item</button>
-                <button type="submit" class="btn btn-primary" id="clear-item-btn">Clear Item</button>
+                <button type="submit" class="btn btn-success" id="add_item-btn">Add</button>
+                <button type="submit" class="btn btn-warning" id="update_item-btn">Update</button>
+                <button type="submit" class="btn btn-primary" id="clear_item-btn">Clear</button>
               </div>
             </div>
           </div>
@@ -167,6 +182,7 @@
           <tr>
             <th class="col-md-1">ID</th>
             <th class="col-md-2">Name</th>
+            <th class="col-md-2">Wishlist ID</th>
             <th class="col-md-3">Description</th>
             <th class="col-md-2">Price</th>
             <th class="col-md-2">Status</th>
