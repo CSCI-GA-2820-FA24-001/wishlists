@@ -45,18 +45,13 @@ $(function () {
         $("#flash_message").append(message);
     }
 
-    // TODO:
-    // // ****************************************
-    // // Create a Pet
-    // // ****************************************
-
-    // $("#create-btn").click(function () {
-
-    //     let name = $("#pet_name").val();
-    //     let category = $("#pet_category").val();
-    //     let available = $("#pet_available").val() == "true";
-    //     let gender = $("#pet_gender").val();
-    //     let birthday = $("#pet_birthday").val();
+    // ****************************************
+    // Create a Wishlist
+    // ****************************************
+    $("#create-btn").click(function () {
+        let name = $("#wishlist_name").val();
+        let userid = $("#wishlist_userid").val();
+        let date_created = $("#date_created").val()
 
         let data = {
             "name": name,
@@ -76,80 +71,6 @@ $(function () {
             update_wishlist_form(res);
             flash_message("Wishlist Creation Success");
         })
-    //     ajax.done(function(res){
-    //         update_form_data(res)
-    //         flash_message("Success")
-    //     });
-
-    //     ajax.fail(function(res){
-    //         flash_message(res.responseJSON.message)
-    //     });
-    // });
-
-
-    // // ****************************************
-    // // Update a Pet
-    // // ****************************************
-
-    // $("#update-btn").click(function () {
-
-    //     let pet_id = $("#pet_id").val();
-    //     let name = $("#pet_name").val();
-    //     let category = $("#pet_category").val();
-    //     let available = $("#pet_available").val() == "true";
-    //     let gender = $("#pet_gender").val();
-    //     let birthday = $("#pet_birthday").val();
-
-    //     let data = {
-    //         "name": name,
-    //         "category": category,
-    //         "available": available,
-    //         "gender": gender,
-    //         "birthday": birthday
-    //     };
-
-    //     $("#flash_message").empty();
-
-    //     let ajax = $.ajax({
-    //             type: "PUT",
-    //             url: `/pets/${pet_id}`,
-    //             contentType: "application/json",
-    //             data: JSON.stringify(data)
-    //         })
-
-    //     ajax.done(function(res){
-    //         update_form_data(res)
-    //         flash_message("Success")
-    //     });
-
-    //     ajax.fail(function(res){
-    //         flash_message(res.responseJSON.message)
-    //     });
-
-    // });
-
-    // // ****************************************
-    // // Retrieve a Pet
-    // // ****************************************
-
-    // $("#retrieve-btn").click(function () {
-
-    //     let pet_id = $("#pet_id").val();
-
-    //     $("#flash_message").empty();
-
-    //     let ajax = $.ajax({
-    //         type: "GET",
-    //         url: `/pets/${pet_id}`,
-    //         contentType: "application/json",
-    //         data: ''
-    //     })
-
-    //     ajax.done(function(res){
-    //         //alert(res.toSource())
-    //         update_form_data(res)
-    //         flash_message("Success")
-    //     });
 
         ajax.fail(function(res) {
             flash_message(res.responseJSON.message);
