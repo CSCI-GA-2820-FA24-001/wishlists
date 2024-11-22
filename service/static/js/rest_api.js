@@ -43,6 +43,7 @@ $(function () {
     function flash_message(message) {
         $("#flash_message").empty();
         $("#flash_message").append(message);
+        $("#flash_message").show();
     }
 
     // ****************************************
@@ -61,7 +62,7 @@ $(function () {
             "items": []
         };
 
-        $("#flash_message").empty();
+        // $("#flash_message").empty();
 
         let ajax = $.ajax({
             type: "POST",
@@ -74,6 +75,7 @@ $(function () {
             console.log("Success response:", res);
             update_wishlist_form(res);
             flash_message("Wishlist Creation Success");
+            console.log("Verification - Flash message is:", $("#flash_message").text());
         })
 
         ajax.fail(function(res) {

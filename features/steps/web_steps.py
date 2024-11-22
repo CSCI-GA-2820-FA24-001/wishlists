@@ -30,7 +30,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-ID_PREFIX = "wishlsit_"
+ID_PREFIX = "wishlist_"
 
 
 @when('I visit the "Home Page"')
@@ -123,9 +123,7 @@ def step_impl(context, button):
 @then('I should see "{name}" in the results')
 def step_impl(context, name):
     found = WebDriverWait(context.driver, context.wait_seconds).until(
-        EC.text_to_be_present_in_element(
-            (By.ID, "search_results"), name
-        )
+        EC.text_to_be_present_in_element((By.ID, "search_results"), name)
     )
     assert found
 
@@ -138,10 +136,15 @@ def step_impl(context, name):
 
 @then('I should see the message "{message}"')
 def step_impl(context, message):
+    logging.info("Checking for message: %s", message)
+    flash_element = WebDriverWait(context.driver, context.wait_seconds).until(
+        EC.presence_of_element_located((By.ID, "flash_message"))
+    )
+    actual_text = flash_element.text
+    logging.info("Current flash message content: '%s'", actual_text)
+
     found = WebDriverWait(context.driver, context.wait_seconds).until(
-        EC.text_to_be_present_in_element(
-            (By.ID, "flash_message"), message
-        )
+        EC.text_to_be_present_in_element((By.ID, "flash_message"), message)
     )
     assert found
 
@@ -158,9 +161,7 @@ def step_impl(context, message):
 def step_impl(context, text_string, element_name):
     element_id = ID_PREFIX + element_name.lower().replace(" ", "_")
     found = WebDriverWait(context.driver, context.wait_seconds).until(
-        EC.text_to_be_present_in_element_value(
-            (By.ID, element_id), text_string
-        )
+        EC.text_to_be_present_in_element_value((By.ID, element_id), text_string)
     )
     assert found
 
