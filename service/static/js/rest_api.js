@@ -15,7 +15,11 @@ $(function () {
     function update_item_form(res) {
         $("#wishlist_item_id").val(res.id);
         $("#wishlist_item_name").val(res.name);
+<<<<<<< HEAD
         $("#wishlist_item_parent").val(res.wishlist_id);
+=======
+        $("#wishlist_item_wishlist").val(res.wishlist_id);
+>>>>>>> 8cb2dfb (verified add item!!)
         $("#wishlist_item_description").val(res.description);
         $("#wishlist_item_price").val(res.price);
         $("#wishlist_item_status").val(res.status);
@@ -33,7 +37,11 @@ $(function () {
     function clear_item_form() {
         $("#wishlist_item_id").val("");
         $("#wishlist_item_name").val("");
+<<<<<<< HEAD
         $("#wishlist_item_parent").val("");
+=======
+        $("#wishlist_item_wishlist").val("");
+>>>>>>> 8cb2dfb (verified add item!!)
         $("#wishlist_item_description").val("");
         $("#wishlist_item_price").val("");
         $("#wishlist_item_status").val("");
@@ -194,12 +202,19 @@ $(function () {
     // ****************************************
     $("#add_item-btn").click(function () {
         console.log("Add item button clicked");
+<<<<<<< HEAD
         let wishlist_id = $("#wishlist_item_parent").val();
+=======
+        let wishlist_id = $("#wishlist_item_wishlist").val();
+>>>>>>> 8cb2dfb (verified add item!!)
         let name = $("#wishlist_item_name").val();
         let description = $("#wishlist_item_description").val();
         let price = $("#wishlist_item_price").val();
         let status = $("#wishlist_item_status").val();
+<<<<<<< HEAD
         console.log("Adding item with status:", status);
+=======
+>>>>>>> 8cb2dfb (verified add item!!)
 
         let data = {
             "name": name,
@@ -235,7 +250,11 @@ $(function () {
     // ****************************************
     $("#update_item-btn").click(function () {
         console.log("Update item button clicked");
+<<<<<<< HEAD
         let wishlist_id = $("#wishlist_item_parent").val();
+=======
+        let wishlist_id = $("#wishlist_item_wishlist").val();
+>>>>>>> 8cb2dfb (verified add item!!)
         let wishlist_item_id = $("#wishlist_item_id").val();
         let name = $("#wishlist_item_name").val();
         let description = $("#wishlist_item_description").val();
@@ -275,7 +294,11 @@ $(function () {
     // ****************************************
     $("#delete_item-btn").click(function () {
         console.log("Delete item button clicked");
+<<<<<<< HEAD
         let wishlist_id = $("#wishlist_item_parent").val();
+=======
+        let wishlist_id = $("#wishlist_item_wishlist").val();
+>>>>>>> 8cb2dfb (verified add item!!)
         let wishlist_item_id = $("#wishlist_item_id").val();
 
         $("#flash_message").empty();
@@ -283,7 +306,11 @@ $(function () {
         let ajax = $.ajax({
             type: "DELETE",
             url: `/wishlists/${wishlist_id}/items/${wishlist_item_id}`,
+<<<<<<< HEAD
             data: JSON.stringify(data),
+=======
+            contentType: "application/json",
+>>>>>>> 8cb2dfb (verified add item!!)
         });
 
         ajax.done(function(res){
@@ -302,7 +329,11 @@ $(function () {
     // ****************************************
     $("#retrieve_item-btn").click(function () {
         console.log("Retrieve item button clicked");
+<<<<<<< HEAD
         let wishlist_id = $("#wishlist_item_parent").val();
+=======
+        let wishlist_id = $("#wishlist_item_wishlist").val();
+>>>>>>> 8cb2dfb (verified add item!!)
         let wishlist_item_id = $("#wishlist_item_id").val();
 
         $("#flash_message").empty();
@@ -324,6 +355,7 @@ $(function () {
         });
     });
 
+    
     // ****************************************
     // Purchase an Item
     // ****************************************
@@ -372,8 +404,40 @@ $(function () {
             contentType: "application/json",
         });
 
+<<<<<<< HEAD
         ajax.done(function (res) {
             console.log("Items retrieved successfully:", res);
+=======
+        ajax.done(function(res){
+            $("#list_items").empty();
+            let table = '<table class="table table-striped" cellpadding="10">';
+            table += '<thead><tr>';
+            table += '<th class="col-md-2">ID</th>';
+            table += '<th class="col-md-2">Name</th>';
+            table += '<th class="col-md-2">Wishlist ID</th>';
+            table += '<th class="col-md-2">Description</th>';
+            table += '<th class="col-md-2">Price</th>';
+            table += '<th class="col-md-2">Status</th>';
+            table += '<th class="col-md-2">Actions</th>';
+            table += '</tr></thead><tbody>';
+            
+            let firstItem = "";
+            for (let i = 0; i < res.length; i++) {
+                let item = res[i];
+                table += `<tr id="row_${i}"><td>${item.id}</td>`;
+                table += `<td>${item.name}</td>`;
+                table += `<td>${item.wishlist_id}</td>`;
+                table += `<td>${item.description}</td>`;
+                table += `<td>$${item.price.toFixed(2)}</td>`;
+                table += `<td>${item.status}</td>`;
+                table += `<td><button class="btn btn-info" data-id="${item.id}">View</button></td></tr>`;
+                if (i == 0) {
+                    firstItem = item;
+                }
+            }
+            table += '</tbody></table>';
+            $("#list_items").append(table);
+>>>>>>> 8cb2dfb (verified add item!!)
 
             if (!Array.isArray(res)) {
                 console.error("Response is not an array:", res);
