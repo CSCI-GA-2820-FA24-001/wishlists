@@ -17,7 +17,7 @@ $(function () {
     function update_item_form(res) {
         $("#wishlist_item_id").val(res.id);
         $("#wishlist_item_name").val(res.name);
-        $("#wishlist_item_wishlist").val(res.wishlist_id);
+        $("#wishlist_item_parent").val(res.wishlist_id);
         $("#wishlist_item_description").val(res.description);
         $("#wishlist_item_price").val(res.price);
         $("#wishlist_item_status").val(res.status);
@@ -35,7 +35,7 @@ $(function () {
     function clear_item_form() {
         $("#wishlist_item_id").val("");
         $("#wishlist_item_name").val("");
-        $("#wishlist_item_wishlist").val("");
+        $("#wishlist_item_parent").val("");
         $("#wishlist_item_description").val("");
         $("#wishlist_item_price").val("");
         $("#wishlist_item_status").val("");
@@ -161,7 +161,7 @@ $(function () {
     // ****************************************
     $("#add_item-btn").click(function () {
         console.log("Add item button clicked");
-        let wishlist_id = $("#wishlist_item_wishlist").val();
+        let wishlist_id = $("#wishlist_item_parent").val();
         let name = $("#wishlist_item_name").val();
         let description = $("#wishlist_item_description").val();
         let price = $("#wishlist_item_price").val();
@@ -200,7 +200,7 @@ $(function () {
     // ****************************************
     $("#update_item-btn").click(function () {
         console.log("Update item button clicked");
-        let wishlist_id = $("#wishlist_item_wishlist").val();
+        let wishlist_id = $("#wishlist_item_parent").val();
         let wishlist_item_id = $("#wishlist_item_id").val();
         let name = $("#wishlist_item_name").val();
         let description = $("#wishlist_item_description").val();
@@ -240,7 +240,7 @@ $(function () {
     // ****************************************
     $("#delete_item-btn").click(function () {
         console.log("Delete item button clicked");
-        let wishlist_id = $("#wishlist_item_wishlist").val();
+        let wishlist_id = $("#wishlist_item_parent").val();
         let wishlist_item_id = $("#wishlist_item_id").val();
 
         $("#flash_message").empty();
@@ -267,7 +267,7 @@ $(function () {
     // ****************************************
     $("#retrieve_item-btn").click(function () {
         console.log("Retrieve item button clicked");
-        let wishlist_id = $("#wishlist_item_wishlist").val();
+        let wishlist_id = $("#wishlist_item_parent").val();
         let wishlist_item_id = $("#wishlist_item_id").val();
 
         $("#flash_message").empty();
@@ -293,7 +293,7 @@ $(function () {
     // ****************************************
     // List all Items in a Wishlist
     // ****************************************
-    $("#list_item-btn").click(function () {
+    $("#list_items-btn").click(function () {
         let wishlist_id = $("#wishlist_id").val();
         
         $("#flash_message").empty();
