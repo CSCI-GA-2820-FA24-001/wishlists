@@ -15,12 +15,12 @@ $(function () {
     }
 
     function update_item_form(res) {
-        $("#item_id").val(res.id);
-        $("#item_name").val(res.name);
-        $("#item_wishlist").val(res.wishlist_id);
-        $("#item_description").val(res.description);
-        $("#item_price").val(res.price);
-        $("#item_status").val(res.status);
+        $("#wishlist_item_id").val(res.id);
+        $("#wishlist_item_name").val(res.name);
+        $("#wishlist_item_wishlist").val(res.wishlist_id);
+        $("#wishlist_item_description").val(res.description);
+        $("#wishlist_item_price").val(res.price);
+        $("#wishlist_item_status").val(res.status);
     }
 
     /// Clears all form fields
@@ -29,16 +29,16 @@ $(function () {
         $("#wishlist_name").val("");
         $("#wishlist_userid").val("");
         $("#wishlist_date").val("");
-        $("#items_list tbody").empty();
+        $("#list_items tbody").empty();
     }
 
     function clear_item_form() {
-        $("#item_id").val("");
-        $("#item_name").val("");
-        $("#item_wishlist").val("");
-        $("#item_description").val("");
-        $("#item_price").val("");
-        $("#item_status").val("pending");
+        $("#wishlist_item_id").val("");
+        $("#wishlist_item_name").val("");
+        $("#wishlist_item_wishlist").val("");
+        $("#wishlist_item_description").val("");
+        $("#wishlist_item_price").val("");
+        $("#wishlist_item_status").val("");
     }
 
     // Updates the flash message area
@@ -108,7 +108,7 @@ $(function () {
     // ****************************************
 
     $("#retrieve-btn").click(function () {
-
+        console.log("Retrieve button clicked");
         let wishlist_id = $("#wishlist_id").val();
 
         $("#flash_message").empty();
@@ -138,6 +138,7 @@ $(function () {
     // Delete a Wishlist
     // ****************************************
     $("#delete-btn").click(function () {
+        console.log("Delete button clicked");
         let wishlist_id = $("#wishlist_id").val();
 
         $.ajax({
@@ -154,15 +155,17 @@ $(function () {
         });
     });
 
+
     // ****************************************
     // Add an Item to a Wishlist
     // ****************************************
     $("#add_item-btn").click(function () {
-        let wishlist_id = $("#item_wishlist").val();
-        let name = $("#item_name").val();
-        let description = $("#item_description").val();
-        let price = $("#item_price").val();
-        let status = $("#item_status").val();
+        console.log("Add item button clicked");
+        let wishlist_id = $("#wishlist_item_wishlist").val();
+        let name = $("#wishlist_item_name").val();
+        let description = $("#wishlist_item_description").val();
+        let price = $("#wishlist_item_price").val();
+        let status = $("#wishlist_item_status").val();
 
         let data = {
             "name": name,
@@ -191,16 +194,18 @@ $(function () {
         });
     });
 
+
     // ****************************************
     // Update an Item
     // ****************************************
     $("#update_item-btn").click(function () {
-        let wishlist_id = $("#item_wishlist").val();
-        let item_id = $("#item_id").val();
-        let name = $("#item_name").val();
-        let description = $("#item_description").val();
-        let price = $("#item_price").val();
-        let status = $("#item_status").val();
+        console.log("Update item button clicked");
+        let wishlist_id = $("#wishlist_item_wishlist").val();
+        let wishlist_item_id = $("#wishlist_item_id").val();
+        let name = $("#wishlist_item_name").val();
+        let description = $("#wishlist_item_description").val();
+        let price = $("#wishlist_item_price").val();
+        let status = $("#wishlist_item_status").val();
 
         let data = {
             "name": name,
@@ -214,7 +219,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "PUT",
-            url: `/wishlists/${wishlist_id}/items/${item_id}`,
+            url: `/wishlists/${wishlist_id}/items/${wishlist_item_id}`,
             contentType: "application/json",
             data: JSON.stringify(data)
         });
@@ -229,18 +234,20 @@ $(function () {
         });
     });
 
+
     // ****************************************
     // Delete an Item
     // ****************************************
     $("#delete_item-btn").click(function () {
-        let wishlist_id = $("#item_wishlist").val();
-        let item_id = $("#item_id").val();
+        console.log("Delete item button clicked");
+        let wishlist_id = $("#wishlist_item_wishlist").val();
+        let wishlist_item_id = $("#wishlist_item_id").val();
 
         $("#flash_message").empty();
 
         let ajax = $.ajax({
             type: "DELETE",
-            url: `/wishlists/${wishlist_id}/items/${item_id}`,
+            url: `/wishlists/${wishlist_id}/items/${wishlist_item_id}`,
             contentType: "application/json",
         });
 
@@ -254,18 +261,20 @@ $(function () {
         });
     });
 
+
     // ****************************************
     // Retrieve an Item
     // ****************************************
     $("#retrieve_item-btn").click(function () {
-        let wishlist_id = $("#item_wishlist").val();
-        let item_id = $("#item_id").val();
+        console.log("Retrieve item button clicked");
+        let wishlist_id = $("#wishlist_item_wishlist").val();
+        let wishlist_item_id = $("#wishlist_item_id").val();
 
         $("#flash_message").empty();
 
         let ajax = $.ajax({
             type: "GET",
-            url: `/wishlists/${wishlist_id}/items/${item_id}`,
+            url: `/wishlists/${wishlist_id}/items/${wishlist_item_id}`,
             contentType: "application/json",
         });
 
@@ -280,6 +289,7 @@ $(function () {
         });
     });
 
+    
     // ****************************************
     // List all Items in a Wishlist
     // ****************************************
@@ -295,11 +305,12 @@ $(function () {
         });
 
         ajax.done(function(res){
-            $("#items_list").empty();
+            $("#list_items").empty();
             let table = '<table class="table table-striped" cellpadding="10">';
             table += '<thead><tr>';
             table += '<th class="col-md-2">ID</th>';
             table += '<th class="col-md-2">Name</th>';
+            table += '<th class="col-md-2">Wishlist ID</th>';
             table += '<th class="col-md-2">Description</th>';
             table += '<th class="col-md-2">Price</th>';
             table += '<th class="col-md-2">Status</th>';
@@ -311,6 +322,7 @@ $(function () {
                 let item = res[i];
                 table += `<tr id="row_${i}"><td>${item.id}</td>`;
                 table += `<td>${item.name}</td>`;
+                table += `<td>${item.wishlist_id}</td>`;
                 table += `<td>${item.description}</td>`;
                 table += `<td>$${item.price.toFixed(2)}</td>`;
                 table += `<td>${item.status}</td>`;
@@ -320,7 +332,7 @@ $(function () {
                 }
             }
             table += '</tbody></table>';
-            $("#items_list").append(table);
+            $("#list_items").append(table);
 
             if (firstItem != "") {
                 update_item_form(firstItem);
