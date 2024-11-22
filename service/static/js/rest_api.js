@@ -10,8 +10,8 @@ $(function () {
         $("#wishlist_name").val(res.name);
         $("#wishlist_userid").val(res.userid);
         $("#wishlist_date").val(res.date_created);
-        // Update items table
-        update_items_table(res.items);
+        // TODO: Update items table
+        // update_items_table(res.items);
     }
 
     function update_item_form(res) {
@@ -49,6 +49,7 @@ $(function () {
     // Create a Wishlist
     // ****************************************
     $("#create-btn").click(function () {
+        console.log("Create button clicked");
         let name = $("#wishlist_name").val();
         let userid = $("#wishlist_userid").val();
         let date_created = $("#wishlist_date").val()
@@ -70,11 +71,13 @@ $(function () {
         })
 
         ajax.done(function(res) {
+            console.log("Success response:", res);
             update_wishlist_form(res);
             flash_message("Wishlist Creation Success");
         })
 
         ajax.fail(function(res) {
+            console.log("Failed response:", res);
             flash_message(res.responseJSON.message);
         });
     });
