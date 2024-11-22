@@ -64,12 +64,12 @@ $(function () {
 
         ajax.done(function(res){
             //alert(res.toSource())
-            update_form_data(res)
+            update_wishlist_form(res)
             flash_message("Success")
         });
 
         ajax.fail(function(res){
-            clear_form_data()
+            clear_wishlist_form()
             flash_message(res.responseJSON.message)
         });
 
