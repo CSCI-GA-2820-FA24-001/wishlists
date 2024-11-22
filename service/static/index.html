@@ -27,6 +27,9 @@
         <div class="well">
 
           <!-- Wishlist Section -->
+          <div class="form-group">
+            <button type="submit" class="btn btn-primary" id="list-btn">List All Wishlists</button>
+          </div>
           <div class="form-horizontal">
             <div class="form-group">
               <label class="control-label col-sm-2" for="wishlist_id">Wishlist ID:</label>
@@ -72,10 +75,9 @@
               <div class="col-sm-offset-2 col-sm-10">
                 <button type="submit" class="btn btn-primary" id="search-btn">Search</button>
                 <button type="submit" class="btn btn-success" id="create-btn">Create</button>
-                <button type="submit" class="btn btn-warning" id="update-btn">Update</button>
-                <button type="submit" class="btn btn-primary" id="clear-btn">Clear</button>
-                <button type="submit" class="btn btn-primary" id="list-btn">List Wishlists</button>
-                <button type="submit" class="btn btn-primary" id="list-item-btn">List Items</button>
+                <button type="submit" class="btn btn-success" id="update-btn">Update</button>
+                <button type="submit" class="btn btn-warning" id="clear-btn">Clear</button>
+                <button type="submit" class="btn btn-primary" id="list_items-btn">List Items</button>
               </div>
             </div>
           </div>
@@ -84,25 +86,25 @@
           <h4>Item Management</h4>
           <div class="form-horizontal">
             <div class="form-group">
-              <label class="control-label col-sm-2" for="item_id">Item ID:</label>
+              <label class="control-label col-sm-2" for="wishlist_item_id">Item ID:</label>
 
               <!-- Item ID -->
-              <div class="col-sm-10">
-                <input type="text" class="form-control" id="item_id" placeholder="Enter Item ID">
+              <div class="col-sm-6">
+                <input type="text" class="form-control" id="wishlist_item_id" placeholder="Enter Item ID">
+              </div>
+              
+              <!-- Item Retrieve or Delete Button -->
+              <div class="col-sm-4">
+                <button type="submit" class="btn btn-primary" id="retrieve_item-btn">Retrieve</button>
+                <button type="submit" class="btn btn-danger" id="delete_item-btn">Delete</button>
               </div>
             </div>
-
-            <!-- Item Retrieve or Delete Button -->
-            <div class="col-sm-4">
-              <button type="submit" class="btn btn-primary" id="retrieve-item-btn">Search</button>
-              <button type="submit" class="btn btn-danger" id="delete-item-btn">Delete</button>
-            </div>
-
+              
             <!-- Item Name -->
             <div class="form-group">
-              <label class="control-label col-sm-2" for="item_name">Name:</label>
+              <label class="control-label col-sm-2" for="wishlist_item_name">Name:</label>
               <div class="col-sm-10">
-                <input type="text" class="form-control" id="item_name" placeholder="Enter Item Name">
+                <input type="text" class="form-control" id="wishlist_item_name" placeholder="Enter Item Name">
               </div>
             </div>
 
@@ -110,31 +112,31 @@
             <div class="form-group">
               <label class="control-label col-sm-2" for="item_wishlist">Wishlist ID:</label>
               <div class="col-sm-10">
-                <input type="text" class="form-control" id="item_wishlist" placeholder="Enter Item's Wishlist ID">
+                <input type="text" class="form-control" id="wishlist_item_wishlist" placeholder="Enter Item's Wishlist ID">
               </div>
             </div>
 
             <!-- Item Description -->
             <div class="form-group">
-              <label class="control-label col-sm-2" for="item_description">Description:</label>
+              <label class="control-label col-sm-2" for="wishlist_item_description">Description:</label>
               <div class="col-sm-10">
-                <input type="text" class="form-control" id="item_description" placeholder="Enter Item Description">
+                <input type="text" class="form-control" id="wishlist_item_description" placeholder="Enter Item Description">
               </div>
             </div>
 
             <!-- Item Price -->
             <div class="form-group">
-              <label class="control-label col-sm-2" for="item_price">Price:</label>
+              <label class="control-label col-sm-2" for="wishlist_item_price">Price:</label>
               <div class="col-sm-10">
-                <input type="number" step="0.01" class="form-control" id="item_price" placeholder="Enter Item Price">
+                <input type="number" step="0.01" class="form-control" id="wishlist_item_price" placeholder="Enter Item Price">
               </div>
             </div>
 
             <!-- Item Status -->
             <div class="form-group">
-              <label class="control-label col-sm-2" for="item_status">Status:</label>
+              <label class="control-label col-sm-2" for="wishlist_item_status">Status:</label>
               <div class="col-sm-10">
-                <select class="form-control" id="item_status">
+                <select class="form-control" id="wishlist_item_status">
                   <option value="pending">Pending</option>
                   <option value="purchased">Purchased</option>
                   <option value="out_of_stock">Out of Stock</option>
@@ -147,9 +149,9 @@
             <!-- Item Buttons -->
             <div class="form-group">
               <div class="col-sm-offset-2 col-sm-10">
-                <button type="submit" class="btn btn-success" id="add-item-btn">Add</button>
-                <button type="submit" class="btn btn-warning" id="update-item-btn">Update</button>
-                <button type="submit" class="btn btn-primary" id="clear-item-btn">Clear</button>
+                <button type="submit" class="btn btn-primary" id="add_item-btn">Add</button>
+                <button type="submit" class="btn btn-success" id="update_item-btn">Update</button>
+                <button type="submit" class="btn btn-warning" id="clear_item-btn">Clear</button>
               </div>
             </div>
           </div>
@@ -175,7 +177,7 @@
       </div>
 
       <!-- Items List -->
-      <div class="table-responsive col-md-12" id="items_list">
+      <div class="table-responsive col-md-12" id="list_items">
         <h4>Wishlist Items Table</h4>
         <table class="table table-striped">
           <thead>
