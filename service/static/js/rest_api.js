@@ -10,7 +10,9 @@ $(function () {
         $("#wishlist_name").val(res.name);
         $("#wishlist_userid").val(res.userid);
         $("#wishlist_date").val(res.date_created);
+
         // Update items table
+
         // update_items_table(res.items);
     }
 
@@ -52,7 +54,8 @@ $(function () {
         console.log("Create button clicked");
         let name = $("#wishlist_name").val();
         let userid = $("#wishlist_userid").val();
-        let date_created = $("#wishlist_date").val();
+        let date_created = $("#wishlist_date").val()
+
 
         let data = {
             "name": name,
@@ -119,6 +122,7 @@ $(function () {
         $("#wishlist_id").val("");
         $("#flash_message").empty();
         clear_wishlist_form()
+
     });
 
 })
