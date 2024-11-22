@@ -51,7 +51,7 @@ $(function () {
     $("#create-btn").click(function () {
         let name = $("#wishlist_name").val();
         let userid = $("#wishlist_userid").val();
-        let date_created = $("#date_created").val()
+        let date_created = $("#wishlist_date").val()
 
         let data = {
             "name": name,
