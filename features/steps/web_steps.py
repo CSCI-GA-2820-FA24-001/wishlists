@@ -30,7 +30,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-ID_PREFIX = "wishlsit_"
+ID_PREFIX = "wishlist_"
 
 
 @when('I visit the "Home Page"')

@@ -75,6 +75,15 @@ $(function () {
 
     });
 
+    // ****************************************
+    // Clear wishlist form
+    // ****************************************
+    $("#clear-btn").click(function () {
+        $("#wishlist_id").val("");
+        $("#flash_message").empty();
+        clear_wishlist_form()
+    });
+
     // TODO:
     // // ****************************************
     // // Create a Pet
