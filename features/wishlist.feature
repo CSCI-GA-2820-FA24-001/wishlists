@@ -38,3 +38,20 @@ Scenario: Create a Wishlist
     And I should see "Gift List" in the "Name" field
     And I should see "user987" in the "UserId" field
     And I should see "2024-01-01" in the "Date" field
+
+Scenario: Delete a Wishlist
+    When I visit the "Home Page"
+    And I set the "Name" to "Gift List"
+    And I set the "UserId" to "user987"
+    And I set the "Date" to "01-01-2024"
+    And I press the "Create" button
+    Then I should see the message "Success"
+    When I copy the "Id" field
+    And I press the "Clear" button
+    When I paste the "Id" field
+    And I press the "Delete" button
+    Then I should see the message "Success"
+    # And I set the "Name" to "Birthday List"
+    # And I press the "Search" button
+    # Then I should see the message "Not Found"
+
