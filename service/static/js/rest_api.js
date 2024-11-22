@@ -10,18 +10,15 @@ $(function () {
         $("#wishlist_name").val(res.name);
         $("#wishlist_userid").val(res.userid);
         $("#wishlist_date").val(res.date_created);
-
-        // Update items table
-
-        // update_items_table(res.items);
     }
 
     function update_item_form(res) {
-        $("#item_id").val(res.id);
-        $("#item_name").val(res.name);
-        $("#item_description").val(res.description);
-        $("#item_price").val(res.price);
-        $("#item_status").val(res.status);
+        $("#wishlist_item_id").val(res.id);
+        $("#wishlist_item_name").val(res.name);
+        $("#wishlist_item_parent").val(res.wishlist_id);
+        $("#wishlist_item_description").val(res.description);
+        $("#wishlist_item_price").val(res.price);
+        $("#wishlist_item_status").val(res.status);
     }
 
     /// Clears all form fields
@@ -30,15 +27,16 @@ $(function () {
         $("#wishlist_name").val("");
         $("#wishlist_userid").val("");
         $("#wishlist_date").val("");
-        $("#items_list tbody").empty();
+        $("#list_items tbody").empty();
     }
 
     function clear_item_form() {
-        $("#item_id").val("");
-        $("#item_name").val("");
-        $("#item_description").val("");
-        $("#item_price").val("");
-        $("#item_status").val("pending");
+        $("#wishlist_item_id").val("");
+        $("#wishlist_item_name").val("");
+        $("#wishlist_item_parent").val("");
+        $("#wishlist_item_description").val("");
+        $("#wishlist_item_price").val("");
+        $("#wishlist_item_status").val("");
     }
 
     // Updates the flash message area
@@ -49,14 +47,20 @@ $(function () {
     }
 
     // ****************************************
-    // Clear wishlist form
+    // Clear wishlist and item form
     // ****************************************
     $("#clear-btn").click(function () {
-        $("#wishlist_id").val("");
         $("#flash_message").empty();
         clear_wishlist_form()
 
     });
+    
+    $("#clear-item-btn").click(function () {
+        $("#flash_message").empty();
+        clear_item_form()
+
+    });
+
 
     // ****************************************
     // Create a Wishlist
@@ -137,7 +141,7 @@ $(function () {
     // ****************************************
 
     $("#retrieve-btn").click(function () {
-
+        console.log("Retrieve button clicked");
         let wishlist_id = $("#wishlist_id").val();
 
         $("#flash_message").empty();
@@ -152,7 +156,7 @@ $(function () {
         ajax.done(function (res) {
             //alert(res.toSource())
             update_wishlist_form(res)
-            flash_message("Success")
+            flash_message("Retrieve Wishlist Success")
         });
 
         ajax.fail(function (res) {
@@ -167,6 +171,7 @@ $(function () {
     // Delete a Wishlist
     // ****************************************
     $("#delete-btn").click(function () {
+        console.log("Delete button clicked");
         let wishlist_id = $("#wishlist_id").val();
 
         $.ajax({
@@ -183,58 +188,277 @@ $(function () {
             });
     });
 
-    // ****************************************
-    // List all Wishlists
-    // ****************************************
 
-    $("#list_all_wishlists-btn").click(function () {
+    // ****************************************
+    // Add an Item to a Wishlist
+    // ****************************************
+    $("#add_item-btn").click(function () {
+        console.log("Add item button clicked");
+        let wishlist_id = $("#wishlist_item_parent").val();
+        let name = $("#wishlist_item_name").val();
+        let description = $("#wishlist_item_description").val();
+        let price = $("#wishlist_item_price").val();
+        let status = $("#wishlist_item_status").val();
+        console.log("Adding item with status:", status);
+
+        let data = {
+            "name": name,
+            "wishlist_id": wishlist_id,
+            "description": description,
+            "price": parseFloat(price),
+            "status": status || "pending"
+        };
+
+        console.log("Sending data:", data);
+        $("#flash_message").empty();
+        
+        let ajax = $.ajax({
+            type: "POST",
+            url: `/wishlists/${wishlist_id}/items`,
+            contentType: "application/json",
+            data: JSON.stringify(data),
+        });
+
+        ajax.done(function(res){
+            update_item_form(res);
+            flash_message("Item Added Successfully");
+        });
+
+        ajax.fail(function(res){
+            flash_message(res.responseJSON.message);
+        });
+    });
+
+
+    // ****************************************
+    // Update an Item
+    // ****************************************
+    $("#update_item-btn").click(function () {
+        console.log("Update item button clicked");
+        let wishlist_id = $("#wishlist_item_parent").val();
+        let wishlist_item_id = $("#wishlist_item_id").val();
+        let name = $("#wishlist_item_name").val();
+        let description = $("#wishlist_item_description").val();
+        let price = $("#wishlist_item_price").val();
+        let status = $("#wishlist_item_status").val();
+
+        let data = {
+            "name": name,
+            "wishlist_id": wishlist_id,
+            "description": description,
+            "price": parseFloat(price),
+            "status": status
+        };
+
+        $("#flash_message").empty();
+
+        let ajax = $.ajax({
+            type: "PUT",
+            url: `/wishlists/${wishlist_id}/items/${wishlist_item_id}`,
+            contentType: "application/json",
+            data: JSON.stringify(data)
+        });
+
+        ajax.done(function(res){
+            update_item_form(res);
+            flash_message("Item Updated Successfully");
+        });
+
+        ajax.fail(function(res){
+            flash_message(res.responseJSON.message);
+        });
+    });
+
+
+    // ****************************************
+    // Delete an Item
+    // ****************************************
+    $("#delete_item-btn").click(function () {
+        console.log("Delete item button clicked");
+        let wishlist_id = $("#wishlist_item_parent").val();
+        let wishlist_item_id = $("#wishlist_item_id").val();
+
+        $("#flash_message").empty();
+
+        let ajax = $.ajax({
+            type: "DELETE",
+            url: `/wishlists/${wishlist_id}/items/${wishlist_item_id}`,
+            data: JSON.stringify(data),
+        });
+
+        ajax.done(function(res){
+            clear_item_form();
+            flash_message("Item has been Deleted!");
+        });
+
+        ajax.fail(function(res){
+            flash_message(res.responseJSON.message);
+        });
+    });
+
+
+    // ****************************************
+    // Retrieve an Item
+    // ****************************************
+    $("#retrieve_item-btn").click(function () {
+        console.log("Retrieve item button clicked");
+        let wishlist_id = $("#wishlist_item_parent").val();
+        let wishlist_item_id = $("#wishlist_item_id").val();
 
         $("#flash_message").empty();
 
         let ajax = $.ajax({
             type: "GET",
-            url: `/wishlists`,
+            url: `/wishlists/${wishlist_id}/items/${wishlist_item_id}`,
             contentType: "application/json",
-            data: ''
-        })
-
-        ajax.done(function (res) {
-            //alert(res.toSource())
-            $("#search_results").empty();
-            let table = '<table class="table table-striped" cellpadding="10">'
-            table += '<thead><tr>'
-            table += '<th class="col-md-1">ID</th>'
-            table += '<th class="col-md-3">Name</th>'
-            table += '<th class="col-md-2">User ID<</th>'
-            table += '<th class="col-md-2">Date Created</th>'
-            table += '<th class="col-md-2">Actions</th>'
-            table += '</tr></thead><tbody>'
-            // let firstWishlist= "";
-            for (let i = 0; i < res.length; i++) {
-                let wishlist = res[i];
-                table += `<tr id="row_${i}"><td>${wishlist.id}</td><td>${wishlist.name}</td><td>${wishlist.userid}</td><td>${wishlist.date_created}</td><td>"placeholder"</td></tr>`;
-                // if (i == 0) {
-                //     firstWishlist = wishlist;
-                // }
-            }
-            table += '</tbody></table>';
-            $("#search_results").append(table);
-
-            // copy the first result to the form
-            // if (firstWishlist != "") {
-            //     update_wishlist_form(firstWishlist)
-            // }
-            flash_message("Success")
         });
 
-        ajax.fail(function (res) {
-            clear_wishlist_form()
-            flash_message(res.responseJSON.message)
+        ajax.done(function(res){
+            update_item_form(res);
+            flash_message("Retrieve Item Success");
         });
 
+        ajax.fail(function(res){
+            clear_item_form();
+            flash_message(res.responseJSON.message);
+        });
     });
 
+    // ****************************************
+    // Purchase an Item
+    // ****************************************
+    function purchaseItem(wishlistId, itemId) {
+        $("#flash_message").empty();
+
+        let ajax = $.ajax({
+            type: "PUT",
+            url: `/wishlists/${wishlistId}/items/${itemId}/purchase`,
+            contentType: "application/json"
+        });
+
+        ajax.done(function(res) {
+            flash_message("Item purchased successfully!");
+            // refresh the items list
+            $("#list_items-btn").click();
+        });
+
+        ajax.fail(function(res) {
+            flash_message(res.responseJSON.message);
+        });
+    }
 
 
+// ****************************************
+// List all Items in a Wishlist
+// ****************************************
+    $("#list_items-btn").click(function () {
+        console.log("List Items button clicked");
 
+        let wishlist_id = $("#wishlist_id").val();
+        console.log(`Wishlist ID: ${wishlist_id}`);
+
+        if (!wishlist_id) {
+            console.warn("No wishlist ID found");
+            $("#flash_message").empty().append("Please select a wishlist first");
+            return;
+        }
+
+        $("#flash_message").empty();
+        $("#list_results").empty(); 
+
+        let ajax = $.ajax({
+            type: "GET",
+            url: `/wishlists/${wishlist_id}/items`,
+            contentType: "application/json",
+        });
+
+        ajax.done(function (res) {
+            console.log("Items retrieved successfully:", res);
+
+            if (!Array.isArray(res)) {
+                console.error("Response is not an array:", res);
+                $("#flash_message").empty().append("Invalid response format");
+                return;
+            }
+
+            // Initialize table to disply items
+            let table = `
+                <table class="table table-striped" cellpadding="10">
+                    <thead>
+                        <tr>
+                            <th class="col-md-1">ID</th>
+                            <th class="col-md-2">Name</th>
+                            <th class="col-md-2">Wishlist ID</th>
+                            <th class="col-md-3">Description</th>
+                            <th class="col-md-2">Price</th>
+                            <th class="col-md-2">Status</th>
+                            <th class="col-md-2">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            // Loop through all items and populate the table
+            res.forEach((item, index) => { 
+                table += `
+                    <tr id="row_${index}">
+                        <td>${item.id || ""}</td>
+                        <td>${item.name || ""}</td>
+                        <td>${item.wishlist_id || ""}</td>
+                        <td>${item.description || ""}</td>
+                        <td>${item.price ? "$" + parseFloat(item.price).toFixed(2) : ""}</td>
+                        <td>${status}</td>
+                        <td>
+                            <button class="btn btn-info view-item" data-id="${item.id}">View</button>
+                            ${status !== 'purchased' ? 
+                                `<button class="btn btn-success purchase-item" data-wishlist="${item.wishlist_id}" data-id="${item.id}">Purchase</button>` 
+                                : ''}
+                        </td>
+                    </tr>
+                `;
+            });
+
+            table += `</tbody></table>`;
+            $("#list_results").append(table);
+            flash_message("List Items Success");
+
+            // click handlers for "View" buttons, view selected item in form
+            $(".view-item").off("click").on("click", function () {
+                let itemId = $(this).data("id");
+                console.log(`View clicked for item ID: ${itemId}`);
+
+                // get and display selected item 
+                let ajax =$.ajax({
+                    type: "GET",
+                    url: `/wishlists/${wishlist_id}/items/${itemId}`,
+                    contentType: "application/json",
+                })
+                ajax.done(function (res) {
+                    console.log("Item retrieved successfully:", res);
+                    $("#wishlist_item_id").val(res.id);
+                    $("#wishlist_item_name").val(res.name);
+                    $("#wishlist_item_parent").val(res.wishlist_id);
+                    $("#wishlist_item_description").val(res.description);
+                    $("#wishlist_item_price").val(res.price);
+                    $("#wishlist_item_status").val(res.status);
+                    flash_message("View Item Action Success");
+                })
+                ajax.fail(function(res){
+                    flash_message(res.responseJSON.message);
+                });
+            });
+        });
+        
+        // click handlers for "Purchase" buttons, mark status to purchased
+        $(".purchase-item").off("click").on("click", function () {
+            const itemId = $(this).data("id");
+            const wishlistId = $(this).data("wishlist");
+            console.log(`Purchase clicked for item ID: ${itemId} in wishlist ${wishlistId}`);
+            purchaseItem(wishlistId, itemId);
+        });
+
+        ajax.fail(function(res){
+            flash_message(res.responseJSON.message);
+        });
+    });
 })
