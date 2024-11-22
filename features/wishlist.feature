@@ -20,7 +20,7 @@ Scenario: Create a Wishlist
     When I visit the "Home Page"
     And I set the "Name" to "Gift List"
     And I set the "UserId" to "user987"
-    And I set the "Date" to "2022-06-16"
+    And I set the "Date" to "01-01-2024"
     And I press the "Create" button
     Then I should see the message "Success"
     When I copy the "Id" field
