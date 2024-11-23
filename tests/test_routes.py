@@ -28,7 +28,7 @@ from werkzeug.exceptions import UnsupportedMediaType
 from wsgi import app
 
 from service.common import status
-from service.models import db, Wishlist
+from service.models import db, Wishlist, ItemStatus
 from service.routes import check_content_type
 from .factories import WishlistFactory, ItemFactory
 
@@ -390,6 +390,7 @@ class TestWishlistService(TestCase):
             "name": "Headphones",
             "description": "Noise-cancelling headphones",
             "price": 199.99,
+            "status": ItemStatus.PENDING.value,
         }
         response = self.client.post(
             f"{BASE_URL}/{wishlist.id}/items",
@@ -403,6 +404,7 @@ class TestWishlistService(TestCase):
             "name": "Headphones",  # duplicated name of "Headphone"
             "description": "Wireless headphones",
             "price": 249.99,
+            "status": ItemStatus.PENDING.value,
         }
         response = self.client.post(
             f"{BASE_URL}/{wishlist.id}/items",

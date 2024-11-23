@@ -21,11 +21,12 @@ class ItemStatus(Enum):
     """
     Class that represents the status of a wishlist item
     """
-    PENDING = "pending"
-    PURCHASED = "purchased"
-    OUT_OF_STOCK = "out_of_stock"
-    EXPIRED = "expired"
-    FAVORITE = "favorite"
+
+    PENDING = "PENDING"
+    PURCHASED = "PURCHASED"
+    OUT_OF_STOCK = "OUT_OF_STOCK"
+    EXPIRED = "EXPIRED"
+    FAVORITE = "FAVORITE"
 
 
 class DataValidationError(Exception):
@@ -226,6 +227,7 @@ class Item(db.Model, PersistentBase):
     name = db.Column(db.String(64))
     description = db.Column(db.String(64))
     price = db.Column(db.Numeric(precision=10, scale=2), nullable=False)
+    status = db.Column(db.Enum(ItemStatus), nullable=True, server_default="PENDING")
 
     def __repr__(self):
         return f"<Item {self.name} id=[{self.id}] wishlist[{self.wishlist_id}]>"
@@ -241,6 +243,7 @@ class Item(db.Model, PersistentBase):
             "name": self.name,
             "description": self.description,
             "price": self.price,
+            "status": self.status.value,
         }
 
     def deserialize(self, data: dict) -> None:
@@ -259,10 +262,15 @@ class Item(db.Model, PersistentBase):
             self.price = float(data["price"])
             if self.price <= 0:
                 raise ValueError("Price must be a positive number.")
+            self.status = ItemStatus(data["status"])
 
         except (KeyError, AttributeError) as error:
-            raise DataValidationError(f"Invalid Item: missing or invalid field {error.args[0]}") from error
+            raise DataValidationError(
+                f"Invalid Item: missing or invalid field {error.args[0]}"
+            ) from error
         except (ValueError, TypeError) as error:
-            raise DataValidationError("Invalid Item: 'price' must be a positive number.") from error
+            raise DataValidationError(
+                "Invalid Item: 'price' must be a positive number."
+            ) from error
 
         return self
