@@ -77,3 +77,11 @@ Scenario: Update a Wishlist
     And I should see "user987" in the "UserId" field
     And I should see "2024-01-01" in the "Date" field
 
+Scenario: List all wishlistss
+    When I visit the "Home Page"
+    And I press the "List All Wishlists" button
+    Then I should see the message "Success"
+    And I should see "Birthday List" in the results
+    And I should see "Holiday List" in the results
+    And I should see "Christmas List" in the results
+    And I should see "Shopping List" in the results

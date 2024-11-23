@@ -84,14 +84,14 @@ $(function () {
             data: JSON.stringify(data),
         })
 
-        ajax.done(function(res) {
+        ajax.done(function (res) {
             console.log("Success response:", res);
             update_wishlist_form(res);
             flash_message("Wishlist Creation is Successful");
             console.log("Verification - Flash message is:", $("#flash_message").text());
         })
 
-        ajax.fail(function(res) {
+        ajax.fail(function (res) {
             console.log("Failed response:", res);
             flash_message(res.responseJSON.message);
         });
@@ -122,12 +122,12 @@ $(function () {
             data: JSON.stringify(data)
         })
 
-        ajax.done(function(res){
+        ajax.done(function (res) {
             update_wishlist_form(res)
             flash_message("Success")
         });
 
-        ajax.fail(function(res){
+        ajax.fail(function (res) {
             flash_message(res.responseJSON.message)
         });
     });
@@ -149,13 +149,13 @@ $(function () {
             data: ''
         })
 
-        ajax.done(function(res){
+        ajax.done(function (res) {
             //alert(res.toSource())
             update_wishlist_form(res)
             flash_message("Success")
         });
 
-        ajax.fail(function(res){
+        ajax.fail(function (res) {
             clear_wishlist_form()
             flash_message(res.responseJSON.message)
         });
@@ -174,13 +174,67 @@ $(function () {
             url: `/wishlists/${wishlist_id}`,
             contentType: "application/json"
         })
-        .done(function() {
-            clear_wishlist_form();
-            flash_message("Wishlist Deletion is Successful");
-        })
-        .fail(function() {
-            flash_message(res.responseJSON.message);
-        });
+            .done(function () {
+                clear_wishlist_form();
+                flash_message("Wishlist Deletion is Successful");
+            })
+            .fail(function () {
+                flash_message(res.responseJSON.message);
+            });
     });
+
+    // ****************************************
+    // List all Wishlists
+    // ****************************************
+
+    $("#list_all_wishlists-btn").click(function () {
+
+        $("#flash_message").empty();
+
+        let ajax = $.ajax({
+            type: "GET",
+            url: `/wishlists`,
+            contentType: "application/json",
+            data: ''
+        })
+
+        ajax.done(function (res) {
+            //alert(res.toSource())
+            $("#search_results").empty();
+            let table = '<table class="table table-striped" cellpadding="10">'
+            table += '<thead><tr>'
+            table += '<th class="col-md-1">ID</th>'
+            table += '<th class="col-md-3">Name</th>'
+            table += '<th class="col-md-2">User ID<</th>'
+            table += '<th class="col-md-2">Date Created</th>'
+            table += '<th class="col-md-2">Actions</th>'
+            table += '</tr></thead><tbody>'
+            // let firstWishlist= "";
+            for (let i = 0; i < res.length; i++) {
+                let wishlist = res[i];
+                table += `<tr id="row_${i}"><td>${wishlist.id}</td><td>${wishlist.name}</td><td>${wishlist.userid}</td><td>${wishlist.date_created}</td><td>"placeholder"</td></tr>`;
+                // if (i == 0) {
+                //     firstWishlist = wishlist;
+                // }
+            }
+            table += '</tbody></table>';
+            $("#search_results").append(table);
+
+            // copy the first result to the form
+            // if (firstWishlist != "") {
+            //     update_wishlist_form(firstWishlist)
+            // }
+            flash_message("Success")
+        });
+
+        ajax.fail(function (res) {
+            clear_wishlist_form()
+            flash_message(res.responseJSON.message)
+        });
+
+    });
+
+
+
 
 })

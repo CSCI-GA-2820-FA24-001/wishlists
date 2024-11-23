@@ -21,11 +21,12 @@ class ItemStatus(Enum):
     """
     Class that represents the status of a wishlist item
     """
-    PENDING = "pending"
-    PURCHASED = "purchased"
-    OUT_OF_STOCK = "out_of_stock"
-    EXPIRED = "expired"
-    FAVORITE = "favorite"
+
+    PENDING = "PENDING"
+    PURCHASED = "PURCHASED"
+    OUT_OF_STOCK = "OUT_OF_STOCK"
+    EXPIRED = "EXPIRED"
+    FAVORITE = "FAVORITE"
 
 
 class DataValidationError(Exception):
@@ -261,8 +262,12 @@ class Item(db.Model, PersistentBase):
                 raise ValueError("Price must be a positive number.")
 
         except (KeyError, AttributeError) as error:
-            raise DataValidationError(f"Invalid Item: missing or invalid field {error.args[0]}") from error
+            raise DataValidationError(
+                f"Invalid Item: missing or invalid field {error.args[0]}"
+            ) from error
         except (ValueError, TypeError) as error:
-            raise DataValidationError("Invalid Item: 'price' must be a positive number.") from error
+            raise DataValidationError(
+                "Invalid Item: 'price' must be a positive number."
+            ) from error
 
         return self
