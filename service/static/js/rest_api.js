@@ -13,12 +13,13 @@ $(function () {
     }
 
     function update_item_form(res) {
-        $("#wishlist_item_id").val(res.id);
-        $("#wishlist_item_name").val(res.name);
+        $("#wishlist_wishlist_item_id").val(res.id);
+        $("#wishlist_wishlist_item_name").val(res.name);
+        $("#wishlist_wishlist_item_parent").val(res.wishlist_id);
         $("#wishlist_item_parent").val(res.wishlist_id);
         $("#wishlist_item_description").val(res.description);
-        $("#wishlist_item_price").val(res.price);
-        $("#wishlist_item_status").val(res.status);
+        $("#wishlist_wishlist_item_price").val(res.price);
+        $("#wishlist_wishlist_item_status").val(res.status);
     }
 
     /// Clears all form fields
@@ -183,7 +184,7 @@ $(function () {
                 clear_wishlist_form();
                 flash_message("Wishlist Deletion is Successful");
             })
-            
+
             .fail(function () {
                 flash_message(res.responseJSON.message);
             });
