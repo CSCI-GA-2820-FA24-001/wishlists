@@ -28,7 +28,7 @@ Ensure you have the following softwares isntalled before starting:
 1. Clone the repository using http (or ssh) and open repository in VSCode:
     ```
     git clone https://github.com/CSCI-GA-2820-FA24-001/wishlists.git
-    cd your-repo
+    cd wishlists
     code .
     ```
 2. If you are using VS Code with the Dev Containers extension installed, you should see a prompt that asks you to reopen the project in a dev container. Click "Reopen in Container."
