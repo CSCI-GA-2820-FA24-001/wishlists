@@ -23,7 +23,7 @@ and Delete YourResourceModel
 
 from flask import jsonify, request, url_for, abort
 from flask import current_app as app  # Import Flask application
-from service.models import Item, Wishlist
+from service.models import Item, Wishlist, ItemStatus
 from service.common import status  # HTTP Status Codes
 
 
@@ -433,9 +433,8 @@ def delete_item_from_wishlist(wishlist_id, item_id):
 ######################################################################
 def purchase_item_from_wishlist(item):
     """Action of purchasing an item from a wishlist."""
-    # NOTE: add ItemStatus if necessary
-    # item.status = ItemStatus.PURCHASED
-    # item.update()
+    item.status = ItemStatus.PURCHASED
+    item.update()
 
     # After purchasing, delete the item from the wishlist.
     item.delete()

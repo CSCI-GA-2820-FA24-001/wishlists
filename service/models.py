@@ -227,6 +227,7 @@ class Item(db.Model, PersistentBase):
     name = db.Column(db.String(64))
     description = db.Column(db.String(64))
     price = db.Column(db.Numeric(precision=10, scale=2), nullable=False)
+    status = db.Column(db.Enum(ItemStatus), nullable=True, server_default="PENDING")
 
     def __repr__(self):
         return f"<Item {self.name} id=[{self.id}] wishlist[{self.wishlist_id}]>"
@@ -242,6 +243,7 @@ class Item(db.Model, PersistentBase):
             "name": self.name,
             "description": self.description,
             "price": self.price,
+            "status": self.status.value,
         }
 
     def deserialize(self, data: dict) -> None:
@@ -260,6 +262,7 @@ class Item(db.Model, PersistentBase):
             self.price = float(data["price"])
             if self.price <= 0:
                 raise ValueError("Price must be a positive number.")
+            self.status = ItemStatus(data["status"])
 
         except (KeyError, AttributeError) as error:
             raise DataValidationError(
