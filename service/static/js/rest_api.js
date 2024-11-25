@@ -183,6 +183,72 @@ $(function () {
             });
     });
 
+
+    // ****************************************
+    // Query a Wishlist
+    // ****************************************
+
+    $("#search-btn").click(function () {
+
+        let wishlist_name = $("#wishlist_name").val();
+        let wishlist_userid = $("#wishlist_userid").val();
+        let wishlist_date = $("#wishlist_date").val();
+
+        let queryString = ""
+
+        if (wishlist_name) {
+            queryString += 'name=' + wishlist_name
+        }
+        if (wishlist_userid) {
+            if (queryString.length > 0) {
+                queryString += '&userid=' + wishlist_userid
+            } else {
+                queryString += 'userid=' + wishlist_userid
+            }
+        }
+        if (wishlist_date) {
+            if (queryString.length > 0) {
+                queryString += '&date_created=' + wishlist_date
+            } else {
+                queryString += 'date_created=' + wishlist_date
+            }
+        }
+
+        $("#flash_message").empty();
+
+        let ajax = $.ajax({
+            type: "GET",
+            url: `/wishlists?${queryString}`,
+            contentType: "application/json",
+            data: ''
+        })
+
+        ajax.done(function (res) {
+            $("#search_results").empty();
+            let table = '<table class="table table-striped" cellpadding="10">'
+            table += '<thead><tr>'
+            table += '<th class="col-md-1">ID</th>'
+            table += '<th class="col-md-3">Name</th>'
+            table += '<th class="col-md-2">User ID</th>'
+            table += '<th class="col-md-2">Date Created</th>'
+            table += '<th class="col-md-2">Actions</th>'
+            table += '</tr></thead><tbody>'
+            for (let i = 0; i < res.length; i++) {
+                let wishlist = res[i];
+                table += `<tr id="row_${i}"><td>${wishlist.id}</td><td>${wishlist.name}</td><td>${wishlist.userid}</td><td>${wishlist.date_created}</td><td>"placeholder"</td></tr>`;
+            }
+            table += '</tbody></table>';
+            $("#search_results").append(table);
+            flash_message("Success")
+        });
+
+        ajax.fail(function (res) {
+            clear_wishlist_form()
+            flash_message(res.responseJSON.message)
+        });
+
+    });
+
     // ****************************************
     // List all Wishlists
     // ****************************************

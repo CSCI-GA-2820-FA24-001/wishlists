@@ -85,3 +85,10 @@ Scenario: List all wishlistss
     And I should see "Holiday List" in the results
     And I should see "Christmas List" in the results
     And I should see "Shopping List" in the results
+
+Scenario: Query wishlists
+    When I visit the "Home Page"
+    And I set the "Name" to "Birthday List"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "Birthday List" in the results
