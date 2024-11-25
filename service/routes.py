@@ -23,10 +23,23 @@ and Delete YourResourceModel
 
 from flask import jsonify, request, url_for, abort
 from flask import current_app as app  # Import Flask application
-from flask_restx import fields
+from flask_restx import Api, fields
 from service.models import Item, Wishlist, ItemStatus
 from service.common import status  # HTTP Status Codes
-from . import api
+
+######################################################################
+# Configure Swagger before initializing it
+######################################################################
+api = Api(
+    app,
+    version="1.0.0",
+    title="Wishlist Demo RESTful Service",
+    description="Wishlist API",
+    default="wishlists",
+    default_label="Wishlist Operations",
+    doc="/apidocs",  # default also could use doc='/apidocs/'
+    prefix="/api",
+)
 
 # Define the model so that the docs reflect what can be sent
 create_wishlist_model = api.model(
