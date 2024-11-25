@@ -27,6 +27,7 @@ from service.common import log_handlers
 # Will be initialize when app is created
 api = None  # pylint: disable=invalid-name
 
+
 ############################################################
 # Initialize the Flask instance
 ############################################################
@@ -53,7 +54,7 @@ def create_app():
         doc="/apidocs",  # default also could use doc='/apidocs/'
         prefix="/api",
     )
-    
+
     # Initialize Plugins
     # pylint: disable=import-outside-toplevel
     from service.models import db

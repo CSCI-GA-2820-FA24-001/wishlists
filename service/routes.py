@@ -35,7 +35,7 @@ create_wishlist_model = api.model(
         "name": fields.String(required=True, description="The name of the Wishlist"),
         "userid": fields.String(required=True, description="The User ID of the Wishlist"),
         "date_created": fields.Date(required=True, description="The day the wishlist was created"),
-        "items": fields.List(fields.Raw, description="List of items in the wishlist",default=[])
+        "items": fields.List(fields.Raw, description="List of items in the wishlist", default=[])
     },
 )
 
@@ -56,9 +56,7 @@ create_item_model = api.model(
         "name": fields.String(required=True, description="The name of the item"),
         "description": fields.String(required=True, description="The description of the item"),
         "price": fields.Float(required=True, description="The price of the item (must be positive)"),
-        "status": fields.String(required=True, enum=["PENDING", "PURCHASED", "OUT_OF_STOCK", "EXPIRED", "FAVORITE"],
-            description="The status of the item"
-        )
+        "status": fields.String(required=True, enum=["PENDING", "PURCHASED", "OUT_OF_STOCK", "EXPIRED", "FAVORITE"], description="The status of the item")
     }
 )
 
@@ -71,6 +69,7 @@ item_model = api.inherit(
         ),
     }
 )
+
 
 ######################################################################
 # GET HEALTH CHECK
