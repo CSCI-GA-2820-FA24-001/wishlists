@@ -13,13 +13,13 @@ $(function () {
     }
 
     function update_item_form(res) {
-        $("#wishlist_wishlist_item_id").val(res.id);
-        $("#wishlist_wishlist_item_name").val(res.name);
-        $("#wishlist_wishlist_item_parent").val(res.wishlist_id);
+        $("#wishlist_item_id").val(res.id);
+        $("#wishlist_item_name").val(res.name);
+        $("#wishlist_item_parent").val(res.wishlist_id);
         $("#wishlist_item_parent").val(res.wishlist_id);
         $("#wishlist_item_description").val(res.description);
-        $("#wishlist_wishlist_item_price").val(res.price);
-        $("#wishlist_wishlist_item_status").val(res.status);
+        $("#wishlist_item_price").val(res.price);
+        $("#wishlist_item_status").val(res.status);
     }
 
     /// Clears all form fields
@@ -208,7 +208,7 @@ $(function () {
             "wishlist_id": wishlist_id,
             "description": description,
             "price": parseFloat(price),
-            "status": status || "pending"
+            "status": status || "PENDING"
         };
 
         console.log("Sending data:", data);
@@ -351,9 +351,9 @@ $(function () {
     }
 
 
-// ****************************************
-// List all Items in a Wishlist
-// ****************************************
+    // ****************************************
+    // List all Items in a Wishlist
+    // ****************************************
     $("#list_items-btn").click(function () {
         console.log("List Items button clicked");
 
@@ -376,7 +376,16 @@ $(function () {
         });
 
         ajax.done(function (res) {
-            console.log("Items retrieved successfully:", res);
+            res.forEach(item => {
+                console.log("Item details:", {
+                    id: item.id,
+                    name: item.name,
+                    wishlist_id: item.wishlist_id,
+                    description: item.description,
+                    price: item.price,
+                    status: item.status  // Log the status specifically
+                });
+            });
 
             if (!Array.isArray(res)) {
                 console.error("Response is not an array:", res);
@@ -384,7 +393,7 @@ $(function () {
                 return;
             }
 
-            // Initialize table to disply items
+            // Initialize table
             let table = `
                 <table class="table table-striped" cellpadding="10">
                     <thead>
@@ -403,6 +412,7 @@ $(function () {
 
             // Loop through all items and populate the table
             res.forEach((item, index) => { 
+
                 table += `
                     <tr id="row_${index}">
                         <td>${item.id || ""}</td>
@@ -410,10 +420,10 @@ $(function () {
                         <td>${item.wishlist_id || ""}</td>
                         <td>${item.description || ""}</td>
                         <td>${item.price ? "$" + parseFloat(item.price).toFixed(2) : ""}</td>
-                        <td>${status}</td>
+                        <td>${item.status || "pending"}</td>
                         <td>
                             <button class="btn btn-info view-item" data-id="${item.id}">View</button>
-                            ${status !== 'purchased' ? 
+                            ${(!item.status || item.status !== 'purchased') ? 
                                 `<button class="btn btn-success purchase-item" data-wishlist="${item.wishlist_id}" data-id="${item.id}">Purchase</button>` 
                                 : ''}
                         </td>
@@ -425,42 +435,46 @@ $(function () {
             $("#list_results").append(table);
             flash_message("List Items Success");
 
-            // click handlers for "View" buttons, view selected item in form
+            // Add view functionality
             $(".view-item").off("click").on("click", function () {
                 let itemId = $(this).data("id");
                 console.log(`View clicked for item ID: ${itemId}`);
 
-                // get and display selected item 
-                let ajax =$.ajax({
+                let ajax = $.ajax({
                     type: "GET",
                     url: `/wishlists/${wishlist_id}/items/${itemId}`,
                     contentType: "application/json",
                 })
+                
                 ajax.done(function (res) {
-                    console.log("Item retrieved successfully:", res);
+                    console.log("View item response:", res);
                     $("#wishlist_item_id").val(res.id);
                     $("#wishlist_item_name").val(res.name);
                     $("#wishlist_item_parent").val(res.wishlist_id);
                     $("#wishlist_item_description").val(res.description);
                     $("#wishlist_item_price").val(res.price);
                     $("#wishlist_item_status").val(res.status);
+                    
                     flash_message("View Item Action Success");
                 })
+                
                 ajax.fail(function(res){
+                    console.error("View item failed:", res);
                     flash_message(res.responseJSON.message);
                 });
             });
-        });
-        
-        // click handlers for "Purchase" buttons, mark status to purchased
-        $(".purchase-item").off("click").on("click", function () {
-            const itemId = $(this).data("id");
-            const wishlistId = $(this).data("wishlist");
-            console.log(`Purchase clicked for item ID: ${itemId} in wishlist ${wishlistId}`);
-            purchaseItem(wishlistId, itemId);
+
+            // Add purchase functionality
+            $(".purchase-item").off("click").on("click", function () {
+                const itemId = $(this).data("id");
+                const wishlistId = $(this).data("wishlist");
+                console.log(`Purchase clicked for item ID: ${itemId} in wishlist ${wishlistId}`);
+                purchaseItem(wishlistId, itemId);
+            });
         });
 
         ajax.fail(function(res){
+            console.error("List items failed:", res);
             flash_message(res.responseJSON.message);
         });
     });
