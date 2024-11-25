@@ -59,7 +59,7 @@ def create_app():
     # pylint: disable=import-outside-toplevel
     from service.models import db
     db.init_app(app)
-    
+
     with app.app_context():
         # Dependencies require we import the routes AFTER the Flask app is created
         # pylint: disable=wrong-import-position, wrong-import-order, unused-import
