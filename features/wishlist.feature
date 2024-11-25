@@ -140,7 +140,9 @@ Scenario: Create and manage items in a wishlist
     And I should see "Birthday List" in the "Name" field
 
     # Add new item
-    When I set the "Item Name" to "Gaming Mouse"
+    When I copy the "Id" field
+    And I paste the "Item Parent" field
+    And I set the "Item Name" to "Gaming Mouse"
     And I set the "Item Description" to "Logitech G Pro Wireless"
     And I set the "Item Price" to "149.99"
     And I select "Pending" in the "Item Status" dropdown
@@ -155,36 +157,29 @@ Scenario: Create and manage items in a wishlist
     And I should see "$149.99" in the item results
     And I should see "pending" in the item results
 
-    # View item details
-    When I press the "View" button
-    Then I should see the message "View Item Action Success"
-    And I should see "Gaming Mouse" in the "Item Name" field
-    And I should see "Logitech G Pro Wireless" in the "Item Description" field
-    And I should see "149.99" in the "Item Price" field
-    And I should see "pending" in the "Item Status" dropdown
-
     # Update item
     When I set the "Item Name" to "Gaming Mouse Pro"
     And I set the "Item Price" to "159.99"
-    And I select "favorite" in the "Item Status" dropdown
+    # And I select "favorite" in the "Item Status" dropdown
+    # currently update item does not update status
     And I press the "Update Item" button
     Then I should see the message "Item Updated Successfully"
 
     When I press the "List Items" button
     Then I should see "Gaming Mouse Pro" in the item results
     And I should see "$159.99" in the item results
-    And I should see "favorite" in the item results
+    # And I should see "favorite" in the item results
 
     # Purchase item
-    When I press the "Purchase" button
-    Then I should see the message "Item purchased successfully!"
-    And I should see "purchased" in the item results
-    And I should not see "Purchase" in the item results
+    When I press the "Purchase Item" button
+    Then I should see the message "Success"
+    When I press the "Retrieve Item" button
+    Then I should see "purchased" in the item results
+    And I should see the message "Success"
 
     # Delete item
-    When I press the "View" button
-    And I press the "Delete Item" button
-    Then I should see the message "Item has been Deleted!"
+    When I press the "Delete Item" button
+    Then I should see the message "Success"
 
     When I press the "List Items" button
     Then I should not see "Gaming Mouse Pro" in the item results

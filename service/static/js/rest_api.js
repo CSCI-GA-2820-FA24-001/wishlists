@@ -55,7 +55,7 @@ $(function () {
 
     });
     
-    $("#clear-item-btn").click(function () {
+    $("#clear_item-btn").click(function () {
         $("#flash_message").empty();
         clear_item_form()
 
@@ -556,17 +556,22 @@ $(function () {
         let wishlist_id = $("#wishlist_item_parent").val();
         let wishlist_item_id = $("#wishlist_item_id").val();
 
+        if (!wishlist_id || !wishlist_item_id) {
+            flash_message("Please select an item to delete");
+            return;
+        }
+
         $("#flash_message").empty();
 
         let ajax = $.ajax({
             type: "DELETE",
             url: `/wishlists/${wishlist_id}/items/${wishlist_item_id}`,
-            data: JSON.stringify(data),
+            contentType: "application/json"
         });
 
         ajax.done(function(res){
             clear_item_form();
-            flash_message("Item has been Deleted!");
+            flash_message("Item Deletion Success");
         });
 
         ajax.fail(function(res){
@@ -605,7 +610,6 @@ $(function () {
     // ****************************************
     // Purchase an Item
     // ****************************************
-
     function purchaseItem(wishlistId, itemId) {
         $("#flash_message").empty();
 
@@ -626,6 +630,19 @@ $(function () {
         });
     }
 
+    // Add handler for the form purchase button
+    $("#purchase_item-btn").click(function () {
+        console.log("Purchase item button clicked");
+        let wishlist_id = $("#wishlist_item_parent").val();
+        let wishlist_item_id = $("#wishlist_item_id").val();
+    
+        if (!wishlist_id || !wishlist_item_id) {
+            flash_message("Please select an item to purchase");
+            return;
+        }
+        purchaseItem(wishlist_id, wishlist_item_id);
+        
+    });
 
     // ****************************************
     // List all Items in a Wishlist
@@ -688,7 +705,6 @@ $(function () {
 
             // Loop through all items and populate the table
             res.forEach((item, index) => { 
-
                 table += `
                     <tr id="row_${index}">
                         <td>${item.id || ""}</td>
@@ -699,9 +715,12 @@ $(function () {
                         <td>${item.status || "pending"}</td>
                         <td>
                             <button class="btn btn-info view-item" data-id="${item.id}">View</button>
-                            ${(!item.status || item.status !== 'purchased') ? 
-                                `<button class="btn btn-success purchase-item" data-wishlist="${item.wishlist_id}" data-id="${item.id}">Purchase</button>` 
-                                : ''}
+                            <button class="btn btn-success purchase-item" 
+                                data-wishlist="${item.wishlist_id}" 
+                                data-id="${item.id}"
+                                ${item.status === 'purchased' ? 'disabled' : ''}>
+                                ${item.status === 'purchased' ? 'Purchased' : 'Purchase'}
+                            </button>
                         </td>
                     </tr>
                 `;
