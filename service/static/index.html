@@ -87,10 +87,18 @@
           <div class="form-horizontal">
             <div class="form-group">
               <label class="control-label col-sm-2" for="wishlist_item_id">Item ID:</label>
-
+              
               <!-- Item ID -->
               <div class="col-sm-6">
                 <input type="text" class="form-control" id="wishlist_item_id" placeholder="Enter Item ID">
+              </div>
+            </div>
+              
+            <!-- Item Wishlist ID -->
+            <div class="form-group">
+              <label class="control-label col-sm-2" for="item_wishlist">Wishlist ID:</label>
+              <div class="col-sm-6">
+                <input type="text" class="form-control" id="wishlist_item_parent" placeholder="Enter Item's Wishlist ID">
               </div>
               
               <!-- Item Retrieve or Delete Button -->
@@ -100,11 +108,6 @@
               </div>
             </div>
 
-            <!-- Item Retrieve or Delete Button -->
-            <div class="col-sm-4">
-              <button type="submit" class="btn btn-primary" id="retrieve_item-btn">Search</button>
-              <button type="submit" class="btn btn-danger" id="delete_item-btn">Delete</button>
-            </div>
               
             <!-- Item Name -->
             <div class="form-group">
@@ -114,14 +117,7 @@
               </div>
             </div>
 
-            <!-- Item Wishlist ID -->
-            <div class="form-group">
-              <label class="control-label col-sm-2" for="item_wishlist">Wishlist ID:</label>
-              <div class="col-sm-10">
-                <input type="text" class="form-control" id="wishlist_item_parent" placeholder="Enter Item's Wishlist ID">
-              </div>
 
-            </div>
 
             <!-- Item Description -->
             <div class="form-group">
