@@ -23,7 +23,7 @@ and Delete YourResourceModel
 
 from flask import jsonify, request, url_for, abort
 from flask import current_app as app  # Import Flask application
-from flask_restx import Resource, fields, reqparse, inputs
+from flask_restx import fields
 from service.models import Item, Wishlist, ItemStatus
 from service.common import status  # HTTP Status Codes
 from . import api
@@ -56,7 +56,7 @@ create_item_model = api.model(
         "name": fields.String(required=True, description="The name of the item"),
         "description": fields.String(required=True, description="The description of the item"),
         "price": fields.Float(required=True, description="The price of the item (must be positive)"),
-        "status": fields.String(required=True, enum=["PENDING", "PURCHASED", "OUT_OF_STOCK", "EXPIRED", "FAVORITE"], 
+        "status": fields.String(required=True, enum=["PENDING", "PURCHASED", "OUT_OF_STOCK", "EXPIRED", "FAVORITE"],
                                 description="The status of the item")
     }
 )
