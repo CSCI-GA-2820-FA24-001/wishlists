@@ -23,9 +23,54 @@ and Delete YourResourceModel
 
 from flask import jsonify, request, url_for, abort
 from flask import current_app as app  # Import Flask application
+from flask_restx import Resource, fields, reqparse, inputs
 from service.models import Item, Wishlist, ItemStatus
 from service.common import status  # HTTP Status Codes
+from . import api
 
+# Define the model so that the docs reflect what can be sent
+create_wishlist_model = api.model(
+    "Wishlist",
+    {
+        "name": fields.String(required=True, description="The name of the Wishlist"),
+        "userid": fields.String(required=True, description="The User ID of the Wishlist"),
+        "date_created": fields.Date(required=True, description="The day the wishlist was created"),
+        "items": fields.List(fields.Raw, description="List of items in the wishlist",default=[])
+    },
+)
+
+wishlist_model = api.inherit(
+    "WishlistModel",
+    create_wishlist_model,
+    {
+        "id": fields.Integer(
+            readOnly=True, description="The unique wishlist id assigned internally by service"
+        ),
+    },
+)
+
+create_item_model = api.model(
+    "Item",
+    {
+        "wishlist_id": fields.Integer(required=True, description="The ID of the wishlist this item belongs to"),
+        "name": fields.String(required=True, description="The name of the item"),
+        "description": fields.String(required=True, description="The description of the item"),
+        "price": fields.Float(required=True, description="The price of the item (must be positive)"),
+        "status": fields.String(required=True, enum=["PENDING", "PURCHASED", "OUT_OF_STOCK", "EXPIRED", "FAVORITE"],
+            description="The status of the item"
+        )
+    }
+)
+
+item_model = api.inherit(
+    "ItemModel",
+    create_item_model,
+    {
+        "id": fields.Integer(
+            readOnly=True, description="The unique item id assigned internally by service"
+        ),
+    }
+)
 
 ######################################################################
 # GET HEALTH CHECK

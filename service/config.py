@@ -17,4 +17,11 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 # Secret for session management
 SECRET_KEY = os.getenv("SECRET_KEY", "sup3r-s3cr3t")
+
+# See if an API Key has been set for security
+API_KEY = os.getenv("API_KEY")
+
+# Turn off helpful error messages that interfere with REST API messages
+ERROR_404_HELP = False
+
 LOGGING_LEVEL = logging.INFO
