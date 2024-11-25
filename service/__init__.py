@@ -24,7 +24,6 @@ from service import config
 from service.common import log_handlers
 
 
-
 ############################################################
 # Initialize the Flask instance
 ############################################################
