@@ -1,0 +1,19 @@
+[33m37feef5[m[33m ([m[1;36mHEAD -> [m[1;32mui-item-status[m[33m, [m[1;31morigin/ui-item-status[m[33m)[m HEAD@{0}: commit (merge): Merge branch 'ui-item-status' of https://github.com/CSCI-GA-2820-FA24-001/wishlists into ui-item-status
+[33m269ebeb[m HEAD@{1}: rebase (finish): returning to refs/heads/ui-item-status
+[33m269ebeb[m HEAD@{2}: rebase (continue): added purchase button but missing status in item model
+[33mcd46f4f[m HEAD@{3}: rebase (continue): working on list items
+[33m8e0eb32[m HEAD@{4}: rebase (continue): update some variable name like wishlist_item_parent
+[33m0d82025[m HEAD@{5}: rebase (continue): verified add item!!
+[33m063c0c6[m HEAD@{6}: rebase (continue): added item buttons and trying create wishlist and add item
+[33m5df0367[m HEAD@{7}: rebase (pick): update to load item in steps
+[33m5119c1a[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmaster[m[33m)[m HEAD@{8}: rebase (start): checkout origin/master
+[33m6f2a2b6[m HEAD@{9}: rebase (abort): returning to refs/heads/ui-item-status
+[33m45754b3[m HEAD@{10}: rebase (pick): update to load item in steps
+[33m5119c1a[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmaster[m[33m)[m HEAD@{11}: rebase (start): checkout origin/master
+[33m6f2a2b6[m HEAD@{12}: checkout: moving from master to ui-item-status
+[33m5119c1a[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmaster[m[33m)[m HEAD@{13}: pull --tags origin master: Fast-forward
+[33m8b75c48[m HEAD@{14}: checkout: moving from ui-item-status to master
+[33m6f2a2b6[m HEAD@{15}: commit: added purchase button but missing status in item model
+[33m51829e3[m HEAD@{16}: commit: working on list items
+[33mec1fbd0[m HEAD@{17}: checkout: moving from master to ui-item-status
+[33m8b75c48[m HEAD@{18}: pull --tags origin master: Fast-forward
