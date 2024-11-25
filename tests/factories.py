@@ -5,7 +5,7 @@ Test Factory to make fake objects for testing
 from datetime import date
 from factory import Factory, SubFactory, Sequence, Faker, post_generation
 from factory.fuzzy import FuzzyChoice, FuzzyDate
-from service.models import Wishlist, Item, ItemStatus
+from service.models import Wishlist, Item
 
 
 class WishlistFactory(Factory):
@@ -50,5 +50,4 @@ class ItemFactory(Factory):
     name = FuzzyChoice(choices=["phone", "computer", "watch"])
     description = "description"
     price = 100.00
-    status = ItemStatus.PENDING
     wishlist = SubFactory(WishlistFactory)

@@ -32,7 +32,6 @@ class TestItem(BaseTestCase):
         item.name = fake_item.name
         item.description = fake_item.description
         item.price = fake_item.price
-        item.status = fake_item.status
         self.assertIsNotNone(item)
 
     ######################################################################
@@ -48,7 +47,6 @@ class TestItem(BaseTestCase):
             "name": fake_item.name,
             "description": fake_item.description,
             "price": fake_item.price,
-            "status": fake_item.status,
         }
         item.deserialize(item_data)
         self.assertEqual(item.wishlist_id, fake_item.wishlist_id)
