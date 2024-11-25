@@ -54,7 +54,23 @@ Scenario: Delete a Wishlist
     # And I set the "Name" to "Birthday List"
     # And I press the "Search" button
     # Then I should see the message "Not Found"
-    
+
+Scenario: List all wishlistss
+    When I visit the "Home Page"
+    And I press the "List All Wishlists" button
+    Then I should see the message "Success"
+    And I should see "Birthday List" in the results
+    And I should see "Holiday List" in the results
+    And I should see "Christmas List" in the results
+    And I should see "Shopping List" in the results
+
+Scenario: Query wishlists
+    When I visit the "Home Page"
+    And I set the "Name" to "Birthday List"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "Birthday List" in the results
+
 Scenario: Create a Wishlist and Add Item
     When I visit the "Home Page"
     And I set the "Name" to "Gaming Wishlist"
@@ -89,3 +105,5 @@ Scenario: Create a Wishlist and Add Item
     Then I should see "Gaming Wishlist" in the "Name" field
     And I should see "gamer123" in the "UserID" field
     And I should see "2024-12-25" in the "Date" field
+
+
