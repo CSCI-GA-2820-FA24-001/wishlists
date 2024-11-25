@@ -65,7 +65,7 @@ def create_app():
         # pylint: disable=import-outside-toplevel
         from service.models import db
         db.init_app(app)
-        
+
         try:
             db.create_all()
         except Exception as error:  # pylint: disable=broad-except
