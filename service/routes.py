@@ -23,14 +23,25 @@ and Delete YourResourceModel
 
 from flask import jsonify, request, url_for, abort
 from flask import current_app as app  # Import Flask application
-from flask_restx import fields, reqparse, Resource
+from flask_restx import fields, reqparse, Resource, Api
 from service.models import Item, Wishlist, ItemStatus
 from service.common import status  # HTTP Status Codes
-from service import api
 
 ######################################################################
 # Configure Swagger before initializing it
 ######################################################################
+
+global api
+api = Api(
+    app,
+    version="1.0.0",
+    title="Wishlist Demo RESTful Service",
+    description="Wishlist API",
+    default="wishlists",
+    default_label="Wishlist Operations",
+    doc="/apidocs",  # default also could use doc='/apidocs/'
+    prefix="/api",
+)
 
 # Define the model so that the docs reflect what can be sent
 create_wishlist_model = api.model(
@@ -136,7 +147,7 @@ class WishlistResource(Resource):
     ######################################################################
     @api.doc("get_wishlist")
     @api.response(404, "wishlist not found")
-    @api.marshal_with(create_wishlist_model)
+    @api.marshal_with(wishlist_model)
     def get(self, wishlist_id):
         """
         Retrieve a single Wishlist
@@ -192,7 +203,7 @@ class WishlistResource(Resource):
     ######################################################################
     @api.doc("delete_wishlist")
     @api.response(204, "Wishlist deleted")
-    def delete_wishlists(self, wishlist_id):
+    def delete(self, wishlist_id):
         """Delete a wishlist based on id specified in the path"""
         app.logger.info("Request to delete wishlist with id: %s", wishlist_id)
         wishlist = Wishlist.find(wishlist_id)
@@ -250,7 +261,7 @@ class wishlistCollection(Resource):
     @api.doc("Create a wishlist")
     @api.response(400, "The posted data was not valid")
     @api.expect(wishlist_model, validate=True)
-    @api.marshal_list_with(create_wishlist_model, code=201)
+    @api.marshal_with(wishlist_model, code=201)
     def post(self):
         """
         Create a Wishlist
@@ -270,105 +281,7 @@ class wishlistCollection(Resource):
             WishlistResource, wishlist_id=wishlist.id, _external=True
         )
 
-        return jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
-
-
-######################################################################
-# PATH: /wishlist/<wishlist_id/items>
-######################################################################
-@api.route("/wishlists/<int:wishlist_id>/items")
-@api.param("wishlist_id", "The Wishlist Identifier")
-class ItemCollection(Resource):
-    @api.doc("list_items")
-    @api.marshal_list_with(item_model)
-    ######################################################################
-    # LIST ALL ITEMS IN AN EXISTING WISHLIST
-    ######################################################################
-    def get(self, wishlist_id):
-        """Returns all items"""
-        app.logger.info(
-            "Request to list all items from wishlist with id: %s", wishlist_id
-        )
-        # check_content_type("application/json")
-
-        wishlist = Wishlist.find(wishlist_id)
-        if not wishlist:
-            abort(
-                status.HTTP_404_NOT_FOUND,
-                description=f"Wishlist with id '{wishlist_id}' was not found.",
-            )
-        myitems = wishlist.items
-        results = [item.serialize() for item in myitems]
-        return jsonify(results), status.HTTP_200_OK
-
-    ######################################################################
-    # ADD A NEW ITEM TO A SPECIFIC WISHLIST
-    ######################################################################
-    @api.doc("Add_item")
-    @api.response(400, "The posted data was not valid")
-    @api.response(404, "The wishlist was not found")
-    @api.response(409, "The item has a conflict")
-    @api.expect(create_item_model)
-    @api.marshal_with(item_model, code=201)
-    def post(self, wishlist_id):
-        """
-        Add a new item to a specific Wishlist
-
-        This endpoint will add a new item to the wishlist specified by wishlist_id
-        based on the data provided in the request body.
-        """
-        app.logger.info(f"Request to add a new item to wishlist with id: {wishlist_id}")
-
-        # Ensure the request content type is application/json
-        check_content_type("application/json")
-
-        # Find the wishlist by ID
-        wishlist = Wishlist.find(wishlist_id)
-        if not wishlist:
-            app.logger.error(f"Wishlist with id '{wishlist_id}' not found.")
-            abort(
-                status.HTTP_404_NOT_FOUND,
-                description=f"Wishlist with id '{wishlist_id}' not found.",
-            )
-
-        # Create a new Item instance and deserialize the data
-        new_item = Item()
-        item_data = request.get_json()
-        item_data["wishlist_id"] = wishlist_id
-        new_item.deserialize(item_data)
-
-        # Check if an item with the same name already exists in the wishlist
-        existing_item = Item.query.filter_by(
-            wishlist_id=wishlist_id, name=new_item.name
-        ).first()
-        if existing_item:
-            app.logger.error(
-                f"Item with name '{new_item.name}' already exists in wishlist '{wishlist_id}'."
-            )
-            abort(
-                status.HTTP_409_CONFLICT,
-                description=f"Item with name '{new_item.name}' already exists in wishlist '{wishlist_id}'.",
-            )
-
-        # Add the new item to the database
-        new_item.create()
-        # Serialize the new item for the response
-        serialized_item = new_item.serialize()
-
-        # Generate the Location URL for the newly created item
-        location_url = url_for(
-            item_model,  # Ensure that this endpoint is defined
-            wishlist_id=wishlist_id,
-            item_id=new_item.id,
-            _external=True,
-        )
-
-        # Return the response with 201 Created and Location header
-        return (
-            jsonify(serialized_item),
-            status.HTTP_201_CREATED,
-            {"Location": location_url},
-        )
+        return message, status.HTTP_201_CREATED, {"Location": location_url}
 
 
 ######################################################################
@@ -499,6 +412,104 @@ class ItemResource(Resource):
             f"Item with id '{item_id}' not found in wishlist '{wishlist_id}', returning 204."
         )
         return "", status.HTTP_204_NO_CONTENT
+
+
+######################################################################
+# PATH: /wishlist/<wishlist_id/items>
+######################################################################
+@api.route("/wishlists/<int:wishlist_id>/items")
+@api.param("wishlist_id", "The Wishlist Identifier")
+class ItemCollection(Resource):
+    @api.doc("list_items")
+    @api.marshal_list_with(item_model)
+    ######################################################################
+    # LIST ALL ITEMS IN AN EXISTING WISHLIST
+    ######################################################################
+    def get(self, wishlist_id):
+        """Returns all items"""
+        app.logger.info(
+            "Request to list all items from wishlist with id: %s", wishlist_id
+        )
+        # check_content_type("application/json")
+
+        wishlist = Wishlist.find(wishlist_id)
+        if not wishlist:
+            abort(
+                status.HTTP_404_NOT_FOUND,
+                description=f"Wishlist with id '{wishlist_id}' was not found.",
+            )
+        myitems = wishlist.items
+        results = [item.serialize() for item in myitems]
+        return results, status.HTTP_200_OK
+
+    ######################################################################
+    # ADD A NEW ITEM TO A SPECIFIC WISHLIST
+    ######################################################################
+    @api.doc("Add_item")
+    @api.response(400, "The posted data was not valid")
+    @api.response(404, "The wishlist was not found")
+    @api.response(409, "The item has a conflict")
+    @api.expect(create_item_model)
+    @api.marshal_with(item_model, code=201)
+    def post(self, wishlist_id):
+        """
+        Add a new item to a specific Wishlist
+
+        This endpoint will add a new item to the wishlist specified by wishlist_id
+        based on the data provided in the request body.
+        """
+        app.logger.info(f"Request to add a new item to wishlist with id: {wishlist_id}")
+
+        # Ensure the request content type is application/json
+        check_content_type("application/json")
+
+        # Find the wishlist by ID
+        wishlist = Wishlist.find(wishlist_id)
+        if not wishlist:
+            app.logger.error(f"Wishlist with id '{wishlist_id}' not found.")
+            abort(
+                status.HTTP_404_NOT_FOUND,
+                description=f"Wishlist with id '{wishlist_id}' not found.",
+            )
+
+        # Create a new Item instance and deserialize the data
+        new_item = Item()
+        item_data = request.get_json()
+        item_data["wishlist_id"] = wishlist_id
+        new_item.deserialize(item_data)
+
+        # Check if an item with the same name already exists in the wishlist
+        existing_item = Item.query.filter_by(
+            wishlist_id=wishlist_id, name=new_item.name
+        ).first()
+        if existing_item:
+            app.logger.error(
+                f"Item with name '{new_item.name}' already exists in wishlist '{wishlist_id}'."
+            )
+            abort(
+                status.HTTP_409_CONFLICT,
+                description=f"Item with name '{new_item.name}' already exists in wishlist '{wishlist_id}'.",
+            )
+
+        # Add the new item to the database
+        new_item.create()
+        # Serialize the new item for the response
+        serialized_item = new_item.serialize()
+
+        # Generate the Location URL for the newly created item
+        location_url = url_for(
+            "item_resource",  # Ensure that this endpoint is defined
+            wishlist_id=wishlist_id,
+            item_id=new_item.id,
+            _external=True,
+        )
+
+        # Return the response with 201 Created and Location header
+        return (
+            jsonify(serialized_item),
+            status.HTTP_201_CREATED,
+            {"Location": location_url},
+        )
 
 
 ######################################################################
