@@ -22,6 +22,9 @@ import sys
 from flask import Flask
 from service import config
 from service.common import log_handlers
+from flask_restx import Api
+
+api = None  # pylint: disable=invalid-name
 
 
 ############################################################
@@ -36,9 +39,22 @@ def create_app():
     # Turn off strict slashes because it violates best practices
     app.url_map.strict_slashes = False
 
+    global api
+    api = Api(
+        app,
+        version="1.0.0",
+        title="Wishlist Demo RESTful Service",
+        description="Wishlist API",
+        default="wishlists",
+        default_label="Wishlist Operations",
+        doc="/apidocs",  # default also could use doc='/apidocs/'
+        prefix="/api",
+    )
+
     # Initialize Plugins
     # pylint: disable=import-outside-toplevel
     from service.models import db
+
     db.init_app(app)
 
     with app.app_context():
