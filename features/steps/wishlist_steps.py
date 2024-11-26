@@ -45,3 +45,35 @@ def step_impl(context):
         wishlist = context.resp.json()
         context.wishlist_id = wishlist["id"]
         logging.info("Created wishlist with ID: %s", context.wishlist_id)
+
+
+@given('the following items in "{wishlist_name}"')
+def step_impl(context, wishlist_name):
+    """Load new items into a specific wishlist"""
+    # First get the wishlist ID
+    rest_endpoint = f"{context.base_url}/wishlists"
+    context.resp = requests.get(
+        f"{rest_endpoint}?name={wishlist_name}", timeout=WAIT_TIMEOUT
+    )
+    expect(context.resp.status_code).equal_to(HTTP_200_OK)
+
+    wishlists = context.resp.json()
+    if not wishlists:
+        raise ValueError(f"Wishlist '{wishlist_name}' not found")
+
+    wishlist_id = wishlists[0]["id"]
+
+    # Add each item to the wishlist
+    items_endpoint = f"{rest_endpoint}/{wishlist_id}/items"
+    for row in context.table:
+        payload = {
+            "name": row["name"],
+            "wishlist_id": wishlist_id,
+            "description": row["description"],
+            "price": float(row["price"]),
+            "status": row["status"],
+        }
+
+        context.resp = requests.post(items_endpoint, json=payload, timeout=WAIT_TIMEOUT)
+        expect(context.resp.status_code).equal_to(HTTP_201_CREATED)
+        logging.info("Added item %s to wishlist %s", payload["name"], wishlist_name)

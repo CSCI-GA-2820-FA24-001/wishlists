@@ -22,11 +22,11 @@ class ItemStatus(Enum):
     Class that represents the status of a wishlist item
     """
 
-    PENDING = "PENDING"
-    PURCHASED = "PURCHASED"
-    OUT_OF_STOCK = "OUT_OF_STOCK"
-    EXPIRED = "EXPIRED"
-    FAVORITE = "FAVORITE"
+    PENDING = "pending"
+    PURCHASED = "purchased"
+    OUT_OF_STOCK = "out_of_stock"
+    EXPIRED = "expired"
+    FAVORITE = "favorite"
 
 
 class DataValidationError(Exception):

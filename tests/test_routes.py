@@ -691,7 +691,9 @@ class TestWishlistService(TestCase):
             f"{BASE_URL}/{wishlist.id}/items/{items[0].id}",
             content_type="application/json",
         )
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        # in case purchase action also deletes the item, uncomment below
+        # self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_purchase_item_nonexistent_wishlist(self):
         """It should return 404 when purchasing an item from a non-existent wishlist"""

@@ -87,10 +87,18 @@
           <div class="form-horizontal">
             <div class="form-group">
               <label class="control-label col-sm-2" for="wishlist_item_id">Item ID:</label>
-
+              
               <!-- Item ID -->
               <div class="col-sm-6">
                 <input type="text" class="form-control" id="wishlist_item_id" placeholder="Enter Item ID">
+              </div>
+            </div>
+              
+            <!-- Item Wishlist ID -->
+            <div class="form-group">
+              <label class="control-label col-sm-2" for="item_wishlist">Wishlist ID:</label>
+              <div class="col-sm-6">
+                <input type="text" class="form-control" id="wishlist_item_parent" placeholder="Enter Item's Wishlist ID">
               </div>
               
               <!-- Item Retrieve or Delete Button -->
@@ -99,6 +107,7 @@
                 <button type="submit" class="btn btn-danger" id="delete_item-btn">Delete</button>
               </div>
             </div>
+
               
             <!-- Item Name -->
             <div class="form-group">
@@ -108,13 +117,7 @@
               </div>
             </div>
 
-            <!-- Item Wishlist ID -->
-            <div class="form-group">
-              <label class="control-label col-sm-2" for="item_wishlist">Wishlist ID:</label>
-              <div class="col-sm-10">
-                <input type="text" class="form-control" id="wishlist_item_wishlist" placeholder="Enter Item's Wishlist ID">
-              </div>
-            </div>
+
 
             <!-- Item Description -->
             <div class="form-group">
@@ -151,6 +154,7 @@
               <div class="col-sm-offset-2 col-sm-10">
                 <button type="submit" class="btn btn-primary" id="add_item-btn">Add</button>
                 <button type="submit" class="btn btn-success" id="update_item-btn">Update</button>
+                <button type="submit" class="btn btn-success" id="purchase_item-btn">Purchase</button>
                 <button type="submit" class="btn btn-warning" id="clear_item-btn">Clear</button>
               </div>
             </div>
@@ -158,7 +162,7 @@
         </div> <!-- end well -->
       </div> <!-- end Form -->
 
-      <!-- Search Results -->
+      <!-- Wishlist Search Results -->
       <div class="table-responsive col-md-12" id="search_results">
         <h4>Wishlists Table</h4>
         <table class="table table-striped">
@@ -177,7 +181,7 @@
       </div>
 
       <!-- Items List -->
-      <div class="table-responsive col-md-12" id="list_items">
+      <div class="table-responsive col-md-12" id="list_results">
         <h4>Wishlist Items Table</h4>
         <table class="table table-striped">
           <thead>
@@ -191,8 +195,6 @@
             <th class="col-md-2">Actions</th>
           </tr>
           </thead>
-          <tbody>
-          </tbody>
         </table>
       </div>
 

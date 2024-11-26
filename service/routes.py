@@ -437,7 +437,8 @@ def purchase_item_from_wishlist(item):
     item.update()
 
     # After purchasing, delete the item from the wishlist.
-    item.delete()
+    # Comment out to keep item visible on ui
+    # item.delete()
 
 
 @app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>/purchase", methods=["PUT"])
