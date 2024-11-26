@@ -31,7 +31,7 @@ from service.common import status  # HTTP Status Codes
 # Configure Swagger before initializing it
 ######################################################################
 
-global api
+api = None
 api = Api(
     app,
     version="1.0.0",
@@ -142,6 +142,8 @@ def index():
 @api.route("/wishlists/<int:wishlist_id>")
 @api.param("wishlist_id", "The wishlist identifier")
 class WishlistResource(Resource):
+    """This class handles the processing of wishlist data."""
+
     ######################################################################
     # RETRIEVE A WISHLIST
     ######################################################################
@@ -219,7 +221,7 @@ class WishlistResource(Resource):
 # PATH: /wishlist
 ######################################################################
 @api.route("/wishlists", strict_slashes=False)
-class wishlistCollection(Resource):
+class WishlistCollection(Resource):
     """Handles all interactions with wishlists"""
 
     @api.doc("List wishlists")
@@ -291,6 +293,8 @@ class wishlistCollection(Resource):
 @api.param("wishlist_id", "The wishlist identifier")
 @api.param("item_id", "The item identifier")
 class ItemResource(Resource):
+    """This class handles the processing of item data."""
+
     ######################################################################
     # UPDATE AN EXISTING ITEM IN A WISHLIST
     ######################################################################
@@ -420,6 +424,8 @@ class ItemResource(Resource):
 @api.route("/wishlists/<int:wishlist_id>/items")
 @api.param("wishlist_id", "The Wishlist Identifier")
 class ItemCollection(Resource):
+    """This class handles the processing of single item data."""
+
     @api.doc("list_items")
     @api.marshal_list_with(item_model)
     ######################################################################
@@ -519,6 +525,8 @@ class ItemCollection(Resource):
 @api.param("wishlist_id", "The wishlist identifier")
 @api.param("item_id", "The item identifier")
 class PurchaseResource(Resource):
+    """This class handles the processing of purchase data."""
+
     @api.doc("update_item")
     @api.response(404, "Resource was not found")
     def put(self, wishlist_id, item_id):
