@@ -35,7 +35,7 @@ from .factories import WishlistFactory, ItemFactory
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql+psycopg://postgres:postgres@localhost:5432/testdb"
 )
-BASE_URL = "/wishlists"
+BASE_URL = "/api/wishlists"
 
 
 ######################################################################
@@ -165,8 +165,9 @@ class TestWishlistService(TestCase):
 
         # Check the data is correct
         new_wishlist = response.get_json()
+
         self.assertEqual(
-            new_wishlist["name"], test_wishlist.name, "Name does not match"
+            new_wishlist["name"], test_wishlist.name, "Name does not match11"
         )
         self.assertEqual(
             new_wishlist["userid"], test_wishlist.userid, "User ID does not match"
@@ -182,7 +183,7 @@ class TestWishlistService(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         new_wishlist = response.get_json()
         self.assertEqual(
-            new_wishlist["name"], test_wishlist.name, "Name does not match"
+            new_wishlist["name"], test_wishlist.name, "Name does not match22"
         )
         self.assertEqual(
             new_wishlist["userid"], test_wishlist.userid, "User ID does not match"
@@ -285,8 +286,8 @@ class TestWishlistService(TestCase):
     def test_delete_wishlist(self):
         """Test to delete a wishlist"""
         wishlist = self._create_wishlists(1)[0]
-        self.assertEqual(2, 1+1)
-        self.assertEqual(3, 1+2)
+        self.assertEqual(2, 1 + 1)
+        self.assertEqual(3, 1 + 2)
         resp = self.client.delete(f"{BASE_URL}/{wishlist.id}")
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
         resp = self.client.get(f"{BASE_URL}/{wishlist.id}")
@@ -371,7 +372,7 @@ class TestWishlistService(TestCase):
 
         # send POST request to a non-existent wishlist id
         response = self.client.post(
-            "/wishlists/999/items",
+            "/api/wishlists/999/items",
             json=valid_item_data,
             content_type="application/json",
         )
@@ -444,7 +445,7 @@ class TestWishlistService(TestCase):
     def test_get_item_nonexistent_wishlist(self):
         """It should return 404 when retrieving an item from a non-existent wishlist"""
         response = self.client.get(
-            "/wishlists/999/items/1", content_type="application/json"
+            "/api/wishlists/999/items/1", content_type="application/json"
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         data = response.get_json()
@@ -638,7 +639,7 @@ class TestWishlistService(TestCase):
     def test_delete_item_nonexistent_wishlist(self):
         """It should return 404 when deleting an item from a non-existent wishlist"""
         response = self.client.delete(
-            "/wishlists/999/items/1", content_type="application/json"
+            "/api/wishlists/999/items/1", content_type="application/json"
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         data = response.get_json()
