@@ -31,7 +31,7 @@ from service.common import status  # HTTP Status Codes
 # Configure Swagger before initializing it
 ######################################################################
 
-api = None
+api = None  # pylint: disable=invalid-name
 api = Api(
     app,
     version="1.0.0",
