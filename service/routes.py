@@ -166,7 +166,7 @@ class WishlistResource(Resource):
                 description=f"Wishlist with id '{wishlist_id}' could not be found.",
             )
 
-        return jsonify(wishlist.serialize()), status.HTTP_200_OK
+        return wishlist.serialize(), status.HTTP_200_OK
 
     ######################################################################
     # UPDATE AN EXISTING WISHLIST
@@ -193,12 +193,13 @@ class WishlistResource(Resource):
             )
 
         # Update from the json in the body of the request
-        wishlist.deserialize(request.get_json())
+        data = api.payload
+        wishlist.deserialize(data)
         wishlist.id = wishlist_id
         wishlist.update()
         app.logger.info("Wishlist with ID: %d updated.", wishlist.id)
 
-        return jsonify(wishlist.serialize()), status.HTTP_200_OK
+        return wishlist.serialize(), status.HTTP_200_OK
 
     ######################################################################
     # DELETE A WISHLIST
@@ -226,7 +227,7 @@ class WishlistCollection(Resource):
 
     @api.doc("List wishlists")
     @api.expect(wishlist_args, validate=True)
-    @api.marshal_with(wishlist_model)
+    @api.marshal_list_with(wishlist_model)
     def get(self):
         """Returns all wishlists, if GET request contains name, return wishlist by name, same for userid"""
         wishlists = []
@@ -262,7 +263,7 @@ class WishlistCollection(Resource):
 
     @api.doc("Create a wishlist")
     @api.response(400, "The posted data was not valid")
-    @api.expect(wishlist_model, validate=True)
+    @api.expect(create_wishlist_model, validate=True)
     @api.marshal_with(wishlist_model, code=201)
     def post(self):
         """
@@ -274,7 +275,7 @@ class WishlistCollection(Resource):
 
         # Create the wishlist
         wishlist = Wishlist()
-        wishlist.deserialize(request.get_json())
+        wishlist.deserialize(api.payload)
         wishlist.create()
 
         # Create a message to return
@@ -289,7 +290,7 @@ class WishlistCollection(Resource):
 ######################################################################
 # PATH: /wishlist/<wishlist_id>/items/<item_id>
 ######################################################################
-@api.route("/wishlists/<int:wishlist_id>/items/<int:item_id>")
+@api.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", endpoint="itemresource")
 @api.param("wishlist_id", "The wishlist identifier")
 @api.param("item_id", "The item identifier")
 class ItemResource(Resource):
@@ -300,6 +301,8 @@ class ItemResource(Resource):
     ######################################################################
     @api.doc("update_item")
     @api.response(404, "Resource was not found")
+    @api.expect(item_model)
+    @api.marshal_with(item_model)
     def put(self, wishlist_id, item_id):
         """
         Update the details of an existing Item in a specific Wishlist
@@ -312,7 +315,7 @@ class ItemResource(Resource):
         )
 
         # Ensure the request content type is application/json
-        check_content_type("application/json")
+        # check_content_type("application/json")
 
         # Parse the JSON request body
         item_data = request.get_json()
@@ -335,17 +338,19 @@ class ItemResource(Resource):
 
         # Commit the changes to the database
         save_updated_item(item)
-
+        item.update()
+        # print(item.id)
         # Serialize the updated item and return the response
-        return generate_update_response(wishlist_id, item)
+        return item.serialize(), status.HTTP_200_OK
+        # return generate_update_response(wishlist_id, item)
 
     ######################################################################
     # RETRIEVE A SPECIFIC ITEM FROM A WISHLIST
     ######################################################################
 
     @api.doc("get_item")
-    @api.marshal_with(item_model)
     @api.response(404, "Resource not found")
+    @api.marshal_with(item_model)
     def get(self, wishlist_id, item_id):
         """
         Retrieve a specific Item from a Wishlist
@@ -376,7 +381,7 @@ class ItemResource(Resource):
                 description=f"Item with id '{item_id}' not found in wishlist '{wishlist_id}'.",
             )
 
-        return jsonify(item.serialize()), status.HTTP_200_OK
+        return item.serialize(), status.HTTP_200_OK
 
     ######################################################################
     # DELETE A SPECIFIC ITEM FROM A WISHLIST
@@ -504,7 +509,7 @@ class ItemCollection(Resource):
 
         # Generate the Location URL for the newly created item
         location_url = url_for(
-            "item_resource",  # Ensure that this endpoint is defined
+            "itemresource",  # Ensure that this endpoint is defined
             wishlist_id=wishlist_id,
             item_id=new_item.id,
             _external=True,
@@ -512,7 +517,7 @@ class ItemCollection(Resource):
 
         # Return the response with 201 Created and Location header
         return (
-            jsonify(serialized_item),
+            serialized_item,
             status.HTTP_201_CREATED,
             {"Location": location_url},
         )
@@ -528,6 +533,8 @@ class PurchaseResource(Resource):
     """This class handles the processing of purchase data."""
 
     @api.doc("update_item")
+    @api.expect(item_model)
+    @api.marshal_with(item_model)
     @api.response(404, "Resource was not found")
     def put(self, wishlist_id, item_id):
         """Purchase an item from a wishlist."""
@@ -549,7 +556,7 @@ class PurchaseResource(Resource):
         purchase_item_from_wishlist(item)
 
         # Return the updated order
-        return jsonify(item.serialize()), status.HTTP_200_OK
+        return item.serialize(), status.HTTP_200_OK
 
 
 def find_item_in_wishlist(wishlist_id, item_id):
@@ -597,12 +604,12 @@ def generate_update_response(wishlist_id, item):
     """Generate the response for a successful item update"""
     serialized_item = item.serialize()
     location_url = url_for(
-        "get_item",  # Ensure that this endpoint is defined
+        ItemResource,  # Ensure that this endpoint is defined
         wishlist_id=wishlist_id,
         item_id=item.id,
         _external=True,
     )
-    return jsonify(serialized_item), status.HTTP_200_OK, {"Location": location_url}
+    return serialized_item, status.HTTP_200_OK, {"Location": location_url}
 
 
 ######################################################################

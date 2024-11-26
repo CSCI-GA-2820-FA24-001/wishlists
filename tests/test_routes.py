@@ -165,8 +165,9 @@ class TestWishlistService(TestCase):
 
         # Check the data is correct
         new_wishlist = response.get_json()
+
         self.assertEqual(
-            new_wishlist["name"], test_wishlist.name, "Name does not match"
+            new_wishlist["name"], test_wishlist.name, "Name does not match11"
         )
         self.assertEqual(
             new_wishlist["userid"], test_wishlist.userid, "User ID does not match"
@@ -182,7 +183,7 @@ class TestWishlistService(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         new_wishlist = response.get_json()
         self.assertEqual(
-            new_wishlist["name"], test_wishlist.name, "Name does not match"
+            new_wishlist["name"], test_wishlist.name, "Name does not match22"
         )
         self.assertEqual(
             new_wishlist["userid"], test_wishlist.userid, "User ID does not match"
