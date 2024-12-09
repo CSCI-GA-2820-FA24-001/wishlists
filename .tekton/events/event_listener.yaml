@@ -5,8 +5,4 @@ metadata:
 spec:
   serviceAccountName: pipeline
   triggers:
-    - name: github-trigger
-      bindings:
-        - ref: cd-binding
-      template:
-        ref: cd-template
+    - triggerRef: cd-trigger
