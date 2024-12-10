@@ -125,9 +125,9 @@ Create a K3S cluster in your development environment with:
 make cluster
 ```
 
-Deploy application with
+Deploy postgresql first with
 ```
-kubectl apply -f k8s -R
+kubectl apply -f k8s/postgres
 ```
 
 Build, tag, and push docker image to local registry:
@@ -135,6 +135,10 @@ Build, tag, and push docker image to local registry:
 docker build -t nyu-project:latest .
 docker tag nyu-project:latest cluster-registry:5000/nyu-project:latest
 docker push cluster-registry:5000/nyu-project:latest
+```
+Deploy application with
+```
+kubectl apply -f k8s
 ```
 
 Check running pod
