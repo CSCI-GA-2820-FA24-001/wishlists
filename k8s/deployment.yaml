@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: nyu-project
-          image: cluster-registry:5000/nyu-project:latest
+          image: cluster-registry:5000/nyu-project:1.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
