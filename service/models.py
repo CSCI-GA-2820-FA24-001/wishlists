@@ -242,7 +242,7 @@ class Item(db.Model, PersistentBase):
             "wishlist_id": self.wishlist_id,
             "name": self.name,
             "description": self.description,
-            "price": self.price,
+            "price": float(self.price),
             "status": self.status.value,
         }
 

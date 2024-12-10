@@ -19,7 +19,7 @@ WAIT_TIMEOUT = 60
 def step_impl(context):
     """Delete all Wishlists and load new ones"""
     # List all wishlists
-    rest_endpoint = f"{context.base_url}/wishlists"
+    rest_endpoint = f"{context.base_url}/api/wishlists"
     context.resp = requests.get(rest_endpoint, timeout=WAIT_TIMEOUT)
     expect(context.resp.status_code).equal_to(HTTP_200_OK)
 
@@ -51,7 +51,7 @@ def step_impl(context):
 def step_impl(context, wishlist_name):
     """Load new items into a specific wishlist"""
     # First get the wishlist ID
-    rest_endpoint = f"{context.base_url}/wishlists"
+    rest_endpoint = f"{context.base_url}/api/wishlists"
     context.resp = requests.get(
         f"{rest_endpoint}?name={wishlist_name}", timeout=WAIT_TIMEOUT
     )
