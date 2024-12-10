@@ -124,17 +124,28 @@ Create a K3S cluster in your development environment with:
 ```
 make cluster
 ```
-..........
 
 Deploy application with
 ```
-kubectl apply -f k8s
-kubectl apply -f k8s/postgres/
+kubectl apply -f k8s -R
 ```
-wishlist service can then be accessed from http://localhost:8080
 
-## Deploy to OpenShift
-Connect with openshift and project
+Build, tag, and push docker image to local registry:
+```
+docker build -t nyu-project:latest .
+docker tag nyu-project:latest cluster-registry:5000/nyu-project:latest
+docker push cluster-registry:5000/nyu-project:latest
+```
+
+Check running pod
+```
+kubectl get pods
+```
+
+When all pods are running, the wishlist service can then be accessed from http://localhost:8080
+
+## Deploy to Red Hat OpenShift Kubernetes cluster
+Connect with OpenShift and its project namespace
 ```
 oc login <login token>
 oc project <username>-dev
@@ -144,6 +155,13 @@ deploy database and add event listener
 oc apply -f k8s/postgres/
 oc apply -f .tekton/events/
 ```
+A sample CD Pipeline with 6 tasks was created in OpenShift:
+- clone, lint, test, build an image, deploy it to
+Kubernetes, and run BDD tests on the deployment.
+
+A route to microservice was created for access from outside the cluster.
+The pipeline and the web hook were set up to trigger the pipeline every time a PR is merged. 
+
 
 ## Contents
 
