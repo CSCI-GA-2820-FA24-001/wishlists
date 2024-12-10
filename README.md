@@ -36,10 +36,38 @@ Ensure you have the following softwares isntalled before starting:
     Alternatively, you can open the Command Palette (Ctrl + Shift + P or Cmd + Shift + P) and search for Remote-Containers: Reopen in Container.
 
 After the container is up and running, you can start working on the code within the container. All required tools and dependencies should already be set up for you.
-## Information About this Repo
+
+## API Routes
+
 These are the RESTful routes for wishlists and items
 
-```
+### Base Endpoint
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET    | /        | Returns service information in JSON format |
+
+### Wishlists
+
+| Method | Endpoint          | Description |
+|--------|-------------------|-------------|
+| GET    | /wishlists        | Retrieve all wishlists |
+| POST   | /wishlists        | Create a new wishlist |
+| GET    | /wishlists/{id}   | Retrieve a specific wishlist by ID |
+| PUT    | /wishlists/{id}   | Update a specific wishlist by ID |
+| DELETE | /wishlists/{id}   | Delete a specific wishlist by ID |
+
+### Wishlist Items
+
+| Method | Endpoint                      | Description |
+|--------|-------------------------------|-------------|
+| GET    | /wishlists/{id}/items        | Retrieve all items in a specific wishlist |
+| POST   | /wishlists/{id}/items        | Add a new item to a specific wishlist |
+| GET    | /wishlists/{id}/items/{id}   | Retrieve a specific item from a wishlist |
+| PUT    | /wishlists/{id}/items/{id}   | Update a specific item in a wishlist |
+| DELETE | /wishlists/{id}/items/{id}   | Remove a specific item from a wishlist |
+
+<!-- ```
 Methods Rule                        Endpoints
 ------  --------------------------  -----------------------------------------------------
 GET      /                           <- Return some json about service
@@ -55,23 +83,84 @@ POST     /wishlists/{id}/items       <- Create a new item in a wishlist
 GET      /wishlists/{id}/items/{id}  <- Read an item from a wishlist
 PUT      /wishlists/{id}/items/{id}  <- Update an item in a wishlist
 DELETE   /wishlists/{id}/items/{id}  <- Delete an item from a wishlist
-```
+``` -->
+### Purchase Action for Wishlist item:
 
-## Running the Service and Tests
-To run the service at local host, run the code below. And go to http://localhost:8080/ to see service locally. Alternatively, you can also use VSCode ```Thunder Client``` extension to test services.
+| Method | Endpoint                      | Description |
+|--------|-------------------------------|-------------|
+| PUT | /wishlists/{id}/items/{id}/purchase | Mark a wishlist item as purchased |
 
-```
-flask run
-```
+### Query Wishlist:
+The `/wishlists` endpoint supports the following query parameters:
 
+| Parameter | Description | Format | Example |
+|-----------|-------------|---------|---------|
+| name | Filter wishlists by name | String | `/wishlists?name=SampleWishlist` |
+| userid | Filter wishlists by user ID | String | `/wishlists?userid=12345` |
+| date_created | Filter wishlists by creation date | YYYY-MM-DD | `/wishlists?date_created=2024-12-10` |
 
-
-Run the unit tests using pytest with following code:
-
+## Test Driven Development - TDD
+Run the unit tests using pytest and check linting with following code:
 ```
 make test
+make lint
 ```
 
+## Behavior Driven Development - BDD 
+Use code shown below to run the service. Navigate to http://localhost:8080/ to see service ui page. Alternatively, you can also use VSCode ```Thunder Client``` extension to test services.
+```
+flask run
+# or
+honcho start
+```
+
+And run behave test with:
+```
+behave
+```
+
+## Deploy to Kubernetes 
+Create a K3S cluster in your development environment with:
+```
+make cluster
+```
+
+Deploy application with
+```
+kubectl apply -f k8s -R
+```
+
+Build, tag, and push docker image to local registry:
+```
+docker build -t nyu-project:latest .
+docker tag nyu-project:latest cluster-registry:5000/nyu-project:latest
+docker push cluster-registry:5000/nyu-project:latest
+```
+
+Check running pod
+```
+kubectl get pods
+```
+
+When all pods are running, the wishlist service can then be accessed from http://localhost:8080
+
+## Deploy to Red Hat OpenShift Kubernetes cluster
+Connect with OpenShift and its project namespace
+```
+oc login <login token>
+oc project <username>-dev
+```
+deploy database and add event listener
+```
+oc apply -f k8s/postgres/
+oc apply -f .tekton/events/
+```
+A sample CD Pipeline with 6 tasks was created in OpenShift:
+- clone, lint, test, build an image, deploy it to
+Kubernetes, and run BDD tests on the deployment.
+
+A route to microservice was created for access from outside the cluster.
+The pipeline and the web hook were set up to trigger the pipeline every time a PR is merged. 
 
 
 ## Contents
@@ -80,9 +169,9 @@ The project contains the following:
 
 ```text
 .gitignore          - this will ignore vagrant and other metadata files
-.flaskenv           - Environment variables to configure Flask
-.gitattributes      - File to gix Windows CRLF issues
-.devcontainers/     - Folder with support for VSCode Remote Containers
+.flaskenv           - environment variables to configure Flask
+.gitattributes      - file to gix Windows CRLF issues
+.devcontainers/     - folder with support for VSCode Remote Containers
 dot-env-example     - copy to .env to use environment variables
 pyproject.toml      - Poetry list of Python libraries required by your code
 
@@ -97,12 +186,45 @@ service/                   - service python package
     ├── log_handlers.py    - logging setup code
     └── status.py          - HTTP status constants
 
+service/static/             
+│   └── static/
+│       ├── css/           - bootstrap theme variations
+        ├── ...
+│       ├── index.html     - main application HTML template
+│       └── js/            - javaScript resources
+          └── rest_api.js  - custom REST API interaction code
+
 tests/                     - test cases package
 ├── __init__.py            - package initializer
 ├── factories.py           - Factory for testing with fake objects
 ├── test_cli_commands.py   - test suite for the CLI
 ├── test_models.py         - test suite for business models
 └── test_routes.py         - test suite for service routes
+├── test_base.py           - base test classes and common fixtures
+├── test_item.py           - item-specific test cases
+└── test_wishlist.py       - wishlist feature tests
+
+features/                  - BDD test directory
+├── environment.py         - behave test environment setup
+├── steps/                 - step definition files
+│   ├── web_steps.py       - web interface test steps
+│   └── wishlist_steps.py  - wishlist feature test steps
+└── wishlist.feature       - wishlist feature specifications in Gherkin
+
+k8s/                       - kubernetes configuration directory
+├── deployment.yaml        - main application deployment configuration
+├── ingress.yaml           - ingress controller configuration
+├── postgres/              - postgreSQL database configurations
+│   ├── configmap.yaml     - database configuration settings
+│   ├── pvc.yaml           - persistent Volume Claim for database
+│   ├── secret.yaml        - database credentials and secrets
+│   ├── service.yaml       - database service configuration
+│   └── statefulset.yaml   - postgreSQL StatefulSet configuration
+├── pv.yaml                - persistent Volume configuration
+├── redis.yaml             - Redis cache configuration
+├── secret.yaml            - application secrets configuration
+└── service.yaml           - application service configuration
+
 ```
 
 ## License
